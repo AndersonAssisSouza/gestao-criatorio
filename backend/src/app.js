@@ -1,0 +1,34 @@
+require('dotenv').config()
+const express    = require('express')
+const cors       = require('cors')
+const authRoutes    = require('./routes/auth.routes')
+const plantelRoutes = require('./routes/plantel.routes')
+
+const app  = express()
+const PORT = process.env.PORT || 3001
+
+// ─── Middlewares globais ──────────────────────────────────────────────────────
+app.use(cors({
+  origin:      process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true,
+}))
+app.use(express.json())
+
+// ─── Health check ─────────────────────────────────────────────────────────────
+app.get('/health', (_, res) => res.json({ status: 'ok', version: '0.1.0', timestamp: new Date().toISOString() }))
+
+// ─── Rotas ────────────────────────────────────────────────────────────────────
+app.use('/api/auth',    authRoutes)
+app.use('/api/plantel', plantelRoutes)
+
+// ─── 404 ──────────────────────────────────────────────────────────────────────
+app.use((_, res) => res.status(404).json({ message: 'Rota não encontrada.' }))
+
+// ─── Error handler ────────────────────────────────────────────────────────────
+app.use((err, _, res, __) => {
+  console.error('[ERROR]', err.message)
+  res.status(500).json({ message: 'Erro interno do servidor.' })
+})
+
+app.listen(PORT, () => console.log(`🐦 Gestão Criatório API rodando na porta ${PORT}`))
+module.exports = app
