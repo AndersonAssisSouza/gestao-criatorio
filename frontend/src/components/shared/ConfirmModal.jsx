@@ -8,7 +8,7 @@ export function ConfirmModal({ title, message, onConfirm, onCancel, confirmLabel
     <div style={overlay} onClick={e => e.target === e.currentTarget && onCancel()}>
       <div style={{
         background: '#0F2212', borderRadius: 12, width: 380, padding: '28px 32px',
-        border: `1px solid ${danger ? 'rgba(224,92,75,0.25)' : 'rgba(212,160,23,0.2)'}`,
+        border: `1px solid ${danger ? 'rgba(224,92,75,0.25)' : 'rgba(201,80,37,0.2)'}`,
         boxShadow: '0 40px 100px rgba(0,0,0,0.8)',
       }}>
         <div style={{ fontSize: 17, fontWeight: 700, color: '#F2EDE4', marginBottom: 8, fontFamily: "'DM Serif Display', serif" }}>
@@ -24,7 +24,7 @@ export function ConfirmModal({ title, message, onConfirm, onCancel, confirmLabel
             fontSize: 13, fontFamily: "'DM Mono', monospace", cursor: 'pointer',
           }}>Cancelar</button>
           <button onClick={onConfirm} style={{
-            background: danger ? 'rgba(224,92,75,0.15)' : 'linear-gradient(135deg, #D4A017, #B8870F)',
+            background: danger ? 'rgba(224,92,75,0.15)' : 'linear-gradient(135deg, #C95025, #A0401D)',
             border: danger ? '1px solid rgba(224,92,75,0.4)' : 'none',
             borderRadius: 8, padding: '10px 20px',
             color: danger ? '#E05C4B' : '#0A1A0C',

@@ -38,9 +38,9 @@ export function Sidebar({ activePage, onNavigate }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
             width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-            background: 'linear-gradient(135deg, #D4A017, #B8870F)',
+            background: 'linear-gradient(135deg, #C95025, #A0401D)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(212,160,23,0.35)',
+            boxShadow: '0 4px 12px rgba(201,80,37,0.35)',
           }}>
             <BirdIcon />
           </div>
@@ -77,14 +77,14 @@ export function Sidebar({ activePage, onNavigate }) {
               style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px',
                 borderRadius: 8, cursor: 'pointer', marginBottom: 2,
-                background: active ? 'rgba(212,160,23,0.1)' : 'transparent',
-                color: active ? '#D4A017' : '#8A9E8C',
+                background: active ? 'rgba(201,80,37,0.1)' : 'transparent',
+                color: active ? '#C95025' : '#8A9E8C',
                 fontSize: 13, fontFamily: "'DM Mono', monospace",
-                border: active ? '1px solid rgba(212,160,23,0.2)' : '1px solid transparent',
+                border: active ? '1px solid rgba(201,80,37,0.2)' : '1px solid transparent',
                 transition: 'all 0.15s',
               }}
             >
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: active ? '#D4A017' : '#2A4A2C', flexShrink: 0 }} />
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: active ? '#C95025' : '#2A4A2C', flexShrink: 0 }} />
               {item.label}
             </div>
           )
@@ -97,9 +97,9 @@ export function Sidebar({ activePage, onNavigate }) {
           <div style={{
             width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
             background: 'linear-gradient(135deg, #2A5C2E, #1A3A1C)',
-            border: '1px solid rgba(212,160,23,0.3)',
+            border: '1px solid rgba(201,80,37,0.3)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 12, color: '#D4A017', fontWeight: 700,
+            fontSize: 12, color: '#C95025', fontWeight: 700,
           }}>
             {userName[0].toUpperCase()}
           </div>

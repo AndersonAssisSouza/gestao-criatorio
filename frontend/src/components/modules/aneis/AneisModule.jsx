@@ -1,104 +1,148 @@
 import { useState, useEffect } from 'react'
-import { StatCard }      from '../../shared/StatCard'
-import { ConfirmModal }  from '../../shared/ConfirmModal'
-import { AneisTable }    from './AneisTable'
-import { AneisForm }     from './AneisForm'
-import { AneisDetail }   from './AneisDetail'
+import { StatCard } from '../../shared/StatCard'
+import { StatusBadge } from '../../shared/StatusBadge'
+import { ConfirmModal } from '../../shared/ConfirmModal'
 
-// --- MOCK -- remover quando backend estiver conectado ----------------------------
-const MOCK = [
-  { id: 1,  codigo: 'AE-001', tipo: 'IBAMA',     diametro: '3.0', cor: 'Azul',     aveAssociada: 'Canario Ouro',       dataColocacao: '2024-02-10', lote: 'Lote 2024-A', status: 'Utilizado',   observacoes: 'Anilha oficial IBAMA' },
-  { id: 2,  codigo: 'AE-002', tipo: 'IBAMA',     diametro: '3.0', cor: 'Azul',     aveAssociada: 'Pintassilgo Verde',   dataColocacao: '2024-02-10', lote: 'Lote 2024-A', status: 'Utilizado',   observacoes: '' },
-  { id: 3,  codigo: 'AE-003', tipo: 'FOB',       diametro: '2.8', cor: 'Vermelha', aveAssociada: '\u2014',              dataColocacao: '',           lote: 'Lote 2024-A', status: 'Disponivel',  observacoes: '' },
-  { id: 4,  codigo: 'AE-004', tipo: 'Criadouro', diametro: '3.2', cor: 'Verde',    aveAssociada: 'Tarim Isabela',       dataColocacao: '2024-03-15', lote: 'Lote 2024-B', status: 'Utilizado',   observacoes: 'Anilha interna do criadouro' },
-  { id: 5,  codigo: 'AE-005', tipo: 'IBAMA',     diametro: '3.0', cor: 'Azul',     aveAssociada: '\u2014',              dataColocacao: '',           lote: 'Lote 2024-A', status: 'Disponivel',  observacoes: '' },
-  { id: 6,  codigo: 'AE-006', tipo: 'FOB',       diametro: '2.8', cor: 'Amarela',  aveAssociada: 'Coleiro Sol',         dataColocacao: '2024-05-20', lote: 'Lote 2024-B', status: 'Utilizado',   observacoes: 'Anel de aluminio' },
-  { id: 7,  codigo: 'AE-007', tipo: 'IBAMA',     diametro: '3.0', cor: 'Azul',     aveAssociada: '\u2014',              dataColocacao: '',           lote: 'Lote 2024-C', status: 'Extraviado',  observacoes: 'Perdido durante manejo' },
-  { id: 8,  codigo: 'AE-008', tipo: 'Criadouro', diametro: '3.5', cor: 'Preta',    aveAssociada: 'Canario Mosaico',     dataColocacao: '2024-06-01', lote: 'Lote 2024-B', status: 'Utilizado',   observacoes: '' },
-  { id: 9,  codigo: 'AE-009', tipo: 'FOB',       diametro: '2.8', cor: 'Vermelha', aveAssociada: '\u2014',              dataColocacao: '',           lote: 'Lote 2024-C', status: 'Disponivel',  observacoes: '' },
-  { id: 10, codigo: 'AE-010', tipo: 'IBAMA',     diametro: '3.0', cor: 'Azul',     aveAssociada: 'Canario Prata',       dataColocacao: '2024-07-12', lote: 'Lote 2024-C', status: 'Utilizado',   observacoes: 'Transferencia de plantel' },
+// ─── MOCK — remover quando backend estiver conectado ─────────────────────────
+const USE_MOCK = true
+
+const MOCK_ANEIS = [
+  { ID: 1, NumeroAnel: 'AZ-2024-001', Status: 'Utilizado', Cor: 'Azul', Ano: '2024', OrgaoRegulador: 'FOB' },
+  { ID: 2, NumeroAnel: 'AZ-2024-002', Status: 'Utilizado', Cor: 'Azul', Ano: '2024', OrgaoRegulador: 'FOB' },
+  { ID: 3, NumeroAnel: 'AZ-2024-003', Status: 'Utilizado', Cor: 'Azul', Ano: '2024', OrgaoRegulador: 'FOB' },
+  { ID: 4, NumeroAnel: 'AZ-2025-001', Status: 'Utilizado', Cor: 'Verde', Ano: '2025', OrgaoRegulador: 'FOB' },
+  { ID: 5, NumeroAnel: 'AZ-2025-002', Status: 'Disponível', Cor: 'Verde', Ano: '2025', OrgaoRegulador: 'FOB' },
+  { ID: 6, NumeroAnel: 'AZ-2025-003', Status: 'Disponível', Cor: 'Verde', Ano: '2025', OrgaoRegulador: 'FOB' },
 ]
 
-const USE_MOCK = true // <-- mudar para false quando backend estiver pronto
+// ─── Estilos reutilizáveis ──────────────────────────────────────────────────
+const s = {
+  input: {
+    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+    borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13,
+    fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', boxSizing: 'border-box',
+  },
+  label: {
+    fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace",
+    letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4, display: 'block',
+  },
+  btnPrimary: {
+    background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none',
+    borderRadius: 8, padding: '10px 20px', color: '#F2EDE4', fontSize: 12,
+    fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer',
+  },
+  btnSecondary: {
+    background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
+    borderRadius: 8, padding: '10px 20px', color: '#8A9E8C', fontSize: 12,
+    fontFamily: "'DM Mono', monospace", cursor: 'pointer',
+  },
+  card: {
+    background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: 12, overflow: 'hidden',
+  },
+}
+
+const EMPTY_FORM = { NumeroAnel: '', Status: '', Cor: '', Ano: '', OrgaoRegulador: '' }
 
 export function AneisModule() {
-  const [data,     setData]     = useState([])
-  const [loading,  setLoading]  = useState(true)
-  const [search,   setSearch]   = useState('')
-  const [modal,    setModal]    = useState(null)   // null | 'add' | { edit: record }
-  const [delTarget,setDelTarget]= useState(null)
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
-  const [error,    setError]    = useState('')
+  const [editForm, setEditForm] = useState(null)
+  const [isAdding, setIsAdding] = useState(false)
+  const [newForm, setNewForm] = useState({ ...EMPTY_FORM })
+  const [delTarget, setDelTarget] = useState(null)
+  const [error, setError] = useState('')
 
-  // --- Carregamento inicial --------------------------------------------------
   useEffect(() => {
-    const load = async () => {
-      setLoading(true)
-      try {
-        if (USE_MOCK) {
-          setTimeout(() => { setData(MOCK); setLoading(false) }, 400)
-        } else {
-          // const res = await aneisService.listar()
-          // setData(res.items || [])
-          setLoading(false)
-        }
-      } catch (e) {
-        setError('Erro ao carregar aneis.')
-        setLoading(false)
-      }
+    if (USE_MOCK) {
+      setTimeout(() => { setData(MOCK_ANEIS); setLoading(false) }, 400)
+    } else {
+      setLoading(false)
     }
-    load()
   }, [])
 
-  // --- CRUD ------------------------------------------------------------------
-  const handleSave = async (form) => {
-    try {
-      if (modal === 'add') {
-        if (USE_MOCK) {
-          setData(d => [...d, { ...form, id: Date.now() }])
-        } else {
-          // const res = await aneisService.criar(form)
-          // setData(d => [...d, res.item])
-        }
-      } else {
-        if (USE_MOCK) {
-          setData(d => d.map(r => r.id === modal.edit.id ? { ...form, id: r.id } : r))
-          if (selected?.id === modal.edit.id) setSelected({ ...form, id: modal.edit.id })
-        } else {
-          // const res = await aneisService.atualizar(modal.edit.id, form)
-          // setData(d => d.map(r => r.id === modal.edit.id ? res.item : r))
-        }
-      }
-      setModal(null)
-    } catch { setError('Erro ao salvar.') }
+  useEffect(() => {
+    if (selected) {
+      setEditForm({
+        NumeroAnel: selected.NumeroAnel,
+        Status: selected.Status,
+        Cor: selected.Cor,
+        Ano: selected.Ano,
+        OrgaoRegulador: selected.OrgaoRegulador,
+      })
+      setIsAdding(false)
+    }
+  }, [selected])
+
+  // ─── CRUD ─────────────────────────────────────────────────────────────────
+  const handleSaveEdit = () => {
+    if (!editForm.NumeroAnel.trim()) { setError('Número do anel é obrigatório.'); return }
+    setData(prev => prev.map(r => r.ID === selected.ID ? { ...r, ...editForm } : r))
+    setSelected({ ...selected, ...editForm })
+    setError('')
   }
 
-  const handleDelete = async () => {
-    try {
-      // if (!USE_MOCK) await aneisService.remover(delTarget.id)
-      setData(d => d.filter(r => r.id !== delTarget.id))
-      if (selected?.id === delTarget.id) setSelected(null)
-      setDelTarget(null)
-    } catch { setError('Erro ao remover.') }
+  const handleAddNew = () => {
+    if (!newForm.NumeroAnel.trim()) { setError('Número do anel é obrigatório.'); return }
+    const novo = { ID: Date.now(), ...newForm }
+    setData(prev => [...prev, novo])
+    setNewForm({ ...EMPTY_FORM })
+    setIsAdding(false)
+    setError('')
   }
 
-  // --- Filtro ----------------------------------------------------------------
+  const handleDelete = () => {
+    setData(prev => prev.filter(r => r.ID !== delTarget.ID))
+    if (selected?.ID === delTarget.ID) { setSelected(null); setEditForm(null) }
+    setDelTarget(null)
+  }
+
+  // ─── Filtro: Cor, Status, Ano, NumeroAnel ─────────────────────────────────
   const filtered = data.filter(r =>
-    [r.codigo, r.tipo, r.cor, r.aveAssociada, r.lote, r.status]
-      .join(' ').toLowerCase()
-      .includes(search.toLowerCase())
+    [r.Cor, r.Status, r.Ano, r.NumeroAnel, r.OrgaoRegulador]
+      .join(' ').toLowerCase().includes(search.toLowerCase())
   )
 
+  // ─── Stats ────────────────────────────────────────────────────────────────
   const stats = {
-    total:       data.length,
-    utilizados:  data.filter(r => r.status === 'Utilizado').length,
-    disponiveis: data.filter(r => r.status === 'Disponivel').length,
-    extraviados: data.filter(r => r.status === 'Extraviado').length,
+    total: data.length,
+    utilizados: data.filter(r => r.Status === 'Utilizado').length,
+    disponiveis: data.filter(r => r.Status === 'Disponível').length,
   }
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#5A7A5C', fontFamily: "'DM Mono', monospace", fontSize: 13 }}>
-      Carregando aneis...
+      Carregando anéis...
+    </div>
+  )
+
+  // ─── Formulário reutilizável ──────────────────────────────────────────────
+  const renderForm = (form, setForm) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div>
+        <label style={s.label}>Número do Anel</label>
+        <input style={s.input} value={form.NumeroAnel} onChange={e => setForm(f => ({ ...f, NumeroAnel: e.target.value }))} placeholder="Ex: AZ-2025-004" />
+      </div>
+      <div>
+        <label style={s.label}>Status</label>
+        <input style={s.input} value={form.Status} onChange={e => setForm(f => ({ ...f, Status: e.target.value }))} placeholder="Ex: Disponível, Utilizado" />
+      </div>
+      <div>
+        <label style={s.label}>Cor</label>
+        <input style={s.input} value={form.Cor} onChange={e => setForm(f => ({ ...f, Cor: e.target.value }))} placeholder="Ex: Azul, Verde" />
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+        <div>
+          <label style={s.label}>Ano</label>
+          <input style={s.input} value={form.Ano} onChange={e => setForm(f => ({ ...f, Ano: e.target.value }))} placeholder="2025" />
+        </div>
+        <div>
+          <label style={s.label}>Órgão Regulador</label>
+          <input style={s.input} value={form.OrgaoRegulador} onChange={e => setForm(f => ({ ...f, OrgaoRegulador: e.target.value }))} placeholder="Ex: FOB, IBAMA" />
+        </div>
+      </div>
     </div>
   )
 
@@ -107,77 +151,144 @@ export function AneisModule() {
       {error && (
         <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: "'DM Mono', monospace" }}>
           {error}
+          <span onClick={() => setError('')} style={{ float: 'right', cursor: 'pointer', opacity: 0.7 }}>x</span>
         </div>
       )}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
-        <StatCard label="Total Aneis"   value={stats.total}       desc="aneis cadastrados"       color="#D4A017" />
-        <StatCard label="Utilizados"    value={stats.utilizados}  desc="colocados em aves"       color="#F5A623" />
-        <StatCard label="Disponiveis"   value={stats.disponiveis} desc="prontos para uso"        color="#4CAF7D" />
-        <StatCard label="Extraviados"   value={stats.extraviados} desc="perdidos ou danificados"  color="#E05C4B" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
+        <StatCard label="Total Anéis" value={stats.total} desc="anéis cadastrados" color="#C95025" />
+        <StatCard label="Utilizados" value={stats.utilizados} desc="colocados em aves" color="#F5A623" />
+        <StatCard label="Disponíveis" value={stats.disponiveis} desc="prontos para uso" color="#4CAF7D" />
       </div>
 
-      {/* Detalhe */}
-      {selected && (
-        <AneisDetail
-          anel={selected}
-          onClose={() => setSelected(null)}
-          onEdit={() => { setModal({ edit: selected }); setSelected(null) }}
-        />
-      )}
+      {/* Master-Detail Layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
 
-      {/* Tabela */}
-      <div style={{ background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, overflow: 'hidden' }}>
-        {/* Header da tabela */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>Aneis</div>
-            <div style={{ fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 2 }}>
-              {filtered.length} de {data.length} registros
+        {/* ═══ LEFT PANEL: Gallery ═══ */}
+        <div style={s.card}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+            <div>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>Gestão de Anéis</div>
+              <div style={{ fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 2 }}>
+                {filtered.length} de {data.length} registros
+              </div>
             </div>
+            <button onClick={() => { setIsAdding(true); setSelected(null); setEditForm(null) }} style={s.btnPrimary}>
+              + Novo Anel
+            </button>
           </div>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+
+          {/* Search */}
+          <div style={{ padding: '12px 22px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
             <input
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: 200 }}
-              placeholder="Buscar anel..."
+              style={s.input}
+              placeholder="Buscar por cor, status, ano, número..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              onFocus={e => e.target.style.borderColor = 'rgba(212,160,23,0.4)'}
-              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
             />
-            <button
-              onClick={() => setModal('add')}
-              style={{ background: 'linear-gradient(135deg, #D4A017, #B8870F)', border: 'none', borderRadius: 8, padding: '8px 16px', color: '#0A1A0C', fontSize: 12, fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              + Adicionar
-            </button>
+          </div>
+
+          {/* Gallery Items */}
+          <div style={{ maxHeight: 480, overflowY: 'auto' }}>
+            {filtered.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#3A5C3C' }}>
+                <div style={{ fontSize: 14, fontFamily: "'DM Mono', monospace", color: '#4A6A4C' }}>Nenhum anel encontrado</div>
+              </div>
+            ) : filtered.map(r => (
+              <div
+                key={r.ID}
+                onClick={() => setSelected(r)}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '14px 22px', cursor: 'pointer',
+                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                  background: selected?.ID === r.ID ? 'rgba(201,80,37,0.08)' : 'transparent',
+                  borderLeft: selected?.ID === r.ID ? '3px solid #C95025' : '3px solid transparent',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => { if (selected?.ID !== r.ID) e.currentTarget.style.background = 'rgba(201,80,37,0.04)' }}
+                onMouseLeave={e => { if (selected?.ID !== r.ID) e.currentTarget.style.background = 'transparent' }}
+              >
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" }}>
+                    {r.NumeroAnel}
+                  </div>
+                  <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
+                    <span style={{ fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                      Cor: <span style={{ color: '#8A9E8C' }}>{r.Cor}</span>
+                    </span>
+                    <span style={{ fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                      Ano: <span style={{ color: '#8A9E8C' }}>{r.Ano}</span>
+                    </span>
+                    <span style={{ fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                      {r.OrgaoRegulador}
+                    </span>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <StatusBadge status={r.Status} />
+                  <button
+                    onClick={e => { e.stopPropagation(); setDelTarget(r) }}
+                    style={{ background: 'none', border: 'none', color: '#E05C4B', cursor: 'pointer', fontSize: 14, opacity: 0.5, padding: 4 }}
+                    title="Remover"
+                  >x</button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#3A5C3C' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>&#11044;</div>
-            <div style={{ fontSize: 14, fontFamily: "'DM Mono', monospace", color: '#4A6A4C' }}>Nenhum anel encontrado</div>
-          </div>
-        ) : (
-          <AneisTable
-            data={filtered}
-            onRowClick={row => setSelected(s => s?.id === row.id ? null : row)}
-            onEdit={row => setModal({ edit: row })}
-            onDelete={row => setDelTarget(row)}
-          />
-        )}
+        {/* ═══ RIGHT PANEL: Detail Form ═══ */}
+        <div style={s.card}>
+          {isAdding ? (
+            <div style={{ padding: 22 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
+                Novo Anel
+              </div>
+              {renderForm(newForm, setNewForm)}
+              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                <button onClick={handleAddNew} style={s.btnPrimary}>Salvar</button>
+                <button onClick={() => setIsAdding(false)} style={s.btnSecondary}>Cancelar</button>
+              </div>
+            </div>
+          ) : selected && editForm ? (
+            <div style={{ padding: 22 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 4 }}>
+                {selected.NumeroAnel}
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 20 }}>
+                <StatusBadge status={selected.Status} />
+                <span style={{ fontSize: 12, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                  {selected.Cor} | {selected.Ano} | {selected.OrgaoRegulador}
+                </span>
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: "'DM Mono', monospace", marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Editar Anel
+              </div>
+              {renderForm(editForm, setEditForm)}
+              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+                <button onClick={handleSaveEdit} style={s.btnPrimary}>Salvar Alterações</button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 300, padding: 40 }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>&#9675;</div>
+                <div style={{ fontSize: 14, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", lineHeight: 1.6 }}>
+                  Selecione um anel ao lado para<br />visualizar e editar detalhes
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Modais */}
-      {modal === 'add' && <AneisForm onSave={handleSave} onClose={() => setModal(null)} />}
-      {modal?.edit    && <AneisForm initial={modal.edit} onSave={handleSave} onClose={() => setModal(null)} />}
       {delTarget && (
         <ConfirmModal
           title="Remover anel?"
-          message={`O anel "${delTarget.codigo}" sera removido. Esta acao nao pode ser desfeita.`}
-          confirmLabel="Confirmar Remocao"
+          message={`O anel "${delTarget.NumeroAnel}" será removido. Esta ação não pode ser desfeita.`}
+          confirmLabel="Confirmar Remoção"
           danger
           onConfirm={handleDelete}
           onCancel={() => setDelTarget(null)}

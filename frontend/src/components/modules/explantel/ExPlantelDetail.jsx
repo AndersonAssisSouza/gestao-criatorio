@@ -20,7 +20,7 @@ const CAMPOS = [
 
 export function ExPlantelDetail({ ave, onClose, onEdit }) {
   return (
-    <div style={{ background: 'rgba(21,40,24,0.9)', border: '1px solid rgba(212,160,23,0.15)', borderRadius: 12, padding: 24, marginBottom: 24 }}>
+    <div style={{ background: 'rgba(21,40,24,0.9)', border: '1px solid rgba(201,80,37,0.15)', borderRadius: 12, padding: 24, marginBottom: 24 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
@@ -35,7 +35,7 @@ export function ExPlantelDetail({ ave, onClose, onEdit }) {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={onEdit} style={{ background: 'rgba(212,160,23,0.1)', border: '1px solid rgba(212,160,23,0.2)', borderRadius: 8, padding: '7px 14px', color: '#D4A017', fontSize: 12, fontFamily: "'DM Mono', monospace", cursor: 'pointer' }}>
+          <button onClick={onEdit} style={{ background: 'rgba(201,80,37,0.1)', border: '1px solid rgba(201,80,37,0.2)', borderRadius: 8, padding: '7px 14px', color: '#C95025', fontSize: 12, fontFamily: "'DM Mono', monospace", cursor: 'pointer' }}>
             editar
           </button>
           <button onClick={onClose} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '7px 12px', color: '#5A7A5C', fontSize: 12, fontFamily: "'DM Mono', monospace", cursor: 'pointer' }}>

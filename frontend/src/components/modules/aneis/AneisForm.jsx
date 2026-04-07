@@ -23,7 +23,7 @@ const FIELDS = [
 
 const S = {
   overlay: { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)', zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  modal:   { background: '#0F2212', border: '1px solid rgba(212,160,23,0.2)', borderRadius: 16, width: 620, maxHeight: '90vh', overflowY: 'auto', padding: '32px 36px', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' },
+  modal:   { background: '#0F2212', border: '1px solid rgba(201,80,37,0.2)', borderRadius: 16, width: 620, maxHeight: '90vh', overflowY: 'auto', padding: '32px 36px', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' },
   label:   { fontSize: 11, fontFamily: "'DM Mono', monospace", color: '#7A9E7C', letterSpacing: '0.1em', textTransform: 'uppercase' },
   input:   { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '10px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', boxSizing: 'border-box' },
   select:  { background: '#0F2212', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '10px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', boxSizing: 'border-box', cursor: 'pointer' },
@@ -58,7 +58,7 @@ export function AneisForm({ initial, onSave, onClose }) {
                   type={f.type || 'text'}
                   value={form[f.key]}
                   onChange={e => set(f.key, e.target.value)}
-                  onFocus={e => e.target.style.borderColor = 'rgba(212,160,23,0.5)'}
+                  onFocus={e => e.target.style.borderColor = 'rgba(201,80,37,0.5)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
                 />
               )}
@@ -70,7 +70,7 @@ export function AneisForm({ initial, onSave, onClose }) {
           <button onClick={onClose} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '10px 20px', color: '#8A9E8C', fontSize: 13, fontFamily: "'DM Mono', monospace", cursor: 'pointer' }}>
             Cancelar
           </button>
-          <button onClick={() => onSave(form)} style={{ background: 'linear-gradient(135deg, #D4A017, #B8870F)', border: 'none', borderRadius: 8, padding: '10px 24px', color: '#0A1A0C', fontSize: 13, fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer' }}>
+          <button onClick={() => onSave(form)} style={{ background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 8, padding: '10px 24px', color: '#0A1A0C', fontSize: 13, fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer' }}>
             {isEdit ? 'Salvar Alteracoes' : 'Cadastrar Anel'}
           </button>
         </div>

@@ -656,7 +656,7 @@ function CustomSelect({ label, value, onChange, options, placeholder, disabled }
     <div style={{ marginBottom: 18 }}>
       <label style={{
         display: 'block', fontSize: 11, fontFamily: "'DM Mono', monospace",
-        color: '#D4A017', letterSpacing: '0.1em', textTransform: 'uppercase',
+        color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase',
         marginBottom: 6,
       }}>
         {label}
@@ -668,10 +668,10 @@ function CustomSelect({ label, value, onChange, options, placeholder, disabled }
         style={{
           width: '100%', padding: '10px 14px', fontSize: 14,
           fontFamily: "'DM Mono', monospace", color: value ? '#F2EDE4' : '#5A7A5C',
-          background: 'rgba(21,40,24,0.9)', border: '1px solid rgba(212,160,23,0.3)',
+          background: 'rgba(21,40,24,0.9)', border: '1px solid rgba(201,80,37,0.3)',
           borderRadius: 8, outline: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
           opacity: disabled ? 0.5 : 1, appearance: 'none',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23D4A017' d='M2 4l4 4 4-4'/%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C95025' d='M2 4l4 4 4-4'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
         }}
       >
@@ -739,7 +739,7 @@ function ResultSection({ title, icon, results }) {
     }}>
       <div style={{
         fontSize: 13, fontFamily: "'DM Serif Display', serif",
-        color: '#D4A017', marginBottom: 14, display: 'flex',
+        color: '#C95025', marginBottom: 14, display: 'flex',
         alignItems: 'center', gap: 8,
       }}>
         <span style={{ fontSize: 18 }}>{icon}</span>
@@ -872,7 +872,7 @@ export function MutacoesModule() {
         }}>
           <div style={{
             width: 36, height: 36, borderRadius: 10,
-            background: 'rgba(212,160,23,0.15)', border: '1px solid rgba(212,160,23,0.3)',
+            background: 'rgba(201,80,37,0.15)', border: '1px solid rgba(201,80,37,0.3)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 18,
           }}>
@@ -887,14 +887,14 @@ export function MutacoesModule() {
             </h1>
             <div style={{
               fontSize: 12, fontFamily: "'DM Mono', monospace",
-              color: '#D4A017', letterSpacing: '0.08em',
+              color: '#C95025', letterSpacing: '0.08em',
             }}>
               {especie ? `Espécie: ${especie}` : 'TARIM - Acasalamentos entre mutações'}
             </div>
           </div>
         </div>
         <div style={{
-          height: 1, background: 'linear-gradient(90deg, rgba(212,160,23,0.4), transparent)',
+          height: 1, background: 'linear-gradient(90deg, rgba(201,80,37,0.4), transparent)',
           marginTop: 16,
         }} />
       </div>
@@ -911,7 +911,7 @@ export function MutacoesModule() {
         }}>
           <div style={{
             fontSize: 14, fontFamily: "'DM Serif Display', serif",
-            color: '#D4A017', marginBottom: 20,
+            color: '#C95025', marginBottom: 20,
           }}>
             Parâmetros do Cruzamento
           </div>
@@ -954,7 +954,7 @@ export function MutacoesModule() {
                 label="Cruzamento"
                 value={`${mutacaoMacho.length > 14 ? mutacaoMacho.slice(0, 12) + '...' : mutacaoMacho}`}
                 desc={`× ${mutacaoFemea}`}
-                color="#D4A017"
+                color="#C95025"
               />
               {crossing && crossing.isCrossingOver && (
                 <StatCard
@@ -981,7 +981,7 @@ export function MutacoesModule() {
           {!allSelected ? (
             /* Instruction text when nothing selected */
             <div style={{
-              background: 'rgba(21,40,24,0.4)', border: '1px dashed rgba(212,160,23,0.25)',
+              background: 'rgba(21,40,24,0.4)', border: '1px dashed rgba(201,80,37,0.25)',
               borderRadius: 14, padding: '60px 40px', textAlign: 'center',
             }}>
               <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.5 }}>🧬</div>

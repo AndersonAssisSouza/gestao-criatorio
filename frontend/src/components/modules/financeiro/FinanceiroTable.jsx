@@ -37,7 +37,7 @@ export function FinanceiroTable({ data, onRowClick, onEdit, onDelete }) {
             key={row.id}
             onClick={() => onRowClick(row)}
             style={{ cursor: 'pointer', transition: 'background 0.1s' }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(212,160,23,0.04)'}
+            onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,80,37,0.04)'}
             onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
             <TD highlight>{row.descricao}</TD>
@@ -51,7 +51,7 @@ export function FinanceiroTable({ data, onRowClick, onEdit, onDelete }) {
               <button
                 onClick={() => onEdit(row)}
                 style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 6, padding: '5px 10px', color: '#8A9E8C', fontSize: 11, fontFamily: "'DM Mono', monospace", cursor: 'pointer', marginRight: 4 }}
-                onMouseEnter={e => { e.target.style.color = '#D4A017'; e.target.style.borderColor = 'rgba(212,160,23,0.3)' }}
+                onMouseEnter={e => { e.target.style.color = '#C95025'; e.target.style.borderColor = 'rgba(201,80,37,0.3)' }}
                 onMouseLeave={e => { e.target.style.color = '#8A9E8C'; e.target.style.borderColor = 'rgba(255,255,255,0.08)' }}
               >editar</button>
               <button

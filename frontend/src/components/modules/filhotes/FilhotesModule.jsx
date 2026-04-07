@@ -1,101 +1,147 @@
-import { useState, useEffect } from 'react'
-import { StatCard }      from '../../shared/StatCard'
-import { ConfirmModal }  from '../../shared/ConfirmModal'
-import { FilhotesTable }  from './FilhotesTable'
-import { FilhotesForm }   from './FilhotesForm'
-import { FilhotesDetail } from './FilhotesDetail'
+import { useState, useEffect, useMemo } from 'react'
+import { StatCard }    from '../../shared/StatCard'
+import { StatusBadge } from '../../shared/StatusBadge'
 
-// ─── MOCK — remover quando backend estiver conectado ─────────────────────────
-const MOCK = [
-  { id: 1, nome: 'Filhote C-01',    categoriaAve: 'Canário',     dataNascimento: '2026-02-10', nomeMae: 'Mimi',   nomePai: 'Rex',   gaiola: 'G-01', anelamento: 'AN-2026-001', peso: 18,  status: 'Em Desenvolvimento', destino: '-',       observacoes: 'Desenvolvimento normal, plumagem começando a aparecer' },
-  { id: 2, nome: 'Filhote P-01',    categoriaAve: 'Pintassilgo', dataNascimento: '2026-01-22', nomeMae: 'Flora',  nomePai: 'Bolt',  gaiola: 'G-02', anelamento: 'AN-2026-002', peso: 14,  status: 'Desmamado',          destino: 'Plantel', observacoes: 'Desmame completo, alimentação independente' },
-  { id: 3, nome: 'Filhote T-01',    categoriaAve: 'Tarim',       dataNascimento: '2026-03-05', nomeMae: 'Luna',   nomePai: 'Titan', gaiola: 'G-05', anelamento: 'AN-2026-003', peso: 8,   status: 'Em Desenvolvimento', destino: '-',       observacoes: 'Recém-nascido, alimentação assistida' },
-  { id: 4, nome: 'Filhote C-02',    categoriaAve: 'Canário',     dataNascimento: '2025-11-18', nomeMae: 'Mimi',   nomePai: 'Atlas', gaiola: 'G-01', anelamento: 'AN-2025-048', peso: 22,  status: 'Transferido para Plantel', destino: 'Plantel', observacoes: 'Transferido ao plantel em 2026-01-20' },
-  { id: 5, nome: 'Filhote P-02',    categoriaAve: 'Pintassilgo', dataNascimento: '2026-02-28', nomeMae: 'Serena', nomePai: 'Bolt',  gaiola: 'G-04', anelamento: 'AN-2026-004', peso: 10,  status: 'Em Desenvolvimento', destino: '-',       observacoes: 'Crescimento saudável' },
-  { id: 6, nome: 'Filhote Col-01',  categoriaAve: 'Coleiro',     dataNascimento: '2026-01-05', nomeMae: 'Jade',   nomePai: 'Nero',  gaiola: 'G-07', anelamento: 'AN-2026-005', peso: 16,  status: 'Desmamado',          destino: 'Venda',   observacoes: 'Pronto para comercialização' },
-  { id: 7, nome: 'Filhote T-02',    categoriaAve: 'Tarim',       dataNascimento: '2025-12-12', nomeMae: 'Coral',  nomePai: 'Titan', gaiola: 'G-05', anelamento: 'AN-2025-051', peso: 0,   status: 'Óbito',              destino: '-',       observacoes: 'Óbito em 2026-01-02, causa: fraqueza neonatal' },
-  { id: 8, nome: 'Filhote C-03',    categoriaAve: 'Canário',     dataNascimento: '2026-03-15', nomeMae: 'Bianca', nomePai: 'Rex',   gaiola: 'G-03', anelamento: '',            peso: 5,   status: 'Em Desenvolvimento', destino: '-',       observacoes: 'Ainda sem anelamento, muito jovem' },
+// ─── MOCK DATA — remover quando backend estiver conectado ───────────────────
+const MOCK_FILHOTES = [
+  { ID: 1, NomeAve: '',            NumeroOvo: '3', Status: 'Vivo', DataNascimento: '2026-03-31', DataPrevistaAnilhamento: '2026-04-05', Gaiola: 'G-01', IDMae: 2, IDPai: 1, NomeMae: 'Athena', MutacaoMae: 'Canela',    NomePai: 'Thor',   MutacaoPai: 'Ancestral' },
+  { ID: 2, NomeAve: 'Filhote-02', NumeroOvo: '2', Status: 'Vivo', DataNascimento: '2026-04-03', DataPrevistaAnilhamento: '2026-04-08', Gaiola: 'G-01', IDMae: 2, IDPai: 1, NomeMae: 'Athena', MutacaoMae: 'Canela',    NomePai: 'Thor',   MutacaoPai: 'Ancestral' },
 ]
 
-const USE_MOCK = true // ← mudar para false quando backend estiver pronto
+// ─── Mutation Lookup (MutacaoTarin simplified) ──────────────────────────────
+const MUTATION_RESULTS = {
+  'Tarin': {
+    'Ancestral|Canela': {
+      machos:  ['Ancestral /canela', 'Ancestral /canela'],
+      femeas:  ['Canela', 'Ancestral'],
+    },
+    'Pastel|Canela Pastel': {
+      machos:  ['Pastel /canela', 'Pastel /canela'],
+      femeas:  ['Canela Pastel', 'Pastel'],
+    },
+    'Ancestral|Ancestral': {
+      machos:  ['Ancestral', 'Ancestral'],
+      femeas:  ['Ancestral', 'Ancestral'],
+    },
+    'Pastel|Canela': {
+      machos:  ['Ancestral /canela /pastel', 'Ancestral /canela /pastel'],
+      femeas:  ['Pastel', 'Canela', 'Canela Pastel', 'Ancestral'],
+    },
+    'Canela|Canela': {
+      machos:  ['Canela', 'Canela'],
+      femeas:  ['Canela', 'Canela'],
+    },
+  },
+}
 
+const ESPECIES = ['Tarin', 'Canario', 'Pintassilgo']
+const MUTACOES_TARIN = ['Ancestral', 'Canela', 'Pastel', 'Canela Pastel', 'Agata', 'Satine', 'Isabel']
+
+const STATUS_OPTIONS = ['Vivo', 'Faleceu', 'Plantel']
+
+// ─── Styles ─────────────────────────────────────────────────────────────────
+const S = {
+  container:    { display: 'flex', gap: 16, minHeight: 'calc(100vh - 200px)' },
+  panel:        { background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  panelHeader:  { padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  panelTitle:   { fontSize: 15, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" },
+  panelSub:     { fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 2 },
+  panelBody:    { padding: '12px 16px', flex: 1, overflowY: 'auto' },
+  card:         { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '14px 16px', marginBottom: 10, cursor: 'pointer', transition: 'all 0.15s' },
+  cardSelected: { background: 'rgba(201,80,37,0.1)', border: '1px solid rgba(201,80,37,0.3)' },
+  label:        { fontSize: 10, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 },
+  value:        { fontSize: 13, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" },
+  valueMuted:   { fontSize: 12, color: '#8A9E8C', fontFamily: "'DM Mono', monospace" },
+  valueReadonly:{ fontSize: 13, color: '#8A9E8C', fontFamily: "'DM Mono', monospace", background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '8px 12px' },
+  row:          { display: 'flex', gap: 12, marginBottom: 8 },
+  col:          { flex: 1 },
+  btn:          { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 8, padding: '8px 16px', color: '#F2EDE4', fontSize: 12, fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 },
+  btnSecondary: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 16px', color: '#F2EDE4', fontSize: 12, fontWeight: 600, fontFamily: "'DM Mono', monospace", cursor: 'pointer' },
+  select:       { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', appearance: 'none' },
+  input:        { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', boxSizing: 'border-box' },
+  divider:      { height: 1, background: 'rgba(255,255,255,0.06)', margin: '12px 0' },
+  resultCard:   { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '10px 14px', marginBottom: 6 },
+}
+
+const fmtDate = (d) => {
+  if (!d) return '---'
+  const dt = new Date(d + 'T00:00:00')
+  return dt.toLocaleDateString('pt-BR')
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// MAIN MODULE
+// ═════════════════════════════════════════════════════════════════════════════
 export function FilhotesModule() {
-  const [data,     setData]     = useState([])
-  const [loading,  setLoading]  = useState(true)
-  const [search,   setSearch]   = useState('')
-  const [modal,    setModal]    = useState(null)   // null | 'add' | { edit: record }
-  const [delTarget,setDelTarget]= useState(null)
-  const [selected, setSelected] = useState(null)
-  const [error,    setError]    = useState('')
+  const [filhotes, setFilhotes]           = useState([])
+  const [loading, setLoading]             = useState(true)
+  const [selectedFilhote, setSelectedFilhote] = useState(null)
+  const [editMode, setEditMode]           = useState(false)
+  const [editForm, setEditForm]           = useState({})
 
-  // ─── Carregamento inicial ─────────────────────────────────────────────────
+  // Mutation prediction state
+  const [predEspecie, setPredEspecie]       = useState('Tarin')
+  const [predMutMacho, setPredMutMacho]     = useState('')
+  const [predMutFemea, setPredMutFemea]     = useState('')
+
+  // ─── Load data ────────────────────────────────────────────────────────────
   useEffect(() => {
-    const load = async () => {
-      setLoading(true)
-      try {
-        if (USE_MOCK) {
-          setTimeout(() => { setData(MOCK); setLoading(false) }, 400)
-        } else {
-          // TODO: integrar com filhotesService quando disponível
-          setData([])
-          setLoading(false)
-        }
-      } catch (e) {
-        setError('Erro ao carregar filhotes.')
-        setLoading(false)
-      }
-    }
-    load()
+    setTimeout(() => {
+      setFilhotes(MOCK_FILHOTES)
+      setLoading(false)
+    }, 400)
   }, [])
 
-  // ─── CRUD ─────────────────────────────────────────────────────────────────
-  const handleSave = async (form) => {
-    try {
-      if (modal === 'add') {
-        if (USE_MOCK) {
-          setData(d => [...d, { ...form, id: Date.now() }])
-        } else {
-          // TODO: integrar com filhotesService.criar(form)
-          setData(d => [...d, { ...form, id: Date.now() }])
-        }
-      } else {
-        if (USE_MOCK) {
-          setData(d => d.map(r => r.id === modal.edit.id ? { ...form, id: r.id } : r))
-          if (selected?.id === modal.edit.id) setSelected({ ...form, id: modal.edit.id })
-        } else {
-          // TODO: integrar com filhotesService.atualizar(modal.edit.id, form)
-          setData(d => d.map(r => r.id === modal.edit.id ? { ...form, id: r.id } : r))
-        }
-      }
-      setModal(null)
-    } catch { setError('Erro ao salvar.') }
+  // ─── Select first chick on load ──────────────────────────────────────────
+  useEffect(() => {
+    if (filhotes.length > 0 && !selectedFilhote) {
+      setSelectedFilhote(filhotes[0])
+    }
+  }, [filhotes, selectedFilhote])
+
+  // ─── Start editing ────────────────────────────────────────────────────────
+  const startEdit = () => {
+    if (!selectedFilhote) return
+    setEditForm({
+      NomeAve: selectedFilhote.NomeAve || '',
+      Status:  selectedFilhote.Status || 'Vivo',
+    })
+    setEditMode(true)
   }
 
-  const handleDelete = async () => {
-    try {
-      if (!USE_MOCK) {
-        // TODO: integrar com filhotesService.remover(delTarget.id)
-      }
-      setData(d => d.filter(r => r.id !== delTarget.id))
-      if (selected?.id === delTarget.id) setSelected(null)
-      setDelTarget(null)
-    } catch { setError('Erro ao remover.') }
+  const cancelEdit = () => {
+    setEditMode(false)
+    setEditForm({})
   }
 
-  // ─── Filtro ───────────────────────────────────────────────────────────────
-  const filtered = data.filter(r =>
-    [r.nome, r.categoriaAve, r.nomeMae, r.nomePai, r.status]
-      .join(' ').toLowerCase()
-      .includes(search.toLowerCase())
-  )
+  const saveEdit = () => {
+    if (!selectedFilhote) return
+    const updated = { ...selectedFilhote, ...editForm }
+    setFilhotes(prev => prev.map(f => f.ID === selectedFilhote.ID ? updated : f))
+    setSelectedFilhote(updated)
+    setEditMode(false)
+    setEditForm({})
+  }
 
+  // ─── Mutation Prediction ──────────────────────────────────────────────────
+  const predictionResults = useMemo(() => {
+    if (!predMutMacho || !predMutFemea || !predEspecie) return null
+    const specieData = MUTATION_RESULTS[predEspecie]
+    if (!specieData) return null
+    const key = `${predMutMacho}|${predMutFemea}`
+    const reverseKey = `${predMutFemea}|${predMutMacho}`
+    return specieData[key] || specieData[reverseKey] || null
+  }, [predEspecie, predMutMacho, predMutFemea])
+
+  // ─── Stats ────────────────────────────────────────────────────────────────
   const stats = {
-    total:          data.length,
-    desenvolvimento:data.filter(r => r.status === 'Em Desenvolvimento').length,
-    desmamados:     data.filter(r => r.status === 'Desmamado').length,
-    transferidos:   data.filter(r => r.status === 'Transferido para Plantel').length,
+    total:    filhotes.length,
+    vivos:    filhotes.filter(f => f.Status === 'Vivo').length,
+    plantel:  filhotes.filter(f => f.Status === 'Plantel').length,
+    faleceu:  filhotes.filter(f => f.Status === 'Faleceu').length,
   }
 
+  // ─── Loading ──────────────────────────────────────────────────────────────
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#5A7A5C', fontFamily: "'DM Mono', monospace", fontSize: 13 }}>
       Carregando filhotes...
@@ -104,85 +150,309 @@ export function FilhotesModule() {
 
   return (
     <div>
-      {error && (
-        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: "'DM Mono', monospace" }}>
-          {error}
-        </div>
-      )}
-
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
-        <StatCard label="Total Filhotes"     value={stats.total}           desc="filhotes cadastrados"    color="#D4A017" />
-        <StatCard label="Em Desenvolvimento"  value={stats.desenvolvimento} desc="em fase de crescimento"  color="#5BC0EB" />
-        <StatCard label="Desmamados"          value={stats.desmamados}      desc="alimentação independente" color="#4CAF7D" />
-        <StatCard label="Transferidos"        value={stats.transferidos}    desc="enviados ao plantel"     color="#F5A623" />
+      {/* Stats Row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+        <StatCard label="Total Filhotes"  value={stats.total}   desc="filhotes registrados" color="#5BC0EB" />
+        <StatCard label="Vivos"           value={stats.vivos}   desc="filhotes vivos"       color="#4CAF7D" />
+        <StatCard label="Plantel"         value={stats.plantel} desc="enviados ao plantel"   color="#C95025" />
+        <StatCard label="Falecidos"       value={stats.faleceu} desc="obitos registrados"    color="#E05C4B" />
       </div>
 
-      {/* Detalhe */}
-      {selected && (
-        <FilhotesDetail
-          filhote={selected}
-          onClose={() => setSelected(null)}
-          onEdit={() => { setModal({ edit: selected }); setSelected(null) }}
-        />
-      )}
+      {/* 3-Panel Layout */}
+      <div style={S.container}>
 
-      {/* Tabela */}
-      <div style={{ background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, overflow: 'hidden' }}>
-        {/* Header da tabela */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>Filhotes</div>
-            <div style={{ fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 2 }}>
-              {filtered.length} de {data.length} registros
+        {/* ─── LEFT PANEL: Chicks Gallery ────────────────────────────────── */}
+        <div style={{ ...S.panel, flex: '0 0 260px' }}>
+          <div style={S.panelHeader}>
+            <div>
+              <div style={S.panelTitle}>Filhotes</div>
+              <div style={S.panelSub}>{filhotes.length} registros</div>
             </div>
           </div>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <input
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: 200 }}
-              placeholder="Buscar filhote..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              onFocus={e => e.target.style.borderColor = 'rgba(212,160,23,0.4)'}
-              onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
-            />
-            <button
-              onClick={() => setModal('add')}
-              style={{ background: 'linear-gradient(135deg, #D4A017, #B8870F)', border: 'none', borderRadius: 8, padding: '8px 16px', color: '#0A1A0C', fontSize: 12, fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              + Adicionar
-            </button>
+          <div style={S.panelBody}>
+            {filhotes.map(f => (
+              <div
+                key={f.ID}
+                style={{
+                  ...S.card,
+                  ...(selectedFilhote?.ID === f.ID ? S.cardSelected : {}),
+                }}
+                onClick={() => { setSelectedFilhote(f); setEditMode(false) }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>
+                    {f.NomeAve || `Filhote (Ovo #${f.NumeroOvo})`}
+                  </div>
+                  <StatusBadge status={f.Status} />
+                </div>
+                <div style={S.row}>
+                  <div style={S.col}>
+                    <div style={S.label}>Nascimento</div>
+                    <div style={S.valueMuted}>{fmtDate(f.DataNascimento)}</div>
+                  </div>
+                  <div style={S.col}>
+                    <div style={S.label}>Gaiola</div>
+                    <div style={S.valueMuted}>{f.Gaiola}</div>
+                  </div>
+                </div>
+                <div style={S.row}>
+                  <div style={S.col}>
+                    <div style={S.label}>Mae</div>
+                    <div style={S.valueMuted}>{f.NomeMae}</div>
+                  </div>
+                  <div style={S.col}>
+                    <div style={S.label}>Pai</div>
+                    <div style={S.valueMuted}>{f.NomePai}</div>
+                  </div>
+                </div>
+                {f.DataPrevistaAnilhamento && (
+                  <div style={{ marginTop: 4 }}>
+                    <div style={S.label}>Prev. Anilhamento</div>
+                    <div style={S.valueMuted}>{fmtDate(f.DataPrevistaAnilhamento)}</div>
+                  </div>
+                )}
+              </div>
+            ))}
+            {filhotes.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '40px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+                Nenhum filhote registrado
+              </div>
+            )}
           </div>
         </div>
 
-        {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#3A5C3C' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>🐣</div>
-            <div style={{ fontSize: 14, fontFamily: "'DM Mono', monospace", color: '#4A6A4C' }}>Nenhum filhote encontrado</div>
+        {/* ─── MIDDLE PANEL: Chick Detail Form ──────────────────────────── */}
+        <div style={{ ...S.panel, flex: '1 1 340px' }}>
+          <div style={S.panelHeader}>
+            <div>
+              <div style={S.panelTitle}>
+                {selectedFilhote
+                  ? (selectedFilhote.NomeAve || `Filhote (Ovo #${selectedFilhote.NumeroOvo})`)
+                  : 'Detalhes do Filhote'}
+              </div>
+              {selectedFilhote && (
+                <div style={S.panelSub}>
+                  Nascimento: {fmtDate(selectedFilhote.DataNascimento)}
+                </div>
+              )}
+            </div>
+            {selectedFilhote && !editMode && (
+              <button style={S.btn} onClick={startEdit}>Editar</button>
+            )}
+            {editMode && (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button style={S.btn} onClick={saveEdit}>Salvar</button>
+                <button style={S.btnSecondary} onClick={cancelEdit}>Cancelar</button>
+              </div>
+            )}
           </div>
-        ) : (
-          <FilhotesTable
-            data={filtered}
-            onRowClick={row => setSelected(s => s?.id === row.id ? null : row)}
-            onEdit={row => setModal({ edit: row })}
-            onDelete={row => setDelTarget(row)}
-          />
-        )}
-      </div>
+          <div style={S.panelBody}>
+            {!selectedFilhote ? (
+              <div style={{ textAlign: 'center', padding: '40px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+                Selecione um filhote para ver os detalhes
+              </div>
+            ) : (
+              <>
+                {/* Parent Info (read-only) */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: "'DM Mono', monospace", marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Informacoes dos Pais
+                  </div>
+                  <div style={S.row}>
+                    <div style={S.col}>
+                      <div style={S.label}>Nome Mae</div>
+                      <div style={S.valueReadonly}>{selectedFilhote.NomeMae}</div>
+                    </div>
+                    <div style={S.col}>
+                      <div style={S.label}>Mutacao Mae</div>
+                      <div style={S.valueReadonly}>{selectedFilhote.MutacaoMae}</div>
+                    </div>
+                  </div>
+                  <div style={S.row}>
+                    <div style={S.col}>
+                      <div style={S.label}>Nome Pai</div>
+                      <div style={S.valueReadonly}>{selectedFilhote.NomePai}</div>
+                    </div>
+                    <div style={S.col}>
+                      <div style={S.label}>Mutacao Pai</div>
+                      <div style={S.valueReadonly}>{selectedFilhote.MutacaoPai}</div>
+                    </div>
+                  </div>
+                </div>
 
-      {/* Modais */}
-      {modal === 'add' && <FilhotesForm onSave={handleSave} onClose={() => setModal(null)} />}
-      {modal?.edit    && <FilhotesForm initial={modal.edit} onSave={handleSave} onClose={() => setModal(null)} />}
-      {delTarget && (
-        <ConfirmModal
-          title="Remover filhote?"
-          message={`O filhote "${delTarget.nome}" será removido. Esta ação não pode ser desfeita.`}
-          confirmLabel="Confirmar Remoção"
-          danger
-          onConfirm={handleDelete}
-          onCancel={() => setDelTarget(null)}
-        />
-      )}
+                <div style={S.divider} />
+
+                {/* Chick Info */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: "'DM Mono', monospace", marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Dados do Filhote
+                  </div>
+
+                  {/* NomeAve (editable) */}
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={S.label}>Nome da Ave</div>
+                    {editMode ? (
+                      <input
+                        type="text"
+                        style={S.input}
+                        value={editForm.NomeAve}
+                        onChange={e => setEditForm(f => ({ ...f, NomeAve: e.target.value }))}
+                        placeholder="Digite o nome do filhote"
+                      />
+                    ) : (
+                      <div style={S.value}>{selectedFilhote.NomeAve || '(sem nome)'}</div>
+                    )}
+                  </div>
+
+                  {/* Status (dropdown in edit) */}
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={S.label}>Status</div>
+                    {editMode ? (
+                      <select
+                        style={S.select}
+                        value={editForm.Status}
+                        onChange={e => setEditForm(f => ({ ...f, Status: e.target.value }))}
+                      >
+                        {STATUS_OPTIONS.map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <StatusBadge status={selectedFilhote.Status} />
+                    )}
+                  </div>
+
+                  {/* Gaiola (read-only) */}
+                  <div style={S.row}>
+                    <div style={S.col}>
+                      <div style={S.label}>Gaiola</div>
+                      <div style={S.valueReadonly}>{selectedFilhote.Gaiola}</div>
+                    </div>
+                    <div style={S.col}>
+                      <div style={S.label}>Numero Ovo</div>
+                      <div style={S.valueReadonly}>#{selectedFilhote.NumeroOvo}</div>
+                    </div>
+                  </div>
+
+                  <div style={S.row}>
+                    <div style={S.col}>
+                      <div style={S.label}>Data Nascimento</div>
+                      <div style={S.valueReadonly}>{fmtDate(selectedFilhote.DataNascimento)}</div>
+                    </div>
+                    <div style={S.col}>
+                      <div style={S.label}>Prev. Anilhamento</div>
+                      <div style={S.valueReadonly}>{fmtDate(selectedFilhote.DataPrevistaAnilhamento)}</div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* ─── RIGHT PANEL: Mutation Prediction ──────────────────────────── */}
+        <div style={{ ...S.panel, flex: '1 1 300px' }}>
+          <div style={S.panelHeader}>
+            <div>
+              <div style={S.panelTitle}>Previsao de Mutacao</div>
+              <div style={S.panelSub}>Simulador genetico</div>
+            </div>
+          </div>
+          <div style={S.panelBody}>
+            {/* Especie */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={S.label}>Especie</div>
+              <select
+                style={S.select}
+                value={predEspecie}
+                onChange={e => { setPredEspecie(e.target.value); setPredMutMacho(''); setPredMutFemea('') }}
+              >
+                {ESPECIES.map(e => (
+                  <option key={e} value={e}>{e}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Mutacao Macho */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={S.label}>Mutacao Macho</div>
+              <select
+                style={S.select}
+                value={predMutMacho}
+                onChange={e => setPredMutMacho(e.target.value)}
+              >
+                <option value="">-- Selecione --</option>
+                {MUTACOES_TARIN.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Mutacao Femea */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={S.label}>Mutacao Femea</div>
+              <select
+                style={S.select}
+                value={predMutFemea}
+                onChange={e => setPredMutFemea(e.target.value)}
+              >
+                <option value="">-- Selecione --</option>
+                {MUTACOES_TARIN.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={S.divider} />
+
+            {/* Results */}
+            {!predMutMacho || !predMutFemea ? (
+              <div style={{ textAlign: 'center', padding: '30px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+                Selecione as mutacoes do macho e da femea para ver a previsao
+              </div>
+            ) : !predictionResults ? (
+              <div style={{ textAlign: 'center', padding: '30px 12px', color: '#4A6A4C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+                <div style={{ fontSize: 28, marginBottom: 8 }}>&#x1F9EC;</div>
+                Combinacao nao encontrada na tabela de mutacoes.
+                <br />
+                Cadastre no modulo de Mutacoes para habilitar.
+              </div>
+            ) : (
+              <>
+                {/* Filhotes Machos */}
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#5BC0EB', fontFamily: "'DM Mono', monospace", marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Filhotes Machos
+                  </div>
+                  {predictionResults.machos.map((mut, i) => (
+                    <div key={i} style={S.resultCard}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#5BC0EB', flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" }}>{mut}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Filhotes Femeas */}
+                <div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#E88DB4', fontFamily: "'DM Mono', monospace", marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Filhotes Femeas
+                  </div>
+                  {predictionResults.femeas.map((mut, i) => (
+                    <div key={i} style={S.resultCard}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#E88DB4', flexShrink: 0 }} />
+                        <span style={{ fontSize: 13, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" }}>{mut}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

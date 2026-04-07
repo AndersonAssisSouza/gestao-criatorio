@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 
-function BirdIcon({ size = 20, color = '#D4A017' }) {
+function BirdIcon({ size = 20, color = '#C95025' }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <path d="M3 12C3 12 8 6 12 8C16 10 17 7 21 6C21 6 18 12 15 12C12 12 11 14 9 15C7 16 5 15 3 12Z" fill={color} opacity="0.9"/>
@@ -38,13 +38,13 @@ export function LoginPage() {
       fontFamily: "'DM Serif Display', serif",
     }}>
       {/* Decorative circles */}
-      <div style={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(212,160,23,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,80,37,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', bottom: -80, left: -80, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(76,175,125,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{
         width: 400, padding: '48px 44px',
         background: 'rgba(21,40,24,0.9)',
-        border: '1px solid rgba(212,160,23,0.2)', borderRadius: 16,
+        border: '1px solid rgba(201,80,37,0.2)', borderRadius: 16,
         backdropFilter: 'blur(20px)', zIndex: 2,
         boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
       }}>
@@ -52,10 +52,10 @@ export function LoginPage() {
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div style={{
             width: 56, height: 56, borderRadius: 14,
-            background: 'linear-gradient(135deg, #D4A017, #B8870F)',
+            background: 'linear-gradient(135deg, #C95025, #A0401D)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             margin: '0 auto 16px', fontSize: 26,
-            boxShadow: '0 8px 24px rgba(212,160,23,0.4)',
+            boxShadow: '0 8px 24px rgba(201,80,37,0.4)',
           }}>
             <BirdIcon size={28} color="#0A1A0C" />
           </div>
@@ -83,7 +83,7 @@ export function LoginPage() {
                 value={i === 0 ? email : password}
                 onChange={e => i === 0 ? setEmail(e.target.value) : setPassword(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-                onFocus={e => e.target.style.borderColor = 'rgba(212,160,23,0.5)'}
+                onFocus={e => e.target.style.borderColor = 'rgba(201,80,37,0.5)'}
                 onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
               />
             </div>
@@ -95,12 +95,12 @@ export function LoginPage() {
             onClick={handleSubmit}
             disabled={loading}
             style={{
-              background: 'linear-gradient(135deg, #D4A017, #B8870F)',
+              background: 'linear-gradient(135deg, #C95025, #A0401D)',
               border: 'none', borderRadius: 8, padding: 13,
               color: '#0A1A0C', fontSize: 14, fontWeight: 700,
               fontFamily: "'DM Serif Display', serif", cursor: loading ? 'not-allowed' : 'pointer',
               marginTop: 8, opacity: loading ? 0.7 : 1,
-              boxShadow: '0 4px 16px rgba(212,160,23,0.3)',
+              boxShadow: '0 4px 16px rgba(201,80,37,0.3)',
             }}
           >
             {loading ? 'Autenticando...' : 'Entrar no Sistema'}
