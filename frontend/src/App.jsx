@@ -59,8 +59,8 @@ const PAGE_META = {
     description: 'Registre saídas do plantel com contexto e mantenha histórico confiável para consulta futura.',
   },
   mutacoes: {
-    title: 'Simulação de Mutações',
-    description: 'Explore cruzamentos e cenários genéticos com uma visualização mais agradável e orientada à análise.',
+    title: 'Simulador Genético do Tarin',
+    description: 'Explore cruzamentos e cenários genéticos exclusivos do Tarin (Spinus cucullatus) com 51 combinações pré-calculadas.',
   },
   assinatura: {
     title: 'Minha Assinatura',

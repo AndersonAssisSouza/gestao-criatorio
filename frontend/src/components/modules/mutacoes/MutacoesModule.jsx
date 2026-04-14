@@ -1007,10 +1007,10 @@ export function MutacoesModule() {
     <div>
       <div className="module-hero">
         <div>
-          <div className="module-hero__eyebrow">Genética aplicada</div>
-          <h2 className="module-hero__title">Simulador genético</h2>
+          <div className="module-hero__eyebrow">Genética aplicada — Tarin (Spinus cucullatus)</div>
+          <h2 className="module-hero__title">Simulador genético do Tarin</h2>
           <div className="module-hero__text">
-            Simule cruzamentos, visualize probabilidades de mutação e consulte resultados especiais como crossing-over em uma interface mais integrada ao sistema.
+            Simule cruzamentos entre mutações do Tarin, visualize probabilidades genéticas e consulte resultados especiais como crossing-over. Os 51 cenários automáticos são exclusivos para a espécie Tarin.
           </div>
         </div>
         <div className="pill pill--accent">
@@ -1055,8 +1055,8 @@ export function MutacoesModule() {
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.5 }}>&#129516;</div>
                 <div className="font-serif text-muted" style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 420, margin: '0 auto' }}>
-                  Selecione a espécie e mutações do macho e fêmea para o resultado
-                  das possibilidades das mutações no nascimento dos filhotes
+                  Selecione a espécie Tarin e as mutações do macho e da fêmea para visualizar
+                  as possibilidades genéticas no nascimento dos filhotes. As mutações automáticas estão disponíveis exclusivamente para o Tarin.
                 </div>
                 <div className="text-faint" style={{ fontSize: 11, marginTop: 16 }}>
                   Fonte: TARIM - Acasalamentos entre mutações (Décio Junior)

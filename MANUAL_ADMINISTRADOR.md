@@ -117,15 +117,16 @@ Clique na linha de um assinante para:
 
 ---
 
-## 4. Módulo Mutações — Simulador Genético
+## 4. Módulo Mutações — Simulador Genético do Tarin
 
-Este módulo exclusivo do proprietário é um simulador de cruzamentos genéticos para Tarin (Spinus cucullatus), baseado na referência "TARIM — Acasalamentos entre mutações" de Décio Junior.
+Este módulo exclusivo do proprietário é um simulador de cruzamentos genéticos **exclusivo para a espécie Tarin (Spinus cucullatus)**, baseado na referência "TARIM — Acasalamentos entre mutações" de Décio Junior. Os 51 cenários de mutação automáticos estão disponíveis apenas para o Tarin — outras espécies não possuem base genética automatizada no momento.
 
 ### 4.1 Como funciona
 
-1. Selecione a **mutação do macho** (pai)
-2. Selecione a **mutação da fêmea** (mãe)
-3. O sistema calcula automaticamente as probabilidades genéticas dos filhotes
+1. Selecione a espécie **Tarin**
+2. Selecione a **mutação do macho** (pai)
+3. Selecione a **mutação da fêmea** (mãe)
+4. O sistema calcula automaticamente as probabilidades genéticas dos filhotes
 
 ### 4.2 Mutações disponíveis
 
@@ -147,11 +148,13 @@ O simulador trabalha com as seguintes mutações, cada uma com código de cor:
 
 ### 4.3 Base de cruzamentos
 
-O sistema possui **51 cenários de cruzamento** pré-calculados, incluindo:
+O sistema possui **51 cenários de cruzamento** pré-calculados **exclusivamente para o Tarin**, incluindo:
 - Cruzamentos entre mutações puras
 - Combinações com portadores
 - Cenários de crossing-over (Passepartout)
 - Cálculos de probabilidade em porcentagem para machos e fêmeas separadamente
+
+> **Nota:** Outras espécies não possuem simulação genética automática. Os cenários de mutação são exclusivos do Tarin.
 
 ### 4.4 Opção de Crossing-over
 
@@ -267,7 +270,7 @@ Como proprietário, você tem acesso a todos os módulos descritos no Manual do 
 | **Anéis** | Anilhas — IBAMA, FOB, criadouro, disponibilidade |
 | **Financeiro** | Receitas e despesas — vendas, compras, controle fiscal |
 | **Ex-Plantel** | Aves que saíram — motivo, destinatário, valor |
-| **Mutações** | Simulador genético — 51 cenários de cruzamento |
+| **Mutações** | Simulador genético exclusivo do Tarin — 51 cenários de cruzamento |
 | **Assinatura** | Seu plano (Vitalício) |
 | **Proprietário** | Painel administrativo |
 | **Configurações** | Personalização de cores do sistema |
