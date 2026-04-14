@@ -2,28 +2,58 @@ import api from './api'
 
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
-const MOCK_USER = {
-  id: '50e3b170-5e31-4cfb-99a1-b96d83c918a8',
-  name: 'Anderson Assis',
-  email: 'admin@plumar.com',
-  role: 'owner',
-  access: {
+function buildMockUser(email, name) {
+  const isOwner = email === 'admin@plumar.com' || email === 'anderson'
+
+  if (isOwner) {
+    return {
+      id: '50e3b170-5e31-4cfb-99a1-b96d83c918a8',
+      name: name || 'Anderson Assis',
+      email: email || 'admin@plumar.com',
+      role: 'owner',
+      access: {
+        accessGranted: true,
+        label: 'Vitalício',
+        status: 'active',
+        plan: 'lifetime',
+        expiresAt: null,
+        remainingDays: null,
+      },
+    }
+  }
+
+  const now = new Date().toISOString()
+  const trialEnd = new Date(Date.now() + 7 * 86400000).toISOString()
+  // Sincroniza com o mock de acesso
+  const access = {
     accessGranted: true,
-    label: 'Vitalício',
-    status: 'active',
-    plan: 'lifetime',
-    expiresAt: null,
-    remainingDays: null,
-  },
+    status: 'trialing',
+    plan: 'trial',
+    label: 'Teste grátis',
+    expiresAt: trialEnd,
+    remainingDays: 7,
+    requestedPlan: null,
+    paymentStatus: 'trial',
+  }
+  try { window.sessionStorage.setItem('plumar_mock_access', JSON.stringify(access)) } catch {}
+  return {
+    id: 'mock-user-' + Date.now().toString(36),
+    name: name || email.split('@')[0],
+    email,
+    role: 'user',
+    access,
+  }
 }
+
+const MOCK_USER = buildMockUser('admin@plumar.com', 'Anderson Assis')
 
 const mockAuth = {
   async login(email, password) {
     if (!email || !password) throw { response: { data: { message: 'Preencha e-mail e senha.' } } }
-    return { user: { ...MOCK_USER, email, name: email.split('@')[0] } }
+    return { user: buildMockUser(email, email.split('@')[0]) }
   },
   async register(name, email, password) {
-    return { user: { ...MOCK_USER, name, email } }
+    return { user: buildMockUser(email, name) }
   },
   async me() {
     const stored = window.sessionStorage.getItem('plumar_mock_user')
