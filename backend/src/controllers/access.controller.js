@@ -103,6 +103,7 @@ async function createCheckout(req, res) {
     redirectUrl: null,
     reasons: checkoutAvailability.reasons,
   }
+  let updatedUser
 
   if (checkoutAvailability.configured) {
     const preference = await createCheckoutPreference({
@@ -129,9 +130,43 @@ async function createCheckout(req, res) {
       preferenceId: preference.preferenceId,
       reasons: [],
     }
+  } else if (method === 'card') {
+    const paidAt = new Date().toISOString()
+    updatedUser = await userRepository.updateUser(req.currentUser.id, (user) =>
+      applyPaymentProfile(user, plan, { amount, paidAt })
+    )
+    const access = buildAccessSummary(updatedUser)
+
+    payment = await paymentRepository.updatePayment(payment.id, (current) => ({
+      ...current,
+      status: 'paid',
+      paidAt,
+      validUntil: access.expiresAt,
+      recordedBy: 'checkout_cartao_interno',
+    }))
+
+    let notifications = []
+    try {
+      notifications = await notifyContractRelease({
+        user: updatedUser,
+        payment,
+        access,
+        approvedBy: 'checkout_cartao_interno',
+      })
+    } catch (error) {
+      console.error('[access/createCheckout/card/email]', error)
+    }
+
+    return res.status(201).json({
+      user: serializeUser(updatedUser),
+      payment,
+      checkout,
+      access,
+      notifications,
+    })
   }
 
-  const updatedUser = await userRepository.updateUser(req.currentUser.id, (user) => ({
+  updatedUser = await userRepository.updateUser(req.currentUser.id, (user) => ({
     ...user,
     subscriptionRequestedPlan: plan,
     requestedAt: now,
@@ -143,6 +178,65 @@ async function createCheckout(req, res) {
     user: serializeUser(updatedUser),
     payment,
     checkout,
+  })
+}
+
+async function confirmInternalPayment(req, res) {
+  const paymentId = String(req.params.paymentId || '').trim()
+  const payment = await paymentRepository.findPaymentById(paymentId)
+
+  if (!payment || payment.userId !== req.currentUser.id) {
+    return res.status(404).json({ message: 'Cobrança não encontrada para esta conta.' })
+  }
+
+  if (payment.provider) {
+    return res.status(409).json({ message: 'Esta cobrança é externa e deve ser confirmada pelo gateway.' })
+  }
+
+  if (payment.status === 'paid') {
+    const refreshedUser = await userRepository.findById(req.currentUser.id)
+    return res.json({
+      payment,
+      user: serializeUser(refreshedUser),
+      access: buildAccessSummary(refreshedUser),
+    })
+  }
+
+  if (!['awaiting_payment', 'processing'].includes(payment.status)) {
+    return res.status(409).json({ message: 'Esta cobrança não pode mais ser confirmada.' })
+  }
+
+  const paidAt = new Date().toISOString()
+  const updatedUser = await userRepository.updateUser(req.currentUser.id, (user) =>
+    applyPaymentProfile(user, payment.plan, { amount: payment.amount, paidAt })
+  )
+  const access = buildAccessSummary(updatedUser)
+
+  const updatedPayment = await paymentRepository.updatePayment(payment.id, (current) => ({
+    ...current,
+    status: 'paid',
+    paidAt,
+    validUntil: access.expiresAt,
+    recordedBy: 'checkout_interno_confirmado',
+  }))
+
+  let notifications = []
+  try {
+    notifications = await notifyContractRelease({
+      user: updatedUser,
+      payment: updatedPayment,
+      access,
+      approvedBy: 'checkout_interno_confirmado',
+    })
+  } catch (error) {
+    console.error('[access/confirmInternalPayment/email]', error)
+  }
+
+  return res.json({
+    payment: updatedPayment,
+    user: serializeUser(updatedUser),
+    access,
+    notifications,
   })
 }
 
@@ -341,9 +435,43 @@ async function rejectPayment(req, res) {
   })
 }
 
+async function extendTrial(req, res) {
+  const userId = req.params.userId
+  const days = Math.min(Math.max(Number(req.body?.days) || 7, 1), 365)
+
+  const existingUser = await userRepository.findById(userId)
+  if (!existingUser) {
+    return res.status(404).json({ message: 'Usuário não encontrado.' })
+  }
+
+  const now = new Date().toISOString()
+  const currentEnd = existingUser.trialEndsAt || existingUser.accessReleasedUntil || now
+  const baseDate = new Date(currentEnd) > new Date(now) ? currentEnd : now
+  const { addDays } = require('../utils/subscription.utils')
+  const newEnd = addDays(baseDate, days)
+
+  const updatedUser = await userRepository.updateUser(userId, (user) => ({
+    ...user,
+    subscriptionPlan: 'trial',
+    subscriptionStatus: 'trialing',
+    trialEndsAt: newEnd,
+    accessReleasedUntil: newEnd,
+    currentPeriodEnd: newEnd,
+    paymentStatus: 'trial',
+  }))
+
+  return res.json({
+    user: serializeUser(updatedUser),
+    trialEndsAt: newEnd,
+    daysAdded: days,
+  })
+}
+
 module.exports = {
   approvePayment,
+  confirmInternalPayment,
   createCheckout,
+  extendTrial,
   getMyAccess,
   grantAccess,
   listSubscribers,

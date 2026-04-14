@@ -12,10 +12,12 @@ router.use(attachCurrentUser)
 router.get('/me', accessController.getMyAccess)
 router.post('/request', csrfProtection, accessController.requestSubscription)
 router.post('/checkout', csrfProtection, accessController.createCheckout)
+router.post('/checkout/:paymentId/confirm', csrfProtection, accessController.confirmInternalPayment)
 router.post('/checkout/reconcile', csrfProtection, accessController.reconcileCheckout)
 
 router.get('/admin/subscribers', requireOwner, accessController.listSubscribers)
 router.post('/admin/subscribers/:userId/grant', requireOwner, csrfProtection, accessController.grantAccess)
+router.post('/admin/subscribers/:userId/extend-trial', requireOwner, csrfProtection, accessController.extendTrial)
 router.post('/admin/payments/:paymentId/approve', requireOwner, csrfProtection, accessController.approvePayment)
 router.post('/admin/payments/:paymentId/reject', requireOwner, csrfProtection, accessController.rejectPayment)
 

@@ -37,7 +37,8 @@ export function ProprietarioModule() {
   const [selectedUserId, setSelectedUserId] = useState('')
   const [granting, setGranting] = useState('')
   const [processingPaymentId, setProcessingPaymentId] = useState('')
-  const [importingSharePoint, setImportingSharePoint] = useState(false)
+  const [extendingTrial, setExtendingTrial] = useState(false)
+  const [trialDays, setTrialDays] = useState(7)
 
   const loadData = async () => {
     setLoading(true)
@@ -135,23 +136,6 @@ export function ProprietarioModule() {
       setError(requestError.response?.data?.message || 'Não foi possível recusar o pagamento.')
     } finally {
       setProcessingPaymentId('')
-    }
-  }
-
-  const handleImportSharePoint = async () => {
-    setImportingSharePoint(true)
-    setError('')
-    setSuccess('')
-
-    try {
-      const response = await accessService.importMySharePointData()
-      setSuccess(
-        `Importação concluída: ${response.importedCounts?.criatorios || 0} criatório, ${response.importedCounts?.plantel || 0} aves, ${response.importedCounts?.aneis || 0} anéis, ${response.importedCounts?.gaiolas || 0} gaiolas, ${response.importedCounts?.ovos || 0} ovos, ${response.importedCounts?.filhotes || 0} filhotes, ${response.importedCounts?.especies || 0} espécies, ${response.importedCounts?.financeiro || 0} lançamentos financeiros, ${response.importedCounts?.mutacoes || 0} mutações e ${response.importedCounts?.listaItens || 0} itens auxiliares trazidos do SharePoint.`
-      )
-    } catch (requestError) {
-      setError(requestError.response?.data?.message || 'Não foi possível importar os dados do SharePoint.')
-    } finally {
-      setImportingSharePoint(false)
     }
   }
 
@@ -262,7 +246,58 @@ export function ProprietarioModule() {
               )}
 
               <div className="mt-2" style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                <div className="mb-1" style={{ fontWeight: 700 }}>Liberação manual</div>
+                <div className="mb-1" style={{ fontWeight: 700 }}>Período gratuito (trial)</div>
+                <div className="text-muted mb-1" style={{ fontSize: 13 }}>
+                  {selectedUser.access?.status === 'trialing'
+                    ? `Usuário em trial — ${selectedUser.access?.remainingDays ?? 0} dia(s) restante(s).`
+                    : selectedUser.access?.status === 'expired' || (!selectedUser.access?.accessGranted && selectedUser.access?.plan === 'trial')
+                      ? 'Trial expirado — o usuário perdeu o acesso.'
+                      : `Status atual: ${selectedUser.access?.label || 'Sem status'}.`}
+                </div>
+                <div className="flex gap-1" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
+                  <label className="p-field" style={{ margin: 0, flex: '0 0 auto' }}>
+                    <input
+                      type="number"
+                      min="1"
+                      max="365"
+                      value={trialDays}
+                      onChange={(e) => setTrialDays(Number(e.target.value) || 1)}
+                      className="p-input"
+                      style={{ width: 70, textAlign: 'center' }}
+                    />
+                  </label>
+                  <span className="text-muted" style={{ fontSize: 13 }}>dias</span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setExtendingTrial(true)
+                      setError('')
+                      setSuccess('')
+                      try {
+                        await accessService.extendTrial(selectedUser.id, trialDays)
+                        setSuccess(`Trial ${selectedUser.access?.status === 'trialing' ? 'estendido' : 'reativado'} em ${trialDays} dia(s).`)
+                        await loadData()
+                        setSelectedUserId(selectedUser.id)
+                      } catch (err) {
+                        setError(err.response?.data?.message || 'Não foi possível alterar o trial.')
+                      } finally {
+                        setExtendingTrial(false)
+                      }
+                    }}
+                    disabled={extendingTrial}
+                    className="p-btn p-btn--secondary"
+                  >
+                    {extendingTrial
+                      ? 'Atualizando...'
+                      : selectedUser.access?.status === 'trialing'
+                        ? 'Estender trial'
+                        : 'Reativar trial'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-2" style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="mb-1" style={{ fontWeight: 700 }}>Liberação manual de plano</div>
                 <div className="flex flex-col gap-1">
                   <button
                     type="button"
@@ -313,23 +348,6 @@ export function ProprietarioModule() {
         )}
       </section>
 
-      <section className="billing-card">
-        <div className="p-panel-header__title font-serif mb-1">Cadastros vindos do Power Apps</div>
-        <div className="text-muted">
-          Esta importação puxa diretamente as listas reais do seu SharePoint e grava uma cópia local no sistema para uso diário sem depender da conexão externa.
-          Além do criatório e do plantel, ela também traz anéis, gaiolas, ovos, filhotes, espécies, financeiro, mutações e itens auxiliares.
-        </div>
-        <div className="mt-2">
-          <button
-            type="button"
-            onClick={handleImportSharePoint}
-            disabled={importingSharePoint}
-            className="p-btn p-btn--primary"
-          >
-            {importingSharePoint ? 'Importando listas...' : 'Importar todas as listas do SharePoint'}
-          </button>
-        </div>
-      </section>
     </div>
   )
 }

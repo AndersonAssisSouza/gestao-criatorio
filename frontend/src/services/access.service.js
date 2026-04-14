@@ -16,6 +16,11 @@ export const accessService = {
     return data
   },
 
+  async confirmInternalPayment(paymentId) {
+    const { data } = await api.post(`/api/access/checkout/${paymentId}/confirm`)
+    return data
+  },
+
   async reconcileCheckout(payload) {
     const { data } = await api.post('/api/access/checkout/reconcile', payload)
     return data
@@ -38,6 +43,11 @@ export const accessService = {
 
   async rejectPayment(paymentId, payload = {}) {
     const { data } = await api.post(`/api/access/admin/payments/${paymentId}/reject`, payload)
+    return data
+  },
+
+  async extendTrial(userId, days) {
+    const { data } = await api.post(`/api/access/admin/subscribers/${userId}/extend-trial`, { days })
     return data
   },
 
