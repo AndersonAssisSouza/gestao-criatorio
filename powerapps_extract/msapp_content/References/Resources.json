@@ -1,0 +1,124 @@
+{
+  "Resources": [
+    {
+      "Name": "SampleImage",
+      "Schema": "i",
+      "IsSampleData": true,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "/ctrllib/image/images/SampleImage.svg",
+      "Path": "/ctrllib/image/images/SampleImage.svg",
+      "Content": "Image",
+      "ResourceKind": "Uri",
+      "RootPath": "ms-appx:///ctrllib/image/images/SampleImage.svg"
+    },
+    {
+      "Name": "pajaro-animal-lineas-arte-canario-logo-vector-simbolo-icono-diseno-grafico-ilustracion_15473-3630",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "3ab4c68c-05e5-40be-aeaa-fbf3fbf1cc06.jpg",
+      "Path": "Assets\\Images\\3ab4c68c-05e5-40be-aeaa-fbf3fbf1cc06.jpg",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/M2FiNGM2OGMtMDVlNS00MGJlLWFlYWEtZmJmM2ZiZjFjYzA2.jpg?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=MxFMiJB%2B9MKmqz81VpQ%2BjK3hGWpkSwF9LChMoGBY2ew%3D"
+    },
+    {
+      "Name": "bird-animal-lines-art-canary-logo-symbol-icon-design-graphic-illustration-vector",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "28579e0c-a1e9-452e-9875-912ad8688119.jpg",
+      "Path": "Assets\\Images\\28579e0c-a1e9-452e-9875-912ad8688119.jpg",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/Mjg1NzllMGMtYTFlOS00NTJlLTk4NzUtOTEyYWQ4Njg4MTE5.jpg?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=0Jlol140oLQ1FLACRB4w93OLPEi3vrQPLydulctt6x4%3D"
+    },
+    {
+      "Name": "gaiola (1)",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "5565ed3f-7459-47d5-ba04-ef79d26087a3.png",
+      "Path": "Assets\\Images\\5565ed3f-7459-47d5-ba04-ef79d26087a3.png",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/NTU2NWVkM2YtNzQ1OS00N2Q1LWJhMDQtZWY3OWQyNjA4N2Ez.png?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=tTdI%2BUIczvw6pQsf5JNcqvEUFh6xr9q%2BiYqjnyx0StE%3D"
+    },
+    {
+      "Name": "gaiola",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "906cab81-a147-4489-ae24-d776503e9424.png",
+      "Path": "Assets\\Images\\906cab81-a147-4489-ae24-d776503e9424.png",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/OTA2Y2FiODEtYTE0Ny00NDg5LWFlMjQtZDc3NjUwM2U5NDI0.png?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=uKNBJ3xOnGYf8D11U6ni5LmqE%2FL99BUg1QoocEHlaqw%3D"
+    },
+    {
+      "Name": "Casal",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "574bf40a-1d65-4fd5-b7c1-8193ae175fe1.jpg",
+      "Path": "Assets\\Images\\574bf40a-1d65-4fd5-b7c1-8193ae175fe1.jpg",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/NTc0YmY0MGEtMWQ2NS00ZmQ1LWI3YzEtODE5M2FlMTc1ZmUx.jpg?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=BY1ueCO7mcc2IRoDoJnX7el%2BovvW%2FwL9HjbWmRI1f0U%3D"
+    },
+    {
+      "Name": "Femea",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "985002f4-40ff-4a5e-9136-b5eacfd97950.jpg",
+      "Path": "Assets\\Images\\985002f4-40ff-4a5e-9136-b5eacfd97950.jpg",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/OTg1MDAyZjQtNDBmZi00YTVlLTkxMzYtYjVlYWNmZDk3OTUw.jpg?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=WwTkuijW%2BIUcvO8rit2bmNrAoaiBJ29dtASApvC2BOc%3D"
+    },
+    {
+      "Name": "Macho",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "ef6a2cf6-8365-4b0d-a8e0-35171a20d191.jpg",
+      "Path": "Assets\\Images\\ef6a2cf6-8365-4b0d-a8e0-35171a20d191.jpg",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/ZWY2YTJjZjYtODM2NS00YjBkLWE4ZTAtMzUxNzFhMjBkMTkx.jpg?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=a9yXnN7uVntOQunmxmKij%2FKmCOELXmadk47PPxoCvgA%3D"
+    },
+    {
+      "Name": "—Pngtree—flock of birds silhouettes flying_8286153",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "37892ff6-bcec-44c4-bc48-5967107e1103.png",
+      "Path": "Assets\\Images\\37892ff6-bcec-44c4-bc48-5967107e1103.png",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/Mzc4OTJmZjYtYmNlYy00NGM0LWJjNDgtNTk2NzEwN2UxMTAz.png?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=RbOrib3GMr5JqqrYXhcALHjS3%2Bda6QlU%2BudiZf31bBE%3D"
+    },
+    {
+      "Name": "download",
+      "Schema": "i",
+      "IsSampleData": false,
+      "IsWritable": false,
+      "Type": "ResourceInfo",
+      "FileName": "f9a05b02-818b-4feb-a3d3-0eedc6c9ffe6.jpeg",
+      "Path": "Assets\\Images\\f9a05b02-818b-4feb-a3d3-0eedc6c9ffe6.jpeg",
+      "Content": "Image",
+      "ResourceKind": "LocalFile",
+      "RootPath": "https://dsprdil102sbr.blob.core.windows.net/4a1b861b-3912-495e-b621-e5bdf0f19884-1/resource/ZjlhMDViMDItODE4Yi00ZmViLWEzZDMtMGVlZGM2YzlmZmU2.jpeg?skoid=58690ece-ec83-4ce2-9ce8-883d4d6a54ee&sktid=975f013f-7f24-47e8-a7d3-abc4752bf346&skt=2025-11-17T11%3A00%3A09Z&ske=2025-11-18T11%3A15%3A09Z&sks=b&skv=2023-01-03&sv=2023-01-03&spr=https&se=2025-11-18T11%3A15%3A09Z&sr=b&sp=r&sig=L6VxVBdJZRQVrzNjvC7CDPG%2BfZDeoZrQyyQbd7P%2BZPw%3D"
+    }
+  ]
+}

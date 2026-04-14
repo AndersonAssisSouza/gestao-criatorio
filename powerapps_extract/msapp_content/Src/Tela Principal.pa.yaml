@@ -1,0 +1,242 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  Tela Principal:
+    Properties:
+      Fill: =RGBA(251, 251, 251, 1)
+      LoadingSpinnerColor: =RGBA(164, 38, 44, 1)
+    Children:
+      - Rectangle8:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =varCorPrincipalTranslucida
+            Height: =768
+            Width: =1366
+      - Image5:
+          Control: Image@2.2.3
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Height: =399
+            Image: ='—Pngtree—flock of birds silhouettes flying_8286153'
+            ImagePosition: =ImagePosition.Fill
+            Width: =386
+            X: =68
+            Y: =195
+      - Button1:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: |-
+              =Set(Varplantel,Plantel);
+              Navigate(ControlePlantel);
+              Refresh(Plantel);
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Gestão do Plantel"
+            Width: =270
+            X: =737
+            Y: =195
+      - Button1_1:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: =Navigate(Chocando)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Gestão das Aves em Choco"
+            Width: =270
+            X: =737
+            Y: =290
+      - Button1_2:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: =Navigate(ControleGaiolas)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Gestão das Gaiolas"
+            Width: =270
+            X: =454
+            Y: =290
+      - Button1_7:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: =Navigate(ControleFilhotes)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Gestão dos Filhotes Nascidos"
+            Width: =270
+            X: =1021
+            Y: =290
+      - Button1_8:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: =Navigate(DetalheEspecies)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Espécies do Criatório"
+            Width: =270
+            X: =454
+            Y: =384
+      - Label10:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =73
+            Size: =40
+            Text: ="GESTÃO DO CRIATÓRIO"
+            Width: =1223
+            X: =68
+            Y: =28
+      - Button1_11:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Controle Anéis"
+            Width: =270
+            X: =1021
+            Y: =195
+      - Button1_12:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: =Navigate(Criatório)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Gestão do Aviário"
+            Width: =270
+            X: =454
+            Y: =195
+      - Button1_10:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: |-
+              =Navigate(Financeiro);
+              Refresh(ControleFinanceiro)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Gestão Financeira"
+            Width: =270
+            X: =1021
+            Y: =384
+      - Button1_13:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: |-
+              =Set(Varplantel,Plantel);
+              Navigate(ControleEXPlantel);
+              Refresh(Plantel);
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Gestão Ex Aves do Plantel"
+            Width: =270
+            X: =737
+            Y: =384

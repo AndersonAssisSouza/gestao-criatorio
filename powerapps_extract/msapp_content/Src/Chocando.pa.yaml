@@ -1,0 +1,1809 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  Chocando:
+    Properties:
+      Fill: =RGBA(234, 234, 234, 1)
+      LoadingSpinnerColor: =varCorPrincipal
+      OnVisible: |-
+        =Refresh(Plantel);
+        Refresh(Ovos);
+    Children:
+      - Rectangle13:
+          Control: Rectangle@2.3.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            DisabledFill: =varCorPrincipalTranslucida
+            Fill: =varCorPrincipalTranslucida
+            Height: =768
+            HoverFill: =varCorPrincipalTranslucida
+            PressedFill: =varCorPrincipalTranslucida
+            Width: =1366
+      - Button1_9:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =66
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorPrincipalTranslucida
+            OnSelect: =Navigate(SimulacaoMutacoes)
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Self.Color
+            Size: =20
+            Text: ="Simulação Mutação dos Filhotes"
+            Width: =270
+            X: =530
+            Y: =616
+      - RecordsGallery1_1:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_ThreeTextOneImageVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =589
+            Items: |-
+              =Filter(
+                  Gaiolas,
+                  Status = "Chocando",
+                  IsBlank(SearchInput1_1.Text) || SearchInput1_1.Text in NumeroGaiola
+              )
+            OnSelect: |-
+              =UpdateContext({ itemSelected: true, CurrentItem: ThisItem })
+            TemplateFill: =If(Self.IsSelected, RGBA(230, 230, 230, 1), RGBA(0, 0, 0, 0))
+            TemplateSize: =66
+            Visible: |-
+              =If(
+                  IsBlank(RecordsGallery1_1.Selected),
+                  false,
+                  true
+              )
+            Width: =320
+            X: =15
+            Y: =158
+          Children:
+            - Image2:
+                Control: Image@2.2.3
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Height: =50
+                  Image: |-
+                    =If(
+                         Title2.Text <> "Vazia",
+                        'gaiola (1)',
+                        gaiola
+                    )
+                  OnSelect: =Select(Parent)
+                  RadiusBottomLeft: =8
+                  RadiusBottomRight: =8
+                  RadiusTopLeft: =8
+                  RadiusTopRight: =8
+                  Width: =62
+                  X: =19
+                  Y: =8
+            - Title2:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =14
+                  Text: |-
+                    ="Gaiola: " & ThisItem.NumeroGaiola
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Parent.TemplateWidth - 185
+                  X: =102
+                  Y: =20
+            - NextArrow2:
+                Control: Classic/Icon@2.5.0
+                Properties:
+                  AccessibleLabel: =Self.Tooltip
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =varCorPrincipal
+                  Height: =50
+                  HoverColor: =Color.Green
+                  Icon: =Icon.ChevronRight
+                  OnSelect: |
+                    =Set(
+                        VarChocandoSelecionada,
+                        ThisItem
+                    );
+                  PaddingBottom: =16
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =16
+                  Tooltip: ="Exibir detalhes do item"
+                  Width: =50
+                  X: =Parent.TemplateWidth - Self.Width - 12
+                  Y: =8
+            - Separator2:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Fill: =RGBA(204, 204, 204, 1)
+                  Height: =4
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =61
+            - Rectangle5:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Fill: =varCorPrincipal
+                  Height: =Parent.TemplateHeight - Separator2.Height
+                  OnSelect: =Select(Parent)
+                  Visible: =ThisItem.IsSelected
+                  Width: =4
+      - SearchInput1_1:
+          Control: Classic/TextInput@2.3.2
+          Group: Pesquisa
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            BorderStyle: =BorderStyle.None
+            BorderThickness: =1
+            Color: =RGBA(70, 68, 64, 1)
+            Default: =""
+            DisabledBorderColor: =ColorFade(Self.BorderColor, 40%)
+            DisabledColor: =ColorFade(Self.Color, 40%)
+            DisabledFill: =Self.Fill
+            FocusedBorderThickness: =3
+            Font: =Font.'Open Sans'
+            Height: =44
+            HintText: ="Pesquisar"
+            HoverBorderColor: =Self.Color
+            HoverColor: =Self.Color
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            Size: =14
+            Visible: |-
+              =If(
+                  IsBlank(RecordsGallery1_1.Selected),
+                  false,
+                  true
+              )
+            X: =15
+            Y: =92
+      - SearchIcon1_1:
+          Control: Classic/Icon@2.5.0
+          Group: Pesquisa
+          Properties:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =varCorComponente
+            DisabledBorderColor: =RGBA(56, 56, 56, 1)
+            DisabledColor: =RGBA(119, 119, 119, 1)
+            Height: =44
+            Icon: =Icon.Search
+            PaddingBottom: =10
+            PaddingLeft: =10
+            PaddingRight: =10
+            PaddingTop: =10
+            Visible: |-
+              =If(
+                  IsBlank(RecordsGallery1_1.Selected),
+                  false,
+                  true
+              )
+            Width: =44
+            X: =291
+            Y: =92
+      - Button2:
+          Control: Classic/Button@2.2.0
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =Color.Green
+            OnSelect: |+
+              =Set(
+                  Varreset,
+                  true
+              );
+              Set(
+                  Varreset,
+                  false
+              );
+              UpdateContext(
+                  {
+                      ctxAdicionaOvoPopUp: true
+                  }
+              );
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =varCorComponente
+            Text: ="Adicionar Ovos"
+            Visible: |-
+              =If(
+                  VarChocandoSelecionada.Status = Blank(),
+                  false,
+                  RecordsGallery1_1.Selected.Status = "Chocando",
+                  true,
+                  false
+              )
+            X: =1106
+            Y: =103
+      - Gallery2:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_ThreeTextVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =589
+            Items: |-
+              =Filter(
+                  Ovos,
+                  Gaiola = VarChocandoSelecionada.NumeroGaiola,
+                  Status <> "Descartado"
+              )
+            TemplateSize: =100
+            Visible: |+
+              =If(
+                  IsBlank(Gallery2.Selected),
+                  false,
+                  IsBlank(varpaiselecionado),
+                  false,
+                  VarChocandoSelecionada.Status = Blank(),
+                  false,
+                  RecordsGallery1_1.Selected.Status = "Chocando",
+                  true, 
+                  false
+              )
+            Width: =337
+            X: =1018
+            Y: =158
+          Children:
+            - Title4:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: |-
+                    ="Postura: " &ThisItem.DataPostura
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Parent.TemplateWidth - 86
+                  Y: =25
+            - Subtitle3:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: |-
+                    =If(
+                        ThisItem.ConfirmaInicioChoco = "Sim",
+                        "Data Inicio Choco: " & ThisItem.DataInicioChoco
+                    )
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title4.Width
+                  X: =Title4.X
+                  Y: =Title4.Y + Title4.Height
+            - Body2:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =24
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: |-
+                    =If(
+                        ThisItem.Status <> "Postura",
+                        "Data Prev. Nasc.: " & ThisItem.DataPrevistaNascimento
+                    )
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =323
+                  X: =Title4.X
+                  Y: =Subtitle3.Y + Subtitle3.Height
+            - NextArrow4:
+                Control: Classic/Icon@2.5.0
+                Properties:
+                  AccessibleLabel: =Self.Tooltip
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =varCorPrincipal
+                  Height: =50
+                  HoverColor: =Color.Green
+                  Icon: =Icon.ChevronRight
+                  OnSelect: |+
+                    =Set(
+                        Varreset,
+                        true
+                    );
+                    Set(
+                        Varreset,
+                        false
+                    );
+                    Select(Parent);
+                    Set(
+                        VarOvoSelecionado,
+                        ThisItem
+                    );
+                    UpdateContext(
+                        {
+                            ctxGestaoOvoPopUp: true
+                        }
+                    );
+                  PaddingBottom: =16
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =16
+                  Tooltip: ="Exibir detalhes do item"
+                  Visible: |-
+                    =If(
+                        ThisItem.Status = "Nasceu",
+                        false,
+                        ThisItem.Status = "Descartado",
+                        false,
+                        true
+                    )
+                  Width: =50
+                  X: =273
+                  Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+            - Separator4:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Fill: =RGBA(204, 204, 204, 1)
+                  Height: =4
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+            - Label5:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.NumeroOvo
+                  Width: =112
+            - Label5_1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.Status
+                  Width: =112
+                  X: =161
+      - TableNameLabel1_1:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Lato Black'
+            FontWeight: =FontWeight.Semibold
+            Height: =68
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Size: =25
+            Text: ="Controle de Choca das Gaiolas"
+            Width: =1340
+            X: =15
+            Y: =13
+      - TableNameLabel1_6:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Lato Black'
+            FontWeight: =FontWeight.Semibold
+            Height: =53
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Size: =14
+            Text: ="Possíveis Mutações Filhotes Machos"
+            Visible: |+
+              =If(
+                  VarGaiolaSelecionada.Status = "Chocando",
+                  true,
+                  false
+              )
+            Width: =319
+            X: =360
+            Y: =443
+      - Label6:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Semibold
+            Height: =127
+            Size: =20
+            Text: |-
+              =If(
+                  IsBlank(RecordsGallery1_1.Selected),
+                  "Não tem gaiola chocando no seu plantel",
+                  VarChocandoSelecionada.Status = "Chocando",
+                  "Selecione a Gaiola ao lado para realizar a gestão da choca."
+              )
+            Visible: |+
+              =If(
+                  IsBlank(RecordsGallery1_1.Selected),
+                  true,
+                  VarChocandoSelecionada.Status = "Chocando",
+                  false,
+                  true
+              )
+            Width: =368
+            X: =492
+            Y: =283
+      - SelectedRecordTitle1_1:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =Color.White
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =50
+            Text: ="Fêmea"
+            Visible: |-
+              =If(
+                  VarChocandoSelecionada.Status = Blank(),
+                  false,
+                  RecordsGallery1_1.Selected.Status = "Chocando",
+                  true,
+                  false
+              )
+            Width: =233
+            X: =423
+            Y: =93
+      - ComboBox1:
+          Control: Classic/ComboBox@2.4.0
+          Properties:
+            BorderColor: =varCorPrincipal
+            ChevronBackground: =varCorPrincipal
+            ChevronFill: =RGBA(255, 255, 255, 1)
+            ChevronHoverBackground: =varCorPrincipalTranslucida
+            ChevronHoverFill: =RGBA(255, 255, 255, 1)
+            DefaultSelectedItems: |-
+              =Filter(
+                  Plantel,
+                  Nome = varmaeselecionada.Nome
+              )
+            DisplayFields: =["Nome"]
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =varCorPrincipal
+            HoverFill: =RGBA(222, 179, 184, 1)
+            Items: |-
+              =Filter(
+                  Plantel,
+                  Status = "Vivo",
+                  Genero = "Fêmea"    
+              )
+            OnChange: |-
+              =Set(
+                  varmaeselecionada,
+                  ComboBox1.Selected
+              )
+            OnSelect: =
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =varCorPrincipal
+            SearchFields: =["Nome"]
+            SelectMultiple: =false
+            SelectionColor: =RGBA(255, 255, 255, 1)
+            SelectionFill: =varCorPrincipalTranslucida
+            Visible: |-
+              =If(
+                  VarChocandoSelecionada.Status = Blank(),
+                  false,
+                  RecordsGallery1_1.Selected.Status = "Chocando",
+                  true,
+                  false
+              )
+            Width: =233
+            X: =423
+            Y: =159
+      - Gallery2_3:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_ThreeTextVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =179
+            Items: =varmaeselecionada
+            TemplateSize: =179
+            Visible: |-
+              =If(
+                  IsBlank(RecordsGallery1_1.Selected),
+                  false, 
+                  IsBlank(varmaeselecionada),
+                  false,
+                  true
+              )
+            Width: =660
+            X: =344
+            Y: =216
+          Children:
+            - Title4_3:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: |-
+                    ="Nome da Ave: "
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =25
+            - Subtitle3_3:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.Mutacao
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title4_3.Width
+                  X: =123
+                  Y: =52
+            - Body2_3:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =22
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.Genero
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =82
+                  X: =123
+                  Y: =73
+            - Separator4_3:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Fill: =RGBA(204, 204, 204, 1)
+                  Height: =4
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+            - Label5_6:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.CategoriaAve
+                  Width: =112
+                  X: =123
+            - Label5_7:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.Status
+                  Width: =112
+                  X: =548
+            - Title4_4:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Espécie"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+            - Label5_8:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.Nome
+                  Width: =112
+                  X: =123
+                  Y: =25
+            - Title4_5:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Mutação:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =50
+            - Title4_6:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Gênero:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =73
+            - Title4_7:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="ID:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =154
+            - Body2_4:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =22
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.ID
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =82
+                  X: =123
+                  Y: =157
+            - Body2_5:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =22
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.Gaiola
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =82
+                  X: =123
+                  Y: =95
+            - Title4_8:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Gaiola:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =95
+            - Title4_9:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Status:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  X: =425
+      - Gallery2_4:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_ThreeTextVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =179
+            Items: =varpaiselecionado
+            TemplateSize: =179
+            Visible: |-
+              =If(
+                  IsBlank(RecordsGallery1_1.Selected),
+                  false,
+                  IsBlank(varpaiselecionado),
+                  false,
+                  true
+              )
+            Width: =660
+            X: =344
+            Y: =405
+          Children:
+            - Title4_10:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: |-
+                    ="Nome da Ave: "
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =25
+            - Subtitle3_4:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.Mutacao
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title4_10.Width
+                  X: =123
+                  Y: =52
+            - Body2_6:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =22
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.Genero
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =82
+                  X: =123
+                  Y: =73
+            - Separator4_4:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Fill: =RGBA(204, 204, 204, 1)
+                  Height: =4
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+            - Label5_9:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.CategoriaAve
+                  Width: =112
+                  X: =123
+            - Label5_10:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.Status
+                  Width: =112
+                  X: =548
+            - Title4_11:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Espécie"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+            - Label5_11:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =FontWeight.Bold
+                  Height: =25
+                  OnSelect: =Select(Parent)
+                  Text: =ThisItem.Nome
+                  Width: =112
+                  X: =123
+                  Y: =25
+            - Title4_12:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Mutação:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =50
+            - Title4_13:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Gênero:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =73
+            - Title4_14:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="ID:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =154
+            - Body2_7:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =22
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.ID
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =82
+                  X: =123
+                  Y: =157
+            - Body2_8:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =22
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.Gaiola
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =82
+                  X: =123
+                  Y: =95
+            - Title4_15:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Gaiola:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  Y: =95
+            - Title4_16:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  Height: =21
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: ="Status:"
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =123
+                  X: =425
+      - SelectedRecordTitle1_7:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =Color.White
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =50
+            Text: ="Macho"
+            Visible: |-
+              =If(
+                  VarChocandoSelecionada.Status = Blank(),
+                  false,
+                  RecordsGallery1_1.Selected.Status = "Chocando",
+                  true,
+                  false
+              )
+            Width: =233
+            X: =696
+            Y: =92
+      - ComboBox1_1:
+          Control: Classic/ComboBox@2.4.0
+          Properties:
+            BorderColor: =varCorPrincipal
+            ChevronBackground: =varCorPrincipal
+            ChevronFill: =RGBA(255, 255, 255, 1)
+            ChevronHoverBackground: =varCorPrincipalTranslucida
+            ChevronHoverFill: =RGBA(255, 255, 255, 1)
+            DefaultSelectedItems: |-
+              =Filter(
+                  Plantel,
+                  Nome = varpaiselecionado.Nome
+              )
+            DisplayFields: =["Nome"]
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =varCorPrincipal
+            HoverFill: =RGBA(222, 179, 184, 1)
+            Items: |-
+              =Filter(
+                  Plantel,
+                  Status = "Vivo",
+                  Genero = "Macho"
+              )
+            OnChange: |-
+              =Set(
+                  varpaiselecionado,
+                  ComboBox1_1.Selected
+              )
+            OnSelect: =
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =varCorPrincipal
+            SearchFields: =["Nome"]
+            SelectMultiple: =false
+            SelectionColor: =RGBA(255, 255, 255, 1)
+            SelectionFill: =varCorPrincipalTranslucida
+            Visible: |-
+              =If(
+                  VarChocandoSelecionada.Status = Blank(),
+                  false,
+                  RecordsGallery1_1.Selected.Status = "Chocando",
+                  true,
+                  false
+              )
+            Width: =233
+            X: =696
+            Y: =159
+      - Rectangle4_1:
+          Control: Rectangle@2.3.0
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            DisabledFill: =RGBA(128, 128, 128, 0.7)
+            Fill: =RGBA(128, 128, 128, 0.7)
+            Height: =768
+            HoverFill: =RGBA(128, 128, 128, 0.7)
+            PressedFill: =RGBA(128, 128, 128, 0.7)
+            Visible: =ctxGestaoOvoPopUp
+            Width: =1366
+      - Adicionar Ovos_1:
+          Control: Rectangle@2.3.0
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =446
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            Visible: =ctxGestaoOvoPopUp
+            Width: =789
+            X: =368
+            Y: =250
+      - TableNameLabel1_5:
+          Control: Label@2.5.1
+          Group: GestaoOvos
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Lato Black'
+            FontWeight: =FontWeight.Semibold
+            Height: =71
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Size: =25
+            Text: ="Controle do Ovo"
+            Visible: =ctxGestaoOvoPopUp
+            Width: =789
+            X: =368
+            Y: =180
+      - Button1_5:
+          Control: Classic/Button@2.2.0
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            DisabledColor: =Color.White
+            DisabledFill: =varCorComponenteTraslucida
+            DisplayMode: |-
+              =If(
+                  And(
+                      VarOvoSelecionado.DataInicioChoco = Text(DatePicker2.SelectedDate),
+                      VarOvoSelecionado.Status = Dropdown3.Selected.Value
+                  ),
+                  DisplayMode.Disabled,
+                  And(
+                      Dropdown3.Selected.Value = "Nasceu",
+                      IsBlank(DatePicker2.SelectedDate)
+                  ) = true,
+                  DisplayMode.Disabled,
+                  And(
+                      Dropdown3.Selected.Value = "Descartado",
+                      IsBlank(DatePicker2.SelectedDate)
+                  ) = true,
+                  DisplayMode.Disabled,
+                  And(
+                      Dropdown3.Selected.Value = "Fertilizado",
+                      IsBlank(DatePicker2.SelectedDate)
+                  ) = true,
+                  DisplayMode.Disabled,
+                  And(
+                      Dropdown3.Selected.Value = "Chocando",
+                      IsBlank(DatePicker2.SelectedDate)
+                  ) = true,
+                  DisplayMode.Disabled,
+                  DisplayMode.Edit
+              )
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =53
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =Color.Green
+            OnSelect: |
+              =If(
+                  Dropdown3.Selected.Value = "Descartado",
+                  Patch(
+                      Ovos,
+                      VarOvoSelecionado,
+                      {
+                          Status: Dropdown3.Selected.Value,
+                          DataDescarte: DatePicker2.SelectedDate
+                      }
+                  )
+              );
+              If(
+                  And(
+                      VarOvoSelecionado.Status = "Postura",
+                      Dropdown3.Selected.Value = "Chocando"
+                  ),
+                  Patch(
+                      Ovos,
+                      VarOvoSelecionado,
+                      {
+                          Status: Dropdown3.Selected.Value,
+                          DataInicioChoco: Text(DatePicker2.SelectedDate),
+                          ConfirmaInicioChoco: "Sim",
+                          DataNascimento: DatePicker1.SelectedDate + Value(
+                              LookUp(
+                                  EspecieAve,
+                                  Especie = LookUp(
+                                      Plantel,
+                                      ID = Value(varpaiselecionado.ID),
+                                      CategoriaAve
+                                  ),
+                                  TempoChoco
+                              )
+                          )
+                      }
+                  )
+              );
+              If(
+                  And(
+                      VarOvoSelecionado.Status = "Chocando",
+                      Dropdown3.Selected.Value = "Fertilizado"
+                  ),
+                  Patch(
+                      Ovos,
+                      VarOvoSelecionado,
+                      {
+                          Status: Dropdown3.Selected.Value,
+                          DataConfirmacaoFetilizacao: DatePicker2.SelectedDate
+                      }
+                  )
+              );
+              If(
+                  And(
+                      VarOvoSelecionado.Status = "Fertilizado",
+                      Dropdown3.Selected.Value = "Nasceu"
+                  ),
+                  Concurrent(
+                      Patch(
+                          Ovos,
+                          VarOvoSelecionado,
+                          {
+                              Status: Dropdown3.Selected.Value,
+                              DataNascimento: DatePicker2.SelectedDate
+                          }
+                      ),
+                      Patch(
+                          Filhotes,
+                          Defaults(Filhotes),
+                          {
+                              IDMãe: {
+                                  Id: varmaeselecionada.ID,
+                                  Value: ""
+                              },
+                              IDPai: {
+                                  Id: varpaiselecionado.ID,
+                                  Value: ""
+                              },
+                              Gaiola: VarChocandoSelecionada.NumeroGaiola,
+                              Status: "Vivo",
+                              NumeroOvo: Label4_10.Text,
+                              DataNascimento: DatePicker2.SelectedDate,
+                              DataPrevistaAnilhamento: DateAdd(
+                                  DatePicker2.SelectedDate,
+                                  5,
+                                  TimeUnit.Days
+                              )
+                          }
+                      )
+                  )
+              );
+              Refresh(Ovos);
+              Refresh(Plantel);
+              Set(
+                  Varreset,
+                  true
+              );
+              Set(
+                  Varreset,
+                  false
+              );
+              UpdateContext({ctxGestaoOvoPopUp: false});
+            PressedBorderColor: =Self.Fill
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =Color.Green
+            Text: ="Salvar"
+            Visible: =ctxGestaoOvoPopUp
+            X: =548
+            Y: =623
+      - Button1_6:
+          Control: Classic/Button@2.2.0
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =53
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =Color.Red
+            OnSelect: |-
+              =UpdateContext(
+                  {
+                      ctxGestaoOvoPopUp: false
+                  }
+              );
+              Set(
+                  Varreset,
+                  true
+              );
+              Set(
+                  Varreset,
+                  false
+              )
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Color.Red
+            Text: ="Cancelar"
+            Visible: =ctxGestaoOvoPopUp
+            X: =816
+            Y: =623
+      - Label4_7:
+          Control: Label@2.5.1
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: ="Data da Postura:"
+            Visible: =ctxGestaoOvoPopUp
+            Width: =289
+            X: =438
+            Y: =284
+      - Label4_8:
+          Control: Label@2.5.1
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            OnSelect: =
+            Size: =20
+            Text: =VarOvoSelecionado.DataPostura
+            Visible: =ctxGestaoOvoPopUp
+            Width: =233
+            X: =799
+            Y: =284
+      - Label4_9:
+          Control: Label@2.5.1
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: ="Número do Ovo:"
+            Visible: =ctxGestaoOvoPopUp
+            Width: =289
+            X: =438
+            Y: =348
+      - Label4_10:
+          Control: Label@2.5.1
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            OnSelect: =
+            Size: =20
+            Text: =VarOvoSelecionado.NumeroOvo
+            Visible: =ctxGestaoOvoPopUp
+            Width: =233
+            X: =799
+            Y: =348
+      - Label4_11:
+          Control: Label@2.5.1
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: ="Status do Ovo:"
+            Visible: =ctxGestaoOvoPopUp
+            Width: =289
+            X: =438
+            Y: =412
+      - Dropdown3:
+          Control: Classic/DropDown@2.3.1
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =varCorPrincipal
+            ChevronBackground: =varCorPrincipal
+            ChevronFill: =Color.White
+            ChevronHoverBackground: =varCorPrincipalTranslucida
+            ChevronHoverFill: =Color.White
+            Default: =VarOvoSelecionado.Status
+            DisabledColor: =Color.Black
+            Font: =Font.'Open Sans'
+            HoverBorderColor: =varCorPrincipal
+            HoverColor: =Color.White
+            HoverFill: =varCorComponenteTraslucida
+            Items: |-
+              =[
+                  "Postura",
+                  "Chocando",
+                  "Fertilizado",
+                  "Nasceu",
+                  "Descartado"
+              ]
+            Items.Value: =Value
+            PressedBorderColor: =varCorPrincipal
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =Color.Green
+            Reset: =Varreset
+            SelectionColor: =RGBA(255, 255, 255, 1)
+            SelectionFill: =varCorPrincipalTranslucida
+            Size: =20
+            Visible: =ctxGestaoOvoPopUp
+            Width: =233
+            X: =799
+            Y: =412
+      - Label4_12:
+          Control: Label@2.5.1
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =62
+            Size: =20
+            Text: |-
+              =If(
+                  Dropdown3.Selected.Value = "Chocando",
+                  "Data do Início Choco: ",
+                  Dropdown3.Selected.Value = "Fertilizado",
+                  "Data da Confirmação Fertilização: ",
+                  Dropdown3.Selected.Value = "Descartado",
+                  "Data do Descarte: ",
+                  "Data do Nascimento: "
+              )
+            Visible: |-
+              =If(
+                  Dropdown3.Selected.Value <> "Postura",
+                  ctxGestaoOvoPopUp,
+                  false
+              )
+            Width: =335
+            X: =438
+            Y: =462
+      - DatePicker2:
+          Control: Classic/DatePicker@2.6.0
+          Group: GestaoOvos
+          Properties:
+            BorderColor: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            IconBackground: =varCorPrincipal
+            IconFill: =RGBA(255, 255, 255, 1)
+            Reset: =Varreset
+            Visible: |-
+              =If(
+                  Dropdown3.Selected.Value <> "Postura",
+                  ctxGestaoOvoPopUp,
+                  false
+              )
+            Width: =233
+            X: =799
+            Y: =473
+      - Rectangle4:
+          Control: Rectangle@2.3.0
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            DisabledFill: =RGBA(128, 128, 128, 0.7)
+            Fill: =RGBA(128, 128, 128, 0.7)
+            Height: =768
+            HoverFill: =RGBA(128, 128, 128, 0.7)
+            PressedFill: =RGBA(128, 128, 128, 0.7)
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =1366
+      - Adicionar Ovos:
+          Control: Rectangle@2.3.0
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =446
+            HoverFill: =RGBA(255, 255, 255, 1)
+            PressedFill: =RGBA(255, 255, 255, 1)
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =789
+            X: =368
+            Y: =180
+      - TableNameLabel1_4:
+          Control: Label@2.5.1
+          Group: AdicionaOvos
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Lato Black'
+            FontWeight: =FontWeight.Semibold
+            Height: =71
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Size: =25
+            Text: ="Controle Gaiolas"
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =789
+            X: =368
+            Y: =180
+      - Label4:
+          Control: Label@2.5.1
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: ="Data da Postura"
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =233
+            X: =460
+            Y: =305
+      - DatePicker1:
+          Control: Classic/DatePicker@2.6.0
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            IconBackground: =varCorPrincipal
+            IconFill: =RGBA(255, 255, 255, 1)
+            PaddingLeft: =5
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =188
+            X: =704
+            Y: =305
+      - Label4_2:
+          Control: Label@2.5.1
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: ="Quantidade"
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =233
+            X: =460
+            Y: =373
+      - TextInput1:
+          Control: Classic/TextInput@2.3.2
+          Group: AdicionaOvos
+          Properties:
+            Align: =Align.Center
+            BorderColor: =varCorPrincipal
+            BorderThickness: =4
+            Default: =NovoValor
+            DisabledBorderColor: =varCorPrincipal
+            DisabledColor: =RGBA(50, 49, 48, 1)
+            DisplayMode: =DisplayMode.Disabled
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            HoverBorderColor: =RGBA(89, 0, 0, 1)
+            HoverFill: =RGBA(222, 179, 184, 1)
+            PaddingLeft: =5
+            Reset: =Varreset
+            Size: =20
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =61
+            X: =768
+            Y: =373
+      - Icon1:
+          Control: Classic/Icon@2.5.0
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(54, 176, 75, 1)
+            Height: =40
+            Icon: =Icon.Add
+            OnSelect: |-
+              =UpdateContext({NovoValor: Value(TextInput1.Text) + 1})
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =40
+            X: =704
+            Y: =373
+      - Icon1_1:
+          Control: Classic/Icon@2.5.0
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(255, 0, 0, 1)
+            Height: =40
+            Icon: =Icon.HorizontalLine
+            OnSelect: |-
+              =UpdateContext({NovoValor: Value(TextInput1.Text) - 1})
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =40
+            X: =852
+            Y: =373
+      - Button1_3:
+          Control: Classic/Button@2.2.0
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =53
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorComponente
+            OnSelect: |-
+              =If(
+                  TextInput1.Text <> "",
+                  ForAll(
+                      Sequence(TextInput1.Text),
+                      Patch(
+                          Ovos,
+                          Defaults(Ovos),
+                          {
+                              NomeMae: varmaeselecionada.Nome,
+                              NomePai: varpaiselecionado.Nome,
+                              DataPostura: DatePicker1.SelectedDate,
+                              DataOvoscopia: DatePicker1.SelectedDate + 5,
+                              DataInicioChoco: If(
+                                  Checkbox1.Value = true,
+                                  Today(),
+                                  Blank()
+                              ),
+                              DataPrevistaNascimento: If(
+                                  Checkbox1.Value = true,
+                              DatePicker1.SelectedDate + Value(
+                                      LookUp(
+                                          EspecieAve,
+                                          Especie = LookUp(
+                                              Plantel,
+                                              ID = Value(varpaiselecionado.ID),
+                                              CategoriaAve
+                                          ),
+                                          TempoChoco
+                                      )
+                                  ),
+                                  Blank()
+                              ),
+                              ConfirmaInicioChoco: If(
+                                  Checkbox1.Value = true,
+                                  "Sim",
+                                  "Não"
+                              ),
+                              Status:If(
+                                  Checkbox1.Value = true,
+                                  "Chocando",
+                                  "Postura"
+                              ),
+                              NumeroOvo: "Ovo-" & CountRows(
+                                  Filter(
+                                      Ovos,
+                                      Year(Criado) = Year(Now())
+                                  )
+                              ) + 1 & "-" & Year(Now()),
+                              Gaiola: VarChocandoSelecionada.NumeroGaiola,
+                              IDGaiola: {
+                                  Id: VarChocandoSelecionada.ID,
+                                  Value: ""
+                              }
+                          }
+                      )
+                  )
+              );
+              Refresh(Ovos);
+              UpdateContext({ctxAdicionaOvoPopUp: false});
+              Set(
+                  Varreset,
+                  true
+              );
+              Set(
+                  Varreset,
+                  false
+              )
+            PressedBorderColor: =Self.Fill
+            PressedColor: =RGBA(255, 255, 255, 1)
+            PressedFill: =Color.Green
+            Text: ="Salvar"
+            Visible: =ctxAdicionaOvoPopUp
+            X: =548
+            Y: =553
+      - Button1_4:
+          Control: Classic/Button@2.2.0
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =ColorFade(Self.Fill, -15%)
+            Color: =RGBA(255, 255, 255, 1)
+            DisabledBorderColor: =RGBA(166, 166, 166, 1)
+            Fill: =varCorPrincipal
+            Font: =Font.'Open Sans'
+            Height: =53
+            HoverBorderColor: =ColorFade(Self.BorderColor, 20%)
+            HoverColor: =RGBA(255, 255, 255, 1)
+            HoverFill: =varCorComponente
+            OnSelect: |-
+              =UpdateContext(
+                  {
+                      ctxAdicionaOvoPopUp: false
+                  }
+              );
+              Set(
+                  Varreset,
+                  true
+              );
+              Set(
+                  Varreset,
+                  false
+              )
+            PressedBorderColor: =Self.Fill
+            PressedColor: =Self.Fill
+            PressedFill: =Color.Red
+            Text: ="Cancelar"
+            Visible: =ctxAdicionaOvoPopUp
+            X: =816
+            Y: =553
+      - Checkbox1:
+          Control: Classic/CheckBox@2.1.0
+          Group: AdicionaOvos
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            CheckboxBorderColor: =RGBA(89, 0, 0, 1)
+            CheckmarkFill: =RGBA(0, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Height: =52
+            HoverColor: =RGBA(89, 0, 0, 1)
+            Reset: =Varreset
+            Size: =20
+            Text: ="Vai Iniciar o choco nesse momento?"
+            Visible: =ctxAdicionaOvoPopUp
+            Width: =609
+            X: =460
+            Y: =458
+      - Icon2_3:
+          Control: Classic/Icon@2.5.0
+          Group: Group2_3
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =45
+            Icon: =Icon.ChevronLeft
+            OnSelect: =Navigate('Tela Principal')
+            Width: =45
+            X: =30
+            Y: =24
+      - Label11_3:
+          Control: Label@2.5.1
+          Group: Group2_3
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =45
+            OnSelect: =Navigate('Tela Principal')
+            Size: =18
+            Text: ="Voltar"
+            X: =75
+            Y: =24

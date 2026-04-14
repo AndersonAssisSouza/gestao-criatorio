@@ -1,0 +1,562 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  SimulacaoMutacoes:
+    Properties:
+      Fill: =RGBA(234, 234, 234, 1)
+      LoadingSpinnerColor: =varCorPrincipal
+    Children:
+      - ScreenContainer3:
+          Control: GroupContainer@1.3.0
+          Variant: AutoLayout
+          Properties:
+            Fill: =RGBA(245, 245, 245, 1)
+            Height: =Parent.Height
+            LayoutAlignItems: =LayoutAlignItems.Stretch
+            LayoutDirection: =LayoutDirection.Vertical
+            LayoutGap: =16
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Width: =Parent.Width
+          Children:
+            - HeaderContainer2:
+                Control: GroupContainer@1.3.0
+                Variant: AutoLayout
+                Properties:
+                  BorderColor: =RGBA(128, 128, 128, 1)
+                  BorderThickness: =2
+                  Fill: =RGBA(255, 255, 255, 1)
+                  FillPortions: =0
+                  Height: =75
+                  LayoutDirection: =LayoutDirection.Horizontal
+                Children:
+                  - TableNameLabel1_3:
+                      Control: Label@2.5.1
+                      Properties:
+                        Align: =Align.Center
+                        AlignInContainer: =AlignInContainer.Stretch
+                        BorderColor: =RGBA(128, 128, 128, 1)
+                        Color: =RGBA(255, 255, 255, 1)
+                        DisabledColor: =RGBA(186, 186, 186, 1)
+                        Fill: =varCorPrincipal
+                        FillPortions: =1
+                        Font: =Font.'Lato Black'
+                        FontWeight: =FontWeight.Semibold
+                        Height: =68
+                        PaddingBottom: =16
+                        PaddingLeft: =16
+                        PaddingRight: =16
+                        PaddingTop: =16
+                        Size: =25
+                        Text: ="Controle de Acasalamentos por Mutações"
+            - BottomContainer2:
+                Control: GroupContainer@1.3.0
+                Variant: AutoLayout
+                Properties:
+                  Fill: =RGBA(245, 245, 245, 1)
+                  LayoutAlignItems: =LayoutAlignItems.Stretch
+                  LayoutDirection: =LayoutDirection.Horizontal
+                  LayoutGap: =16
+                  LayoutWrap: =true
+                  PaddingBottom: =2
+                  PaddingLeft: =2
+                  PaddingRight: =2
+                  PaddingTop: =2
+                Children:
+                  - SidebarContainer3:
+                      Control: GroupContainer@1.3.0
+                      Variant: AutoLayout
+                      Properties:
+                        BorderColor: =RGBA(128, 128, 128, 1)
+                        BorderThickness: =2
+                        Fill: =RGBA(230, 230, 230, 1)
+                        FillPortions: =0
+                        Height: =Len(Dropdown2.Height)*0.8
+                        LayoutDirection: =LayoutDirection.Vertical
+                        LayoutJustifyContent: =LayoutJustifyContent.SpaceBetween
+                        LayoutMinWidth: =200
+                        PaddingBottom: =5
+                        PaddingLeft: =20
+                        PaddingRight: =5
+                        PaddingTop: =5
+                      Children:
+                        - Label2:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(128, 128, 128, 1)
+                              BorderStyle: =BorderStyle.None
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Bold
+                              Size: =20
+                              Text: ="Selecione a Espécie:"
+                              Width: =300
+                        - Dropdown2:
+                            Control: Classic/DropDown@2.3.1
+                            Properties:
+                              AllowEmptySelection: =true
+                              BorderColor: =RGBA(128, 128, 128, 1)
+                              ChevronBackground: =varCorPrincipal
+                              ChevronFill: =RGBA(255, 255, 255, 1)
+                              ChevronHoverBackground: =varCorPrincipal
+                              ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                              Default: =""
+                              Font: =Font.'Open Sans'
+                              HoverFill: =RGBA(222, 179, 184, 1)
+                              Items: =Distinct(MutacaoTarin,Especie)
+                              Items.Value: =Value
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =varCorPrincipal
+                              Reset: =
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =varCorPrincipal
+                        - Separator2_1:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =varCorPrincipal
+                              BorderThickness: =2
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Height: =2
+                              OnSelect: =
+                              Width: =460
+                              Y: =
+                        - Rectangle2_1:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =varCorPrincipal
+                              Fill: =varCorPrincipal
+                              Height: =2
+                              HoverFill: =varCorPrincipal
+                              PressedFill: =varCorPrincipal
+                              Width: =350
+                        - Label1:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(89, 0, 0, 1)
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Bold
+                              Size: =20
+                              Text: ="Selecione a mutação do Macho:"
+                              Width: =450
+                        - Dropdown1:
+                            Control: Classic/DropDown@2.3.1
+                            Properties:
+                              AllowEmptySelection: =true
+                              BorderColor: =RGBA(128, 128, 128, 1)
+                              ChevronBackground: =varCorPrincipal
+                              ChevronFill: =RGBA(255, 255, 255, 1)
+                              ChevronHoverBackground: =varCorPrincipal
+                              ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                              Default: =
+                              Font: =Font.'Open Sans'
+                              HoverFill: =RGBA(222, 179, 184, 1)
+                              Items: |-
+                                =Sort(
+                                    Distinct(
+                                    Filter(
+                                        MutacaoTarin,
+                                        Especie = Dropdown2.Selected.Value
+                                    ),
+                                    MutacaoMacho
+                                ),
+                                "MutacaoMacho",
+                                SortOrder.Ascending
+                                )
+                              Items.Value: =Value
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =varCorPrincipal
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =varCorPrincipal
+                        - Label1_2:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(89, 0, 0, 1)
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Bold
+                              Size: =20
+                              Text: ="Legenda Mutação do Macho:"
+                              Width: =450
+                        - Label3:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(128, 128, 128, 1)
+                              DisabledBorderColor: =RGBA(128, 128, 128, 1)
+                              DisabledColor: =RGBA(128, 128, 128, 1)
+                              DisabledFill: =RGBA(128, 128, 128, 1)
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Font: =Font.'Open Sans'
+                              Text: |-
+                                =LookUp(
+                                    MutacaoTarin,
+                                    Dropdown1.Selected.Value = MutacaoMacho,
+                                    LegendaMutacaoMacho
+                                )
+                              Width: =328
+                        - Rectangle2:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =varCorPrincipal
+                              Fill: =varCorPrincipal
+                              Height: =2
+                              HoverFill: =varCorPrincipal
+                              PressedFill: =varCorPrincipal
+                              Width: =350
+                        - Separator2_2:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =varCorPrincipal
+                              BorderThickness: =2
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Height: =2
+                              OnSelect: =
+                              Width: =460
+                              Y: =
+                        - Label1_1:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(89, 0, 0, 1)
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Bold
+                              Size: =20
+                              Text: ="Selecione a mutação do Fêmea:"
+                              Width: =470
+                        - Dropdown1_1:
+                            Control: Classic/DropDown@2.3.1
+                            Properties:
+                              AllowEmptySelection: =true
+                              BorderColor: =RGBA(128, 128, 128, 1)
+                              ChevronBackground: =varCorPrincipal
+                              ChevronFill: =RGBA(255, 255, 255, 1)
+                              ChevronHoverBackground: =varCorPrincipal
+                              ChevronHoverFill: =RGBA(255, 255, 255, 1)
+                              Default: =
+                              Font: =Font.'Open Sans'
+                              HoverFill: =RGBA(222, 179, 184, 1)
+                              Items: |-
+                                =Sort(
+                                    Distinct(
+                                    Filter(
+                                        MutacaoTarin,
+                                        Especie = Dropdown2.Selected.Value,
+                                        MutacaoMacho = Dropdown1.Selected.Value
+                                    ),
+                                    MutacaoFemea
+                                ),
+                                "MutacaoFemea",
+                                SortOrder.Ascending
+                                )
+                              Items.Value: =Value
+                              PressedColor: =RGBA(255, 255, 255, 1)
+                              PressedFill: =varCorPrincipal
+                              SelectionColor: =RGBA(255, 255, 255, 1)
+                              SelectionFill: =varCorPrincipal
+                        - Label1_3:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(89, 0, 0, 1)
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Bold
+                              Size: =20
+                              Text: ="Legenda Mutação do Fêmea:"
+                              Width: =470
+                        - Label3_1:
+                            Control: Label@2.5.1
+                            Properties:
+                              Align: =Align.Center
+                              BorderColor: =RGBA(128, 128, 128, 1)
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Font: =Font.'Open Sans'
+                              Text: |-
+                                =LookUp(
+                                    MutacaoTarin,
+                                    Dropdown1_1.Selected.Value = MutacaoFemea,
+                                    LegendaMutacaoFemea
+                                )
+                              Width: =328
+                        - Separator2_3:
+                            Control: Rectangle@2.3.0
+                            Properties:
+                              BorderColor: =varCorPrincipal
+                              BorderThickness: =2
+                              Fill: =RGBA(255, 255, 255, 1)
+                              Height: =2
+                              OnSelect: =
+                              Width: =460
+                              Y: =
+                  - MainContainer3:
+                      Control: GroupContainer@1.3.0
+                      Variant: AutoLayout
+                      Properties:
+                        BorderColor: =RGBA(128, 128, 128, 1)
+                        BorderThickness: =2
+                        Fill: =RGBA(230, 230, 230, 1)
+                        FillPortions: =7
+                        LayoutDirection: =LayoutDirection.Vertical
+                        PaddingBottom: =5
+                        PaddingLeft: =5
+                        PaddingRight: =5
+                        PaddingTop: =5
+                        Visible: |-
+                          =If(
+                              And(
+                                  IsBlank(Dropdown1.SelectedText),
+                                  IsBlank(Dropdown1_1.SelectedText),
+                                  IsBlank(Dropdown2.SelectedText)
+                              ) = true,
+                              false,
+                              true
+                          )
+                      Children:
+                        - Label4_1:
+                            Control: Label@2.5.1
+                            Properties:
+                              BorderColor: =RGBA(89, 0, 0, 1)
+                              Font: =Font.'Open Sans'
+                              FontWeight: =FontWeight.Bold
+                              Size: =20
+                              Text: ="Possíveis Nascimentos dos Filhotes:"
+                              Width: =800
+      - Label4_3:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: ="Machos"
+            Visible: "=If(\r\n    And(\r\n        IsBlank(Dropdown2.Selected) || IsBlank(Dropdown1.Selected) = true || IsBlank(Dropdown1_1.Selected) = true\r\n    ),\r\n    false,\r\n    true\r\n)\r\n        "
+            Width: =382
+            X: =543
+            Y: =164
+      - Label4_4:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: ="Fêmeas"
+            Visible: "=If(\r\n    And(\r\n        IsBlank(Dropdown2.Selected) || IsBlank(Dropdown1.Selected) = true || IsBlank(Dropdown1_1.Selected) = true\r\n    ),\r\n    false,\r\n    true\r\n)\r\n        "
+            Width: =382
+            X: =947
+            Y: =164
+      - Gallery1:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_ThreeTextVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =268
+            Items: |-
+              =Filter(
+                  MutacaoTarin,
+                  Dropdown2.Selected.Value = Especie,
+                  Dropdown1.Selected.Value = MutacaoMacho,
+                  Dropdown1_1.Selected.Value = MutacaoFemea,
+                  !IsBlank(MutacaoFilhoteMacho)
+              )
+            TemplateSize: =71
+            Visible: "=If(\r\n    And(\r\n        IsBlank(Dropdown2.Selected) || IsBlank(Dropdown1.Selected) = true || IsBlank(Dropdown1_1.Selected) = true\r\n    ),\r\n    false,\r\n    true\r\n)\r\n        "
+            Width: =382
+            X: =543
+            Y: =211
+          Children:
+            - Title5:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =14
+                  Text: =ThisItem.MutacaoFilhoteMacho
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Parent.TemplateWidth - 86
+                  X: =16
+                  Y: =14
+            - Subtitle4:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.LegendaFilhoteMacho
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title5.Width
+                  X: =Title5.X
+                  Y: =Title5.Y + Title5.Height
+            - NextArrow5:
+                Control: Classic/Icon@2.5.0
+                Properties:
+                  AccessibleLabel: =Self.Tooltip
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(166, 166, 166, 1)
+                  Height: =50
+                  Icon: =Icon.ChevronRight
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =16
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =16
+                  Tooltip: ="Exibir detalhes do item"
+                  Visible: =false
+                  Width: =50
+                  X: =Parent.TemplateWidth - Self.Width - 12
+                  Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+            - Separator5:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Fill: =varCorPrincipal
+                  Height: =2
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+      - Gallery1_1:
+          Control: Gallery@2.15.0
+          Variant: BrowseLayout_Vertical_ThreeTextVariant_ver5.0
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Fill: =RGBA(255, 255, 255, 1)
+            Height: =268
+            Items: |-
+              =Filter(
+                  MutacaoTarin,
+                  Dropdown2.Selected.Value = Especie,
+                  Dropdown1_1.Selected.Value = MutacaoFemea,
+                  Dropdown1.Selected.Value = MutacaoMacho,
+                  !IsBlank(MutacaoFilhoteFemea)
+              )
+            TemplateSize: =71
+            Visible: "=If(\r\n    And(\r\n        IsBlank(Dropdown2.Selected) || IsBlank(Dropdown1.Selected) = true || IsBlank(Dropdown1_1.Selected) = true\r\n    ),\r\n    false,\r\n    true\r\n)\r\n        "
+            Width: =382
+            X: =947
+            Y: =211
+          Children:
+            - Title5_1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Color: =RGBA(50, 49, 48, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =14
+                  Text: =ThisItem.MutacaoFilhoteFemea
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Parent.TemplateWidth - 86
+                  X: =16
+                  Y: =14
+            - Subtitle4_1:
+                Control: Label@2.5.1
+                Properties:
+                  BorderColor: =RGBA(0, 0, 0, 1)
+                  Font: =Font.'Open Sans'
+                  FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+                  Height: =Self.Size * 1.8
+                  OnSelect: =
+                  PaddingBottom: =0
+                  PaddingLeft: =12
+                  PaddingRight: =0
+                  PaddingTop: =0
+                  Size: =12
+                  Text: =ThisItem.LegendaFilhoteFemea
+                  VerticalAlign: =VerticalAlign.Top
+                  Width: =Title5_1.Width
+                  X: =Title5_1.X
+                  Y: =Title5_1.Y + Title5_1.Height
+            - NextArrow5_1:
+                Control: Classic/Icon@2.5.0
+                Properties:
+                  AccessibleLabel: =Self.Tooltip
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Color: =RGBA(166, 166, 166, 1)
+                  Height: =50
+                  Icon: =Icon.ChevronRight
+                  OnSelect: =Select(Parent)
+                  PaddingBottom: =16
+                  PaddingLeft: =16
+                  PaddingRight: =16
+                  PaddingTop: =16
+                  Tooltip: ="Exibir detalhes do item"
+                  Visible: =false
+                  Width: =50
+                  X: =Parent.TemplateWidth - Self.Width - 12
+                  Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+            - Separator5_1:
+                Control: Rectangle@2.3.0
+                Properties:
+                  BorderColor: =RGBA(89, 0, 0, 1)
+                  Fill: =varCorPrincipal
+                  Height: =2
+                  OnSelect: =Select(Parent)
+                  Width: =Parent.TemplateWidth
+                  Y: =Parent.TemplateHeight - Self.Height
+      - Label8:
+          Control: Label@2.5.1
+          Properties:
+            Align: =Align.Center
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =470
+            Size: =30
+            Text: ="Selecione a espécie e mutações do macho e femea para o resultado das possíbilidades das mutações no nascimento dos filhotes"
+            Visible: "=If(\r\n    And(\r\n        IsBlank(Dropdown2.Selected) || IsBlank(Dropdown1.Selected) = true || IsBlank(Dropdown1_1.Selected) = true\r\n    ),\r\n    true,\r\n    false\r\n)\r\n        "
+            Width: =605
+            X: =648
+            Y: =176
+      - Icon2_7:
+          Control: Classic/Icon@2.5.0
+          Group: Group2_7
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =45
+            Icon: =Icon.ChevronLeft
+            OnSelect: =Navigate('Tela Principal')
+            Width: =45
+            X: =30
+            Y: =29
+      - Label11_7:
+          Control: Label@2.5.1
+          Group: Group2_7
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Color: =RGBA(255, 255, 255, 1)
+            Font: =Font.'Open Sans'
+            FontWeight: =FontWeight.Bold
+            Height: =45
+            OnSelect: =Navigate('Tela Principal')
+            Size: =18
+            Text: ="Voltar"
+            X: =75
+            Y: =29

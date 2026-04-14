@@ -1,0 +1,108 @@
+# ************************************************************************************************
+# Warning: YAML source code for Canvas Apps should only be used to review changes made within Power Apps Studio and for minor edits (Preview).
+# Use the maker portal to create and edit your Power Apps.
+# 
+# The schema file for Canvas Apps is available at https://go.microsoft.com/fwlink/?linkid=2304907
+# 
+# For more information, visit https://go.microsoft.com/fwlink/?linkid=2292623
+# ************************************************************************************************
+Screens:
+  Screen1:
+    Properties:
+      Fill: =RGBA(234, 234, 234, 1)
+      LoadingSpinnerColor: =RGBA(164, 38, 44, 1)
+    Children:
+      - Label12:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Height: =46
+            Text: ="Usuário:"
+            Width: =233
+            X: =40
+            Y: =40
+      - Label12_1:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Height: =46
+            Text: ="Criatório:"
+            Width: =233
+            X: =40
+            Y: =86
+      - Label13:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Text: =UsuáriosdoOffice365.MyProfile().DisplayName
+            Width: =362
+            X: =273
+            Y: =40
+      - Label13_1:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Height: =52
+            Text: |-
+              =LookUp(
+                  GestaoCriatorio,
+                  Acesso = Label13.Text,
+                  NomeCriatorio
+              )
+            Width: =362
+            X: =273
+            Y: =80
+      - Label12_2:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Height: =46
+            Text: ="Registro:"
+            Width: =233
+            X: =40
+            Y: =138
+      - Label13_2:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Height: =52
+            Text: |-
+              =LookUp(
+                  GestaoCriatorio,
+                  Acesso = Label13.Text,
+                  CTFCriador
+              )
+            Width: =362
+            X: =273
+            Y: =132
+      - Label12_3:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Height: =46
+            Text: ="Acesso:"
+            Width: =233
+            X: =40
+            Y: =190
+      - Label13_3:
+          Control: Label@2.5.1
+          Properties:
+            BorderColor: =RGBA(89, 0, 0, 1)
+            Font: =Font.'Open Sans'
+            Height: =52
+            Text: |-
+              =LookUp(
+                  GestaoCriatorio,
+                  Acesso = Label13.Text,
+                  Acesso
+              )
+            Width: =362
+            X: =273
+            Y: =184
