@@ -31,6 +31,25 @@ const GENERO_OPTIONS = ['Macho', 'Femea']
 
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
+function normalizeGenero(value = '') {
+  const normalized = String(value || '').trim().toLowerCase()
+  if (!normalized) return ''
+  if (normalized === 'femea' || normalized === 'fêmea') return 'Fêmea'
+  if (normalized === 'macho') return 'Macho'
+  return String(value || '').trim()
+}
+
+function normalizeEspecie(value = '') {
+  const text = String(value || '').trim()
+  if (!text) return ''
+
+  return text
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(' ')
+}
+
 export function ExPlantelModule() {
   const [data,       setData]       = useState([])
   const [catalogs, setCatalogs] = useState({
@@ -184,7 +203,9 @@ export function ExPlantelModule() {
                   onClick={() => handleSelect(ave)}
                 >
                   <div className="font-serif" style={{ fontSize: 16, marginBottom: 3 }}>{ave.Nome}</div>
-                  <div className="text-muted" style={{ fontSize: 11, marginBottom: 6 }}>{ave.CategoriaAve} &middot; {ave.Genero}</div>
+                  <div className="text-muted" style={{ fontSize: 11, marginBottom: 6 }}>
+                    {normalizeEspecie(ave.CategoriaAve)} &middot; {normalizeGenero(ave.Genero)}
+                  </div>
                   <StatusBadge status={ave.Status} />
                 </div>
               ))
@@ -239,11 +260,11 @@ export function ExPlantelModule() {
                 </div>
                 <div className="p-field">
                   <label className="p-label">Espécie</label>
-                  <input className="p-input" value={selected.CategoriaAve || ''} disabled readOnly />
+                  <input className="p-input" value={normalizeEspecie(selected.CategoriaAve)} disabled readOnly />
                 </div>
                 <div className="p-field">
                   <label className="p-label">Gênero</label>
-                  <input className="p-input" value={selected.Genero || ''} disabled readOnly />
+                  <input className="p-input" value={normalizeGenero(selected.Genero)} disabled readOnly />
                 </div>
                 <div className="p-field">
                   <label className="p-label">Criatório / Origem</label>
