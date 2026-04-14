@@ -373,7 +373,7 @@ export function FilhotesModule() {
       </div>
 
       {/* 3-Panel Layout */}
-      <div className="p-split" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+      <div className="p-split p-split--3">
 
         {/* ─── LEFT PANEL: Chicks Gallery ────────────────────────────────── */}
         <div className="module-panel flex flex-col" style={{ overflow: 'hidden' }}>

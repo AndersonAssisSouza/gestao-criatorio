@@ -100,7 +100,7 @@ a:hover { text-decoration: underline; }
 .app-content {
   flex: 1;
   padding: 28px 32px 40px;
-  max-width: 1200px;
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto;
 }
@@ -246,7 +246,7 @@ a:hover { text-decoration: underline; }
 /* ─── 5. Topbar / Page Header ───────────────────────────────────────────── */
 .app-topbar {
   padding: 28px 32px 0;
-  max-width: 1200px;
+  max-width: 1600px;
   width: 100%;
   margin: 0 auto;
 }
@@ -704,6 +704,10 @@ a:hover { text-decoration: underline; }
   gap: 20px;
 }
 
+.p-split--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
 .p-split--weighted {
   grid-template-columns: 2fr 3fr;
 }
@@ -909,6 +913,9 @@ a:hover { text-decoration: underline; }
   .app-topbar { padding: 20px 20px 0; }
   .app-content { padding: 20px; }
   .p-split {
+    grid-template-columns: 1fr;
+  }
+  .p-split--3 {
     grid-template-columns: 1fr;
   }
   .p-split--weighted {
