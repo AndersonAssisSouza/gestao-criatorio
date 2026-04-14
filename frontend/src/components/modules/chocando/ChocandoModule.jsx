@@ -462,7 +462,7 @@ export function ChocandoModule({ onNavigate }) {
                     <option value="">-- Selecione a femea --</option>
                     {femeas.map(f => (
                       <option key={f.ID} value={String(f.ID)}>
-                        {f.Nome} — {f.Mutacao}
+                        {f.Nome} — {f.Mutacao} — {f.CategoriaAve}
                       </option>
                     ))}
                   </select>
@@ -482,7 +482,7 @@ export function ChocandoModule({ onNavigate }) {
                     <option value="">-- Selecione o macho --</option>
                     {machos.map(m => (
                       <option key={m.ID} value={String(m.ID)}>
-                        {m.Nome} — {m.Mutacao}
+                        {m.Nome} — {m.Mutacao} — {m.CategoriaAve}
                       </option>
                     ))}
                   </select>
