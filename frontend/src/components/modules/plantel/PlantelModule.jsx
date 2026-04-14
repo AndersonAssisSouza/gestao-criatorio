@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { StatCard }      from '../../shared/StatCard'
-import { StatusBadge }   from '../../shared/StatusBadge'
-import { ConfirmModal }  from '../../shared/ConfirmModal'
+import { StatCard } from '../../shared/StatCard'
+import { StatusBadge } from '../../shared/StatusBadge'
+import { ConfirmModal } from '../../shared/ConfirmModal'
+import { plantelService } from '../../../services/plantel.service'
+import { accessService } from '../../../services/access.service'
 
-// ─── MOCK — remover quando backend estiver conectado ─────────────────────────
 const MOCK_PLANTEL = [
   { ID: 1, Nome: 'Thor', Status: 'Vivo', NomeMae: 'Luna', NomePai: 'Zeus', Gaiola: 'G-01', DataNascimento: '2024-08-15', CategoriaAve: 'Tarin', Genero: 'Macho', Origem: 'Criadouro Marbella', RegistroFOB: 'FOB-001', AnelEsquerdo: 'AZ-2024-001', Mutacao: 'Ancestral', Acesso: 'Anderson', observacao: '' },
   { ID: 2, Nome: 'Athena', Status: 'Vivo', NomeMae: 'Hera', NomePai: 'Thor', Gaiola: 'G-02', DataNascimento: '2025-01-10', CategoriaAve: 'Tarin', Genero: 'Femea', Origem: 'Criadouro Próprio', RegistroFOB: 'FOB-002', AnelEsquerdo: 'AZ-2024-002', Mutacao: 'Canela', Acesso: 'Anderson', observacao: '' },
@@ -20,90 +21,174 @@ const MOCK_MUTACOES = ['Ancestral', 'Canela', 'Pastel', 'Canela Pastel', 'Topáz
 
 const STATUS_OPTIONS = ['Vivo', 'Filhote', 'Falecimento', 'Vendido', 'Doado']
 const GENERO_OPTIONS = ['Macho', 'Femea']
+const USE_MOCK = !import.meta.env.VITE_API_URL
 
-const USE_MOCK = true
-
-// ─── Estilos ────────────────────────────────────────────────────────────────
 const S = {
-  page:       { display: 'flex', flexDirection: 'column', height: '100%', gap: 16 },
-  master:     { display: 'flex', gap: 0, flex: 1, minHeight: 0, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' },
-  gallery:    { width: '35%', background: 'rgba(21,40,24,0.6)', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', minHeight: 0 },
-  formPanel:  { width: '65%', background: 'rgba(21,40,24,0.4)', display: 'flex', flexDirection: 'column', minHeight: 0 },
-  galleryHeader: { padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: 10 },
-  searchRow:  { display: 'flex', gap: 8, alignItems: 'center' },
-  searchInput:{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 12, fontFamily: "'DM Mono', monospace", outline: 'none' },
-  addBtn:     { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 8, width: 36, height: 36, color: '#FFFFFF', fontSize: 18, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  galleryList:{ flex: 1, overflowY: 'auto', overflowX: 'hidden' },
-  galleryItem:{ padding: '14px 18px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer', transition: 'background 0.15s' },
-  galleryItemSelected: { background: 'rgba(201,80,37,0.12)' },
-  galleryName:{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 3 },
-  gallerySub: { fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", marginBottom: 6 },
-  toolbar:    { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(21,40,24,0.3)' },
-  toolbarTitle:{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" },
-  toolbarBtns:{ display: 'flex', gap: 8 },
-  iconBtn:    (color) => ({ background: 'transparent', border: `1px solid ${color}33`, borderRadius: 8, width: 34, height: 34, color, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }),
-  formBody:   { flex: 1, overflowY: 'auto', padding: '22px 26px' },
-  formGrid:   { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px 20px' },
-  fieldWrap:  { display: 'flex', flexDirection: 'column', gap: 5 },
-  fieldWrapFull: { display: 'flex', flexDirection: 'column', gap: 5, gridColumn: '1 / -1' },
-  label:      { fontSize: 11, fontFamily: "'DM Mono', monospace", color: '#5A7A5C', letterSpacing: '0.06em', textTransform: 'uppercase' },
-  input:      { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '9px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none' },
-  inputDisabled:{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '9px 12px', color: '#5A7A5C', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', cursor: 'not-allowed' },
-  select:     { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '9px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', appearance: 'none', WebkitAppearance: 'none' },
-  selectDisabled:{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '9px 12px', color: '#5A7A5C', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', cursor: 'not-allowed', appearance: 'none', WebkitAppearance: 'none' },
-  textarea:   { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '9px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', resize: 'vertical', minHeight: 70 },
-  textareaDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '9px 12px', color: '#5A7A5C', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', resize: 'vertical', minHeight: 70, cursor: 'not-allowed' },
-  emptyForm:  { display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, color: '#3A5C3C', fontFamily: "'DM Mono', monospace", fontSize: 13, flexDirection: 'column', gap: 8 },
-  error:      { background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 12, color: '#E05C4B', fontSize: 13, fontFamily: "'DM Mono', monospace" },
+  page: { display: 'flex', flexDirection: 'column', gap: 22 },
+  error: { background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 16, padding: '12px 16px', color: '#E05C4B', fontSize: 13 },
+  eyebrow: { fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 8 },
+  title: { fontSize: 24, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", lineHeight: 1.1, marginBottom: 8 },
+  text: { fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7 },
+  searchRow: { display: 'flex', gap: 10, alignItems: 'center', marginTop: 18, flexWrap: 'wrap' },
+  searchInput: { flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-main)', fontSize: 13, outline: 'none' },
+  addBtn: { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 14, padding: '0 16px', minWidth: 116, height: 46, color: '#fff7f2', fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 24px rgba(201,80,37,0.24)', flexShrink: 0 },
+  quickGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginTop: 16 },
+  quickCard: { padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' },
+  quickLabel: { fontSize: 10, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 },
+  quickValue: { fontSize: 16, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
+  itemTop: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 12 },
+  avatar: { width: 42, height: 42, borderRadius: 14, background: 'linear-gradient(135deg, rgba(201,80,37,0.25), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffd8cb', fontSize: 15, fontWeight: 700, flexShrink: 0 },
+  itemName: { fontSize: 18, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 4 },
+  itemMeta: { fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 },
+  itemFooter: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 14, flexWrap: 'wrap' },
+  subtleText: { fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.08em', textTransform: 'uppercase' },
+  toolbarRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' },
+  toolbarTitle: { fontSize: 28, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", lineHeight: 1.05 },
+  toolbarSubtitle: { marginTop: 8, fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 },
+  toolbarBtns: { display: 'flex', gap: 10, flexWrap: 'wrap' },
+  primaryBtn: { borderRadius: 14, border: '1px solid rgba(76,175,125,0.28)', background: 'rgba(76,175,125,0.12)', color: '#d6f5e6', padding: '12px 16px', cursor: 'pointer', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' },
+  neutralBtn: { borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-soft)', padding: '12px 16px', cursor: 'pointer', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' },
+  accentBtn: { borderRadius: 14, border: '1px solid rgba(201,80,37,0.22)', background: 'rgba(201,80,37,0.12)', color: '#ffd4c7', padding: '12px 16px', cursor: 'pointer', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' },
+  dangerBtn: { borderRadius: 14, border: '1px solid rgba(224,92,75,0.2)', background: 'rgba(224,92,75,0.12)', color: '#ffc9c1', padding: '12px 16px', cursor: 'pointer', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' },
+  summaryCard: { padding: '15px 16px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)' },
+  summaryLabel: { fontSize: 10, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 7 },
+  summaryValue: { fontSize: 15, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
+  fieldWrap: { display: 'flex', flexDirection: 'column', gap: 7 },
+  fieldWrapFull: { display: 'flex', flexDirection: 'column', gap: 7, gridColumn: '1 / -1' },
+  label: { fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.12em', textTransform: 'uppercase' },
+  input: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-main)', fontSize: 13, outline: 'none' },
+  inputDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-faint)', fontSize: 13, outline: 'none', cursor: 'not-allowed' },
+  textarea: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-main)', fontSize: 13, minHeight: 100, resize: 'vertical', outline: 'none' },
+  textareaDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-faint)', fontSize: 13, minHeight: 100, resize: 'vertical', outline: 'none', cursor: 'not-allowed' },
+  select: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-main)', fontSize: 13, outline: 'none', appearance: 'none', WebkitAppearance: 'none' },
+  selectDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-faint)', fontSize: 13, outline: 'none', cursor: 'not-allowed', appearance: 'none', WebkitAppearance: 'none' },
+  emptyState: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 360, textAlign: 'center', color: 'var(--text-muted)', padding: '24px 16px' },
 }
 
 const emptyForm = () => ({
-  Nome: '', Status: 'Vivo', NomeMae: '', NomePai: '', Gaiola: '',
-  DataNascimento: '', CategoriaAve: '', Genero: '', Origem: '',
-  RegistroFOB: '', AnelEsquerdo: '', Mutacao: '', observacao: '',
+  Nome: '',
+  Status: 'Vivo',
+  NomeMae: '',
+  NomePai: '',
+  Gaiola: '',
+  DataNascimento: '',
+  CategoriaAve: '',
+  Genero: '',
+  Origem: '',
+  RegistroFOB: '',
+  AnelEsquerdo: '',
+  Mutacao: '',
+  observacao: '',
 })
 
-export function PlantelModule() {
-  const [data,       setData]       = useState([])
-  const [loading,    setLoading]    = useState(true)
-  const [search,     setSearch]     = useState('')
-  const [selected,   setSelected]   = useState(null)
-  const [formMode,   setFormMode]   = useState(null) // null | 'new' | 'edit' | 'view'
-  const [formData,   setFormData]   = useState(emptyForm())
-  const [delTarget,  setDelTarget]  = useState(null)
-  const [error,      setError]      = useState('')
+function normalizeKey(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
 
-  // ─── Carregamento inicial ─────────────────────────────────────────────────
+function buildMutationCatalog(records = []) {
+  return records.reduce((accumulator, item) => {
+    const speciesKey = normalizeKey(item.Especie)
+    if (!speciesKey) return accumulator
+
+    const nextOptions = [
+      item.MutacaoMacho,
+      item.MutacaoFemea,
+      item.MutacaoFilhoteMacho,
+      item.MutacaoFilhoteFemea,
+    ]
+      .map((value) => String(value || '').trim())
+      .filter(Boolean)
+
+    accumulator[speciesKey] = [...new Set([...(accumulator[speciesKey] || []), ...nextOptions])]
+    return accumulator
+  }, {})
+}
+
+export function PlantelModule() {
+  const [data, setData] = useState([])
+  const [catalogs, setCatalogs] = useState({
+    especies: MOCK_ESPECIES.map((item) => item.Especie),
+    gaiolas: MOCK_GAIOLAS.map((item) => item.NumeroGaiola),
+    criatorios: MOCK_CRIATORIOS.map((item) => item.NomeCriatorio),
+    aneis: MOCK_ANEIS.map((item) => item.NumeroAnel),
+    mutacoes: MOCK_MUTACOES,
+    mutacoesPorEspecie: {},
+  })
+  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
+  const [selected, setSelected] = useState(null)
+  const [formMode, setFormMode] = useState(null)
+  const [formData, setFormData] = useState(emptyForm())
+  const [delTarget, setDelTarget] = useState(null)
+  const [error, setError] = useState('')
+
   useEffect(() => {
     setLoading(true)
     if (USE_MOCK) {
-      setTimeout(() => { setData(MOCK_PLANTEL); setLoading(false) }, 400)
+      setTimeout(() => {
+        setData(MOCK_PLANTEL)
+        setLoading(false)
+      }, 400)
     } else {
-      setLoading(false)
+      Promise.all([
+        plantelService.listar(),
+        accessService.getImportedSharePointData(),
+      ])
+        .then(([response, snapshot]) => {
+          setData(response.items || [])
+          const mutacoes = [
+            ...(snapshot.mutacoes || []).flatMap((item) => [
+              item.MutacaoMacho,
+              item.MutacaoFemea,
+              item.MutacaoFilhoteMacho,
+              item.MutacaoFilhoteFemea,
+            ]),
+            ...(response.items || []).map((item) => item.Mutacao),
+          ]
+            .filter(Boolean)
+            .filter((value, index, array) => array.indexOf(value) === index)
+          const mutacoesPorEspecie = buildMutationCatalog(snapshot.mutacoes || [])
+
+          setCatalogs({
+            especies: (snapshot.especies || []).map((item) => item.Especie).filter(Boolean),
+            gaiolas: (snapshot.gaiolas || []).map((item) => item.NumeroGaiola).filter(Boolean),
+            criatorios: (snapshot.criatorios || []).map((item) => item.NomeCriatorio).filter(Boolean),
+            aneis: (snapshot.aneis || []).map((item) => item.NumeroAnel).filter(Boolean),
+            mutacoes: mutacoes.length > 0 ? mutacoes : MOCK_MUTACOES,
+            mutacoesPorEspecie,
+          })
+          setError('')
+        })
+        .catch((requestError) => {
+          setError(requestError.response?.data?.message || 'Não foi possível carregar o plantel.')
+        })
+        .finally(() => {
+          setLoading(false)
+        })
     }
   }, [])
 
-  // ─── Dados filtrados (somente Status = "Vivo") ───────────────────────────
-  const vivosOnly = data.filter(r => r.Status === 'Vivo')
-  const filtered = vivosOnly.filter(r =>
-    r.Nome.toLowerCase().includes(search.toLowerCase())
-  )
+  const vivosOnly = data.filter((record) => record.Status === 'Vivo')
+  const filtered = vivosOnly.filter((record) => record.Nome.toLowerCase().includes(search.toLowerCase()))
 
   const stats = {
-    total:  vivosOnly.length,
-    machos: vivosOnly.filter(r => r.Genero === 'Macho').length,
-    femeas: vivosOnly.filter(r => r.Genero === 'Femea').length,
-    gaiolas: [...new Set(vivosOnly.map(r => r.Gaiola).filter(Boolean))].length,
+    total: vivosOnly.length,
+    machos: vivosOnly.filter((record) => record.Genero === 'Macho').length,
+    femeas: vivosOnly.filter((record) => record.Genero === 'Femea').length,
+    gaiolas: [...new Set(vivosOnly.map((record) => record.Gaiola).filter(Boolean))].length,
   }
 
-  // ─── Seleção na galeria ───────────────────────────────────────────────────
   const handleSelect = (ave) => {
     setSelected(ave)
     setFormData({ ...ave })
     setFormMode('view')
   }
 
-  // ─── Ações do toolbar ────────────────────────────────────────────────────
   const handleNew = () => {
     setSelected(null)
     setFormData(emptyForm())
@@ -125,55 +210,76 @@ export function PlantelModule() {
     }
   }
 
-  const handleSubmit = () => {
-    if (formMode === 'new') {
-      const newRecord = { ...formData, ID: Date.now(), Acesso: 'Anderson' }
-      setData(d => [...d, newRecord])
-      setSelected(newRecord)
-      setFormData({ ...newRecord })
-      setFormMode('view')
-    } else if (formMode === 'edit' && selected) {
-      const updated = { ...formData, ID: selected.ID, Acesso: selected.Acesso }
-      setData(d => d.map(r => r.ID === selected.ID ? updated : r))
-      setSelected(updated)
-      setFormData({ ...updated })
-      setFormMode('view')
+  const handleSubmit = async () => {
+    try {
+      setError('')
+
+      if (formMode === 'new') {
+        const response = await plantelService.criar(formData)
+        const newRecord = response.item
+        setData((current) => [...current, newRecord])
+        setSelected(newRecord)
+        setFormData({ ...newRecord })
+        setFormMode('view')
+        return
+      }
+
+      if (formMode === 'edit' && selected) {
+        const response = await plantelService.atualizar(selected.ID, formData)
+        const updated = response.item
+        setData((current) => current.map((record) => (record.ID === selected.ID ? updated : record)))
+        setSelected(updated)
+        setFormData({ ...updated })
+        setFormMode('view')
+      }
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Não foi possível salvar a ave.')
     }
   }
 
-  const handleDeleteConfirm = () => {
-    setData(d => d.filter(r => r.ID !== delTarget.ID))
-    if (selected?.ID === delTarget.ID) {
-      setSelected(null)
-      setFormMode(null)
-      setFormData(emptyForm())
+  const handleDeleteConfirm = async () => {
+    try {
+      setError('')
+      await plantelService.remover(delTarget.ID)
+      setData((current) => current.filter((record) => record.ID !== delTarget.ID))
+      if (selected?.ID === delTarget.ID) {
+        setSelected(null)
+        setFormMode(null)
+        setFormData(emptyForm())
+      }
+      setDelTarget(null)
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Não foi possível remover a ave.')
     }
-    setDelTarget(null)
   }
 
-  // ─── Field helpers ────────────────────────────────────────────────────────
-  const isNewMode  = formMode === 'new'
+  const isNewMode = formMode === 'new'
   const isEditMode = formMode === 'edit'
-  const isViewMode = formMode === 'view'
+
   const canEditField = (field) => {
-    const newOnly = ['Nome', 'NomeMae', 'NomePai', 'DataNascimento', 'RegistroFOB', 'Origem']
-    const editableInEdit = ['Gaiola', 'observacao']
+    const editableInEdit = ['Gaiola', 'observacao', 'Status', 'AnelEsquerdo', 'Mutacao']
     const filhoteOrNew = ['CategoriaAve', 'Genero']
 
     if (isNewMode) return true
     if (isEditMode) {
       if (editableInEdit.includes(field)) return true
-      if (field === 'Status') return true
-      if (field === 'AnelEsquerdo') return true
-      if (field === 'Mutacao') return true
       if (filhoteOrNew.includes(field) && formData.Status === 'Filhote') return true
-      if (field === 'Gaiola') return true
       return false
     }
     return false
   }
 
-  const setField = (key, val) => setFormData(f => ({ ...f, [key]: val }))
+  const setField = (key, value) => setFormData((current) => ({ ...current, [key]: value }))
+  const mutationOptionsForSpecies = catalogs.mutacoesPorEspecie[normalizeKey(formData.CategoriaAve)] || []
+
+  const setSpecies = (value) => {
+    const nextMutationOptions = catalogs.mutacoesPorEspecie[normalizeKey(value)] || []
+    setFormData((current) => ({
+      ...current,
+      CategoriaAve: value,
+      Mutacao: nextMutationOptions.includes(current.Mutacao) ? current.Mutacao : '',
+    }))
+  }
 
   const renderInput = (key, label, opts = {}) => {
     const editable = canEditField(key)
@@ -181,17 +287,16 @@ export function PlantelModule() {
     const wrapStyle = fullWidth ? S.fieldWrapFull : S.fieldWrap
 
     if (type === 'dropdown') {
+      const onChange = key === 'CategoriaAve'
+        ? (event) => setSpecies(event.target.value)
+        : (event) => setField(key, event.target.value)
+
       return (
         <div style={wrapStyle} key={key}>
           <label style={S.label}>{label}</label>
-          <select
-            style={editable ? S.select : S.selectDisabled}
-            value={formData[key] || ''}
-            onChange={e => setField(key, e.target.value)}
-            disabled={!editable}
-          >
-            <option value="">-- Selecionar --</option>
-            {(options || []).map(o => <option key={o} value={o}>{o}</option>)}
+          <select style={editable ? S.select : S.selectDisabled} value={formData[key] || ''} onChange={onChange} disabled={!editable}>
+            <option value="">Selecionar</option>
+            {(options || []).map((option) => <option key={option} value={option}>{option}</option>)}
           </select>
         </div>
       )
@@ -202,15 +307,11 @@ export function PlantelModule() {
         return (
           <div style={wrapStyle} key={key}>
             <label style={S.label}>{label}</label>
-            <input
-              type="date"
-              style={S.input}
-              value={formData[key] || ''}
-              onChange={e => setField(key, e.target.value)}
-            />
+            <input type="date" style={S.input} value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} />
           </div>
         )
       }
+
       return (
         <div style={wrapStyle} key={key}>
           <label style={S.label}>{label}</label>
@@ -223,13 +324,7 @@ export function PlantelModule() {
       return (
         <div style={wrapStyle} key={key}>
           <label style={S.label}>{label}</label>
-          <textarea
-            style={editable ? S.textarea : S.textareaDisabled}
-            value={formData[key] || ''}
-            onChange={e => setField(key, e.target.value)}
-            disabled={!editable}
-            placeholder={placeholder || ''}
-          />
+          <textarea style={editable ? S.textarea : S.textareaDisabled} value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} disabled={!editable} placeholder={placeholder || ''} />
         </div>
       )
     }
@@ -237,170 +332,181 @@ export function PlantelModule() {
     return (
       <div style={wrapStyle} key={key}>
         <label style={S.label}>{label}</label>
-        <input
-          style={editable ? S.input : S.inputDisabled}
-          value={formData[key] || ''}
-          onChange={e => setField(key, e.target.value)}
-          disabled={!editable}
-          placeholder={placeholder || ''}
-        />
+        <input style={editable ? S.input : S.inputDisabled} value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} disabled={!editable} placeholder={placeholder || ''} />
       </div>
     )
   }
 
-  // ─── Render ───────────────────────────────────────────────────────────────
-  if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#5A7A5C', fontFamily: "'DM Mono', monospace", fontSize: 13 }}>
-      Carregando plantel...
-    </div>
-  )
+  if (loading) {
+    return <div style={{ minHeight: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Carregando plantel...</div>
+  }
 
   return (
-    <div style={S.page}>
+    <div className="page-block" style={S.page}>
       {error && <div style={S.error}>{error}</div>}
 
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
-        <StatCard label="Total Vivos"  value={stats.total}   desc="aves no plantel"  color="#C95025" />
-        <StatCard label="Machos"       value={stats.machos}  desc="reprodutores"      color="#4CAF7D" />
-        <StatCard label="Femeas"       value={stats.femeas}  desc="matrizes"          color="#F5A623" />
-        <StatCard label="Gaiolas"      value={stats.gaiolas} desc="ocupadas"           color="#5BC0EB" />
+      <div className="stat-grid">
+        <StatCard label="Total vivos" value={stats.total} desc="aves ativas no plantel" color="#C95025" />
+        <StatCard label="Machos" value={stats.machos} desc="reprodutores disponíveis" color="#4CAF7D" />
+        <StatCard label="Fêmeas" value={stats.femeas} desc="matrizes em acompanhamento" color="#F5A623" />
+        <StatCard label="Gaiolas" value={stats.gaiolas} desc="ocupações distintas mapeadas" color="#5BC0EB" />
       </div>
 
-      {/* Master-Detail */}
-      <div style={S.master}>
-        {/* ── LEFT: Gallery ───────────────────────────────────────────────── */}
-        <div style={S.gallery}>
-          <div style={S.galleryHeader}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>
-              Plantel
-            </div>
+      <div className="plantel-master">
+        <section className="plantel-column plantel-gallery">
+          <div className="plantel-gallery__header">
+            <div style={S.eyebrow}>Painel vivo</div>
+            <div style={S.title}>Consulta rápida do plantel</div>
+            <div style={S.text}>Busque uma ave, abra a ficha e faça ajustes sem perder o contexto do restante do plantel.</div>
+
             <div style={S.searchRow}>
               <input
                 style={S.searchInput}
-                placeholder="Buscar por nome..."
+                placeholder="Buscar por nome da ave..."
                 value={search}
-                onChange={e => setSearch(e.target.value)}
-                onFocus={e => e.target.style.borderColor = 'rgba(201,80,37,0.4)'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                onChange={(e) => setSearch(e.target.value)}
+                onFocus={(e) => { e.target.style.borderColor = 'rgba(201,80,37,0.4)' }}
+                onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)' }}
               />
-              <button style={S.addBtn} onClick={handleNew} title="Nova ave">+</button>
+              <button style={S.addBtn} onClick={handleNew}>Nova ave</button>
             </div>
-            <div style={{ fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace" }}>
-              {filtered.length} {filtered.length === 1 ? 'ave' : 'aves'}
+
+            <div style={S.quickGrid}>
+              <div style={S.quickCard}>
+                <div style={S.quickLabel}>Filtradas</div>
+                <div style={S.quickValue}>{filtered.length}</div>
+              </div>
+              <div style={S.quickCard}>
+                <div style={S.quickLabel}>Origens</div>
+                <div style={S.quickValue}>{new Set(vivosOnly.map((item) => item.Origem)).size}</div>
+              </div>
+              <div style={S.quickCard}>
+                <div style={S.quickLabel}>Mutações</div>
+                <div style={S.quickValue}>{new Set(vivosOnly.map((item) => item.Mutacao)).size}</div>
+              </div>
             </div>
           </div>
 
-          <div style={S.galleryList}>
+          <div className="plantel-gallery__list">
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 16px', color: '#3A5C3C' }}>
-                <div style={{ fontSize: 32, marginBottom: 8 }}>🐦</div>
-                <div style={{ fontSize: 12, fontFamily: "'DM Mono', monospace", color: '#4A6A4C' }}>Nenhuma ave encontrada</div>
+              <div style={S.emptyState}>
+                <div>
+                  <div style={{ fontSize: 38, marginBottom: 12 }}>Sem resultados</div>
+                  <div style={{ lineHeight: 1.7 }}>Ajuste a busca ou crie uma nova ave para alimentar o plantel.</div>
+                </div>
               </div>
             ) : (
-              filtered.map(ave => (
-                <div
-                  key={ave.ID}
-                  style={{
-                    ...S.galleryItem,
-                    ...(selected?.ID === ave.ID ? S.galleryItemSelected : {}),
-                    borderLeft: selected?.ID === ave.ID ? '3px solid #C95025' : '3px solid transparent',
-                  }}
-                  onClick={() => handleSelect(ave)}
-                  onMouseEnter={e => { if (selected?.ID !== ave.ID) e.currentTarget.style.background = 'rgba(201,80,37,0.04)' }}
-                  onMouseLeave={e => { if (selected?.ID !== ave.ID) e.currentTarget.style.background = 'transparent' }}
-                >
-                  <div style={S.galleryName}>{ave.Nome}</div>
-                  <div style={S.gallerySub}>{ave.CategoriaAve} &middot; {ave.Genero} &middot; {ave.Gaiola}</div>
-                  <StatusBadge status={ave.Status} />
-                </div>
+              filtered.map((ave) => (
+                <button key={ave.ID} type="button" className={`plantel-item${selected?.ID === ave.ID ? ' plantel-item--active' : ''}`} onClick={() => handleSelect(ave)} style={{ textAlign: 'left' }}>
+                  <div style={S.itemTop}>
+                    <div style={{ display: 'flex', gap: 12 }}>
+                      <div style={S.avatar}>{ave.Nome.slice(0, 1).toUpperCase()}</div>
+                      <div>
+                        <div style={S.itemName}>{ave.Nome}</div>
+                        <div style={S.itemMeta}>{ave.CategoriaAve} · {ave.Genero} · {ave.Gaiola || 'Sem gaiola'}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={S.itemFooter}>
+                    <StatusBadge status={ave.Status} />
+                    <span style={S.subtleText}>{ave.Mutacao || 'Sem mutação'} · {ave.AnelEsquerdo || 'Sem anel'}</span>
+                  </div>
+                </button>
               ))
             )}
           </div>
-        </div>
+        </section>
 
-        {/* ── RIGHT: Form ─────────────────────────────────────────────────── */}
-        <div style={S.formPanel}>
-          {/* Toolbar */}
-          <div style={S.toolbar}>
-            <div style={S.toolbarTitle}>
-              {formMode === 'new' ? 'Nova Ave' : formMode === 'edit' ? `Editando: ${formData.Nome}` : selected ? selected.Nome : 'Detalhes'}
-            </div>
-            <div style={S.toolbarBtns}>
-              {(formMode === 'new' || formMode === 'edit') && (
-                <>
-                  <button style={S.iconBtn('#4CAF7D')} onClick={handleSubmit} title="Salvar">💾</button>
-                  <button style={S.iconBtn('#8A9E8C')} onClick={handleCancel} title="Cancelar">✕</button>
-                </>
-              )}
-              {formMode === 'view' && selected && (
-                <>
-                  <button style={S.iconBtn('#C95025')} onClick={handleEdit} title="Editar">✏️</button>
-                  <button style={S.iconBtn('#E05C4B')} onClick={() => setDelTarget(selected)} title="Excluir">🗑️</button>
-                </>
-              )}
+        <section className="plantel-column plantel-form">
+          <div className="plantel-form__header">
+            <div style={S.toolbarRow}>
+              <div>
+                <div style={S.eyebrow}>Ficha operacional</div>
+                <div style={S.toolbarTitle}>
+                  {formMode === 'new'
+                    ? 'Cadastrar nova ave'
+                    : formMode === 'edit'
+                      ? `Editando ${formData.Nome}`
+                      : selected
+                        ? selected.Nome
+                        : 'Detalhes da ave'}
+                </div>
+                <div style={S.toolbarSubtitle}>
+                  {formMode
+                    ? 'Revise os dados com foco no manejo diário e mantenha o cadastro legível para toda a operação.'
+                    : 'Selecione uma ave ao lado ou inicie um novo cadastro para visualizar a ficha completa.'}
+                </div>
+              </div>
+
+              <div style={S.toolbarBtns}>
+                {(formMode === 'new' || formMode === 'edit') && (
+                  <>
+                    <button style={S.primaryBtn} onClick={handleSubmit}>Salvar</button>
+                    <button style={S.neutralBtn} onClick={handleCancel}>Cancelar</button>
+                  </>
+                )}
+                {formMode === 'view' && selected && (
+                  <>
+                    <button style={S.accentBtn} onClick={handleEdit}>Editar</button>
+                    <button style={S.dangerBtn} onClick={() => setDelTarget(selected)}>Excluir</button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Form Content */}
           {!formMode ? (
-            <div style={S.emptyForm}>
-              <div style={{ fontSize: 36, opacity: 0.4 }}>🐦</div>
-              <div>Selecione uma ave ou clique + para cadastrar</div>
+            <div className="plantel-form__body" style={S.emptyState}>
+              <div>
+                <div style={{ fontSize: 42, marginBottom: 12 }}>Selecione uma ficha</div>
+                <div style={{ lineHeight: 1.8, maxWidth: 520 }}>A visualização detalhada aparece aqui com status, origem, anel, mutação e observações para facilitar decisões rápidas no manejo.</div>
+              </div>
             </div>
           ) : (
-            <div style={S.formBody}>
-              <div style={S.formGrid}>
-                {/* 1. Nome */}
+            <div className="plantel-form__body">
+              <div className="plantel-summary">
+                <div style={S.summaryCard}>
+                  <div style={S.summaryLabel}>Status atual</div>
+                  <StatusBadge status={formData.Status || 'Vivo'} />
+                </div>
+                <div style={S.summaryCard}>
+                  <div style={S.summaryLabel}>Localização</div>
+                  <div style={S.summaryValue}>{formData.Gaiola || 'Sem gaiola definida'}</div>
+                </div>
+                <div style={S.summaryCard}>
+                  <div style={S.summaryLabel}>Origem</div>
+                  <div style={S.summaryValue}>{formData.Origem || 'Não informada'}</div>
+                </div>
+              </div>
+
+              <div className="plantel-form-grid">
                 {renderInput('Nome', 'Nome', { placeholder: 'Nome da ave' })}
-
-                {/* 2. Status */}
                 {renderInput('Status', 'Status', { type: 'dropdown', options: STATUS_OPTIONS })}
-
-                {/* 3. NomeMae */}
-                {renderInput('NomeMae', 'Nome da Mãe', { placeholder: 'Mãe' })}
-
-                {/* 4. NomePai */}
-                {renderInput('NomePai', 'Nome do Pai', { placeholder: 'Pai' })}
-
-                {/* 5. Gaiola */}
-                {renderInput('Gaiola', 'Gaiola', { type: 'dropdown', options: MOCK_GAIOLAS.map(g => g.NumeroGaiola) })}
-
-                {/* 6. DataNascimento */}
-                {renderInput('DataNascimento', 'Data de Nascimento', { type: 'date' })}
-
-                {/* 7. CategoriaAve / Espécie */}
-                {renderInput('CategoriaAve', 'Espécie', { type: 'dropdown', options: MOCK_ESPECIES.map(e => e.Especie) })}
-
-                {/* 8. Genero */}
+                {renderInput('NomeMae', 'Nome da mãe', { placeholder: 'Mãe' })}
+                {renderInput('NomePai', 'Nome do pai', { placeholder: 'Pai' })}
+                {renderInput('Gaiola', 'Gaiola', { type: 'dropdown', options: catalogs.gaiolas })}
+                {renderInput('DataNascimento', 'Data de nascimento', { type: 'date' })}
+                {renderInput('CategoriaAve', 'Espécie', { type: 'dropdown', options: catalogs.especies })}
                 {renderInput('Genero', 'Gênero', { type: 'dropdown', options: GENERO_OPTIONS })}
-
-                {/* 9. Origem / Criatório */}
-                {renderInput('Origem', 'Criatório / Origem', { type: 'dropdown', options: MOCK_CRIATORIOS.map(c => c.NomeCriatorio) })}
-
-                {/* 10. RegistroFOB */}
+                {renderInput('Origem', 'Criatório / origem', { type: 'dropdown', options: catalogs.criatorios })}
                 {renderInput('RegistroFOB', 'Registro FOB', { placeholder: 'FOB-XXX' })}
-
-                {/* 11. AnelEsquerdo */}
-                {renderInput('AnelEsquerdo', 'Anel Esquerdo', { type: 'dropdown', options: MOCK_ANEIS.map(a => a.NumeroAnel) })}
-
-                {/* 12. Mutacao */}
-                {renderInput('Mutacao', 'Mutação', { type: 'dropdown', options: MOCK_MUTACOES })}
-
-                {/* 13. observacao */}
-                {renderInput('observacao', 'Observações', { type: 'textarea', fullWidth: true, placeholder: 'Notas adicionais...' })}
+                {renderInput('AnelEsquerdo', 'Anel esquerdo', { type: 'dropdown', options: catalogs.aneis })}
+                {mutationOptionsForSpecies.length > 0
+                  ? renderInput('Mutacao', 'Mutação', { type: 'dropdown', options: mutationOptionsForSpecies })
+                  : null}
+                {renderInput('observacao', 'Observações', { type: 'textarea', fullWidth: true, placeholder: 'Notas sobre comportamento, genética, saúde ou histórico recente...' })}
               </div>
             </div>
           )}
-        </div>
+        </section>
       </div>
 
-      {/* Modal de confirmação de exclusão */}
       {delTarget && (
         <ConfirmModal
           title="Remover ave do plantel?"
           message={`A ave "${delTarget.Nome}" será removida permanentemente. Esta ação não pode ser desfeita.`}
-          confirmLabel="Confirmar Remoção"
+          confirmLabel="Confirmar remoção"
           danger
           onConfirm={handleDeleteConfirm}
           onCancel={() => setDelTarget(null)}

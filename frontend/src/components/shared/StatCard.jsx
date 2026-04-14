@@ -1,17 +1,28 @@
 export function StatCard({ label, value, desc, color }) {
+  const accentAliases = ['#C95025', '#c95025']
+  const resolvedColor = accentAliases.includes(color) ? 'var(--accent)' : color
+  const glow = accentAliases.includes(color)
+    ? 'radial-gradient(circle, rgba(var(--accent-rgb), 0.18) 0%, transparent 70%)'
+    : `radial-gradient(circle, ${color}2D 0%, transparent 70%)`
+
   return (
-    <div style={{
-      background: 'rgba(21,40,24,0.8)', border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 12, padding: '20px 22px', position: 'relative', overflow: 'hidden',
-    }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 2, background: color, opacity: 0.7 }} />
-      <div style={{ fontSize: 11, fontFamily: "'DM Mono', monospace", color: '#5A7A5C', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 8 }}>
+    <div className="stat-card">
+      <div style={{
+        position: 'absolute',
+        inset: 'auto -20px -40px auto',
+        width: 120,
+        height: 120,
+        borderRadius: '50%',
+        background: glow,
+      }} />
+      <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: 3, background: resolvedColor, opacity: 0.75 }} />
+      <div style={{ fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 12 }}>
         {label}
       </div>
-      <div style={{ fontSize: 32, fontWeight: 700, color: '#F2EDE4', letterSpacing: '-1px', lineHeight: 1, marginBottom: 4 }}>
+      <div style={{ fontSize: 38, fontWeight: 700, color: 'var(--text-main)', letterSpacing: '-0.08em', lineHeight: 1, marginBottom: 8, fontFamily: "'DM Serif Display', serif" }}>
         {value}
       </div>
-      <div style={{ fontSize: 12, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+      <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 }}>
         {desc}
       </div>
     </div>

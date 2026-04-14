@@ -1,15 +1,34 @@
 const jwt = require('jsonwebtoken')
+const { getAuthCookieName, parseCookies } = require('../utils/security.utils')
+const userRepository = require('../repositories/user.repository')
 
-function authMiddleware(req, res, next) {
+async function authMiddleware(req, res, next) {
   const header = req.headers.authorization
-  if (!header || !header.startsWith('Bearer ')) {
+  const cookies = parseCookies(req.headers.cookie)
+  const headerToken = header && header.startsWith('Bearer ') ? header.split(' ')[1] : null
+  const cookieToken = cookies[getAuthCookieName()]
+  const token = headerToken || cookieToken
+
+  if (!token) {
     return res.status(401).json({ message: 'Token não fornecido.' })
   }
 
-  const token = header.split(' ')[1]
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET)
-    req.user = payload  // { userId, email, role }
+    const payload = jwt.verify(token, process.env.JWT_SECRET, {
+      issuer: process.env.JWT_ISSUER || 'plumar-api',
+      audience: process.env.JWT_AUDIENCE || 'plumar-web',
+    })
+    const fullUser = await userRepository.findById(payload.userId)
+    req.user = fullUser
+      ? {
+          ...payload,
+          userId: fullUser.id,
+          email: fullUser.email,
+          name: fullUser.name,
+          role: fullUser.role || payload.role,
+          accessKey: fullUser.accessKey,
+        }
+      : payload
     next()
   } catch (e) {
     if (e.name === 'TokenExpiredError') {

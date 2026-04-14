@@ -18,11 +18,12 @@ const LISTS = {
 async function getSiteId() {
   const token      = await getGraphToken()
   const siteUrl    = process.env.SHAREPOINT_SITE_URL
-  const encodedUrl = siteUrl.replace('https://', '').replace('/sites/', ':/')
-  const url        = `https://graph.microsoft.com/v1.0/sites/${encodedUrl}:`
+  const parsedUrl  = new URL(siteUrl)
+  const url        = `https://graph.microsoft.com/v1.0/sites/${parsedUrl.host}:${parsedUrl.pathname}`
 
   const { data } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
+    proxy: false,
   })
   return data.id
 }
@@ -40,11 +41,19 @@ async function listarItens(listKey, select = null) {
   let url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items?expand=fields`
   if (select) url += `&$select=fields/${select}`
 
-  const { data } = await axios.get(url, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
+  const items = []
 
-  return data.value.map(item => ({ id: item.id, ...item.fields }))
+  while (url) {
+    const { data } = await axios.get(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      proxy: false,
+    })
+
+    items.push(...data.value.map(item => ({ id: item.id, ...item.fields })))
+    url = data['@odata.nextLink'] || null
+  }
+
+  return items
 }
 
 /**
@@ -58,6 +67,7 @@ async function buscarItem(listKey, itemId) {
   const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items/${itemId}?expand=fields`
   const { data } = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
+    proxy: false,
   })
   return { id: data.id, ...data.fields }
 }
@@ -73,6 +83,7 @@ async function criarItem(listKey, fields) {
   const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items`
   const { data } = await axios.post(url, { fields }, {
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    proxy: false,
   })
   return { id: data.id, ...data.fields }
 }
@@ -88,6 +99,7 @@ async function atualizarItem(listKey, itemId, fields) {
   const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items/${itemId}/fields`
   const { data } = await axios.patch(url, fields, {
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    proxy: false,
   })
   return { id: itemId, ...data }
 }
@@ -103,6 +115,7 @@ async function deletarItem(listKey, itemId) {
   const url = `https://graph.microsoft.com/v1.0/sites/${siteId}/lists/${listId}/items/${itemId}`
   await axios.delete(url, {
     headers: { Authorization: `Bearer ${token}` },
+    proxy: false,
   })
   return true
 }

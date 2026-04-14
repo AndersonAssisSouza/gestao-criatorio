@@ -17,6 +17,9 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VITE_API_URL: ${{ vars.VITE_API_URL }}
+      VITE_CSRF_COOKIE_NAME: plumar_csrf
     steps:
       - uses: actions/checkout@v4
 

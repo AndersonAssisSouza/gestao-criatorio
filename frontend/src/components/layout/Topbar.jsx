@@ -1,44 +1,61 @@
-const PAGE_TITLES = {
-  plantel:    'Gestão do Plantel',
-  chocando:   'Aves em Choco',
-  gaiolas:    'Gestão das Gaiolas',
-  filhotes:   'Filhotes Nascidos',
-  especies:   'Espécies do Criatório',
-  aviario:    'Gestão do Aviário',
-  aneis:      'Controle de Anéis',
-  financeiro: 'Gestão Financeira',
-  explantel:  'Ex-Aves do Plantel',
-  mutacoes:   'Simulação de Mutações',
-}
+import { BRAND } from '../../brand'
 
-export function Topbar({ page }) {
-  const title = PAGE_TITLES[page] || page
-  const hoje  = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
+import { useAuth } from '../../context/AuthContext'
+
+export function Topbar({ page, title, description, onOpenMenu, onNavigate }) {
+  const { user } = useAuth()
+  const hoje = new Date().toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
   })
 
+  const hasOperationalAccess = user?.access?.accessGranted || user?.role === 'owner'
+  const isOwner = user?.role === 'owner'
+
   return (
-    <div style={{
-      height: 60, background: '#0D1A10',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
-      display: 'flex', alignItems: 'center',
-      justifyContent: 'space-between', padding: '0 28px', flexShrink: 0,
-    }}>
-      <div>
-        <div style={{ fontSize: 18, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", letterSpacing: '-0.3px' }}>
-          {title}
+    <header className="app-topbar">
+      <div className="app-hero">
+        <div className="app-hero__main">
+          <div className="app-topbar__controls">
+            <button type="button" className="app-menu-button" onClick={onOpenMenu}>
+              Menu
+            </button>
+            <span className="pill">Experiência mobile ready</span>
+          </div>
+          <div className="app-hero__eyebrow">Sistema de manejo</div>
+          <h1 className="app-hero__title">{title || page}</h1>
+          <div className="app-hero__subtitle">{description}</div>
         </div>
-        <div style={{ fontSize: 12, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", marginTop: 2 }}>
-          {hoje}
+        <div className="app-hero__spotlight">
+          <div className="app-hero__spotlight-kicker">Workspace atual</div>
+          <div className="app-hero__spotlight-title">{BRAND.shortName} control center</div>
+          <div className="app-hero__spotlight-text">
+            Navegação mais rápida, leitura limpa e acesso adaptado para uso em campo no celular.
+          </div>
+          <div className="app-hero__actions">
+            <button type="button" className="app-hero__action app-hero__action--primary" onClick={() => onNavigate?.('configuracoes')}>
+              Ajustar visual
+            </button>
+            {isOwner && (
+              <button type="button" className="app-hero__action" onClick={() => onNavigate?.('proprietario')}>
+                Área master
+              </button>
+            )}
+            <button type="button" className="app-hero__action" onClick={() => onNavigate?.(hasOperationalAccess ? 'plantel' : 'assinatura')}>
+              {hasOperationalAccess ? 'Ir para plantel' : 'Ver assinatura'}
+            </button>
+          </div>
         </div>
       </div>
-      <span style={{
-        fontSize: 11, fontFamily: "'DM Mono', monospace", color: '#3A5C3C',
-        background: 'rgba(76,175,125,0.08)', border: '1px solid rgba(76,175,125,0.15)',
-        borderRadius: 6, padding: '4px 10px',
-      }}>
-        MVP v0.1
-      </span>
-    </div>
+      <div className="app-topbar__aside">
+        {isOwner && <span className="pill pill--accent">Conta master</span>}
+        <span className="pill">{BRAND.shortName} OS</span>
+        <span className="pill">{BRAND.descriptor}</span>
+        <span className="pill">{hoje}</span>
+        <span className="pill pill--accent">{BRAND.badge}</span>
+      </div>
+    </header>
   )
 }

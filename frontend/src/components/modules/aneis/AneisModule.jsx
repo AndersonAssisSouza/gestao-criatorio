@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { StatCard } from '../../shared/StatCard'
 import { StatusBadge } from '../../shared/StatusBadge'
 import { ConfirmModal } from '../../shared/ConfirmModal'
+import { accessService } from '../../../services/access.service'
 
 // ─── MOCK — remover quando backend estiver conectado ─────────────────────────
-const USE_MOCK = true
+const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const MOCK_ANEIS = [
   { ID: 1, NumeroAnel: 'AZ-2024-001', Status: 'Utilizado', Cor: 'Azul', Ano: '2024', OrgaoRegulador: 'FOB' },
@@ -19,26 +20,25 @@ const MOCK_ANEIS = [
 const s = {
   input: {
     background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13,
-    fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', boxSizing: 'border-box',
+    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
+    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
   },
   label: {
-    fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace",
+    fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit',
     letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4, display: 'block',
   },
   btnPrimary: {
     background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none',
-    borderRadius: 8, padding: '10px 20px', color: '#F2EDE4', fontSize: 12,
-    fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer',
+    borderRadius: 14, padding: '12px 20px', color: 'var(--text-main)', fontSize: 12,
+    fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
   },
   btnSecondary: {
     background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 8, padding: '10px 20px', color: '#8A9E8C', fontSize: 12,
-    fontFamily: "'DM Mono', monospace", cursor: 'pointer',
+    borderRadius: 14, padding: '12px 20px', color: 'var(--text-soft)', fontSize: 12,
+    fontFamily: 'inherit', cursor: 'pointer',
   },
   card: {
-    background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)',
-    borderRadius: 12, overflow: 'hidden',
+    overflow: 'hidden',
   },
 }
 
@@ -59,7 +59,16 @@ export function AneisModule() {
     if (USE_MOCK) {
       setTimeout(() => { setData(MOCK_ANEIS); setLoading(false) }, 400)
     } else {
-      setLoading(false)
+      accessService.getImportedSharePointData()
+        .then((snapshot) => {
+          setData(snapshot.aneis || [])
+        })
+        .catch(() => {
+          setError('Não foi possível carregar os anéis importados.')
+        })
+        .finally(() => {
+          setLoading(false)
+        })
     }
   }, [])
 
@@ -113,7 +122,7 @@ export function AneisModule() {
   }
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#5A7A5C', fontFamily: "'DM Mono', monospace", fontSize: 13 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
       Carregando anéis...
     </div>
   )
@@ -148,15 +157,26 @@ export function AneisModule() {
 
   return (
     <div>
+      <div className="module-hero">
+        <div>
+          <div className="module-hero__eyebrow">Identificação</div>
+          <h2 className="module-hero__title">Controle de anéis</h2>
+          <div className="module-hero__text">
+            Monitore estoque, uso e rastreabilidade dos anéis com uma leitura mais clara para identificação e conformidade.
+          </div>
+        </div>
+        <div className="pill">Rastreio</div>
+      </div>
+
       {error && (
-        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: "'DM Mono', monospace" }}>
+        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: 'inherit' }}>
           {error}
           <span onClick={() => setError('')} style={{ float: 'right', cursor: 'pointer', opacity: 0.7 }}>x</span>
         </div>
       )}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
         <StatCard label="Total Anéis" value={stats.total} desc="anéis cadastrados" color="#C95025" />
         <StatCard label="Utilizados" value={stats.utilizados} desc="colocados em aves" color="#F5A623" />
         <StatCard label="Disponíveis" value={stats.disponiveis} desc="prontos para uso" color="#4CAF7D" />
@@ -166,11 +186,11 @@ export function AneisModule() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
 
         {/* ═══ LEFT PANEL: Gallery ═══ */}
-        <div style={s.card}>
+        <div className="module-panel" style={s.card}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>Gestão de Anéis</div>
-              <div style={{ fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 2 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>Gestão de Anéis</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 2 }}>
                 {filtered.length} de {data.length} registros
               </div>
             </div>
@@ -192,8 +212,8 @@ export function AneisModule() {
           {/* Gallery Items */}
           <div style={{ maxHeight: 480, overflowY: 'auto' }}>
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#3A5C3C' }}>
-                <div style={{ fontSize: 14, fontFamily: "'DM Mono', monospace", color: '#4A6A4C' }}>Nenhum anel encontrado</div>
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-faint)' }}>
+                <div style={{ fontSize: 14, fontFamily: 'inherit', color: 'var(--text-muted)' }}>Nenhum anel encontrado</div>
               </div>
             ) : filtered.map(r => (
               <div
@@ -211,17 +231,17 @@ export function AneisModule() {
                 onMouseLeave={e => { if (selected?.ID !== r.ID) e.currentTarget.style.background = 'transparent' }}
               >
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" }}>
-                    {r.NumeroAnel}
-                  </div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+                  {r.NumeroAnel}
+                </div>
                   <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-                    <span style={{ fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
-                      Cor: <span style={{ color: '#8A9E8C' }}>{r.Cor}</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
+                      Cor: <span style={{ color: 'var(--text-soft)' }}>{r.Cor}</span>
                     </span>
-                    <span style={{ fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
-                      Ano: <span style={{ color: '#8A9E8C' }}>{r.Ano}</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
+                      Ano: <span style={{ color: 'var(--text-soft)' }}>{r.Ano}</span>
                     </span>
-                    <span style={{ fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
                       {r.OrgaoRegulador}
                     </span>
                   </div>
@@ -240,10 +260,10 @@ export function AneisModule() {
         </div>
 
         {/* ═══ RIGHT PANEL: Detail Form ═══ */}
-        <div style={s.card}>
+        <div className="module-panel" style={s.card}>
           {isAdding ? (
             <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
                 Novo Anel
               </div>
               {renderForm(newForm, setNewForm)}
@@ -254,16 +274,16 @@ export function AneisModule() {
             </div>
           ) : selected && editForm ? (
             <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 4 }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 4 }}>
                 {selected.NumeroAnel}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 20 }}>
                 <StatusBadge status={selected.Status} />
-                <span style={{ fontSize: 12, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
                   {selected.Cor} | {selected.Ano} | {selected.OrgaoRegulador}
                 </span>
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: "'DM Mono', monospace", marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Editar Anel
               </div>
               {renderForm(editForm, setEditForm)}
@@ -272,10 +292,10 @@ export function AneisModule() {
               </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 300, padding: 40 }}>
+            <div className="module-empty">
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>&#9675;</div>
-                <div style={{ fontSize: 14, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", lineHeight: 1.6 }}>
+                <div style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', lineHeight: 1.6 }}>
                   Selecione um anel ao lado para<br />visualizar e editar detalhes
                 </div>
               </div>

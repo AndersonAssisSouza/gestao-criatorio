@@ -1,114 +1,386 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { BRAND } from '../../brand'
+import { BrandMark } from '../shared/BrandMark'
 
-function BirdIcon({ size = 20, color = '#C95025' }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-      <path d="M3 12C3 12 8 6 12 8C16 10 17 7 21 6C21 6 18 12 15 12C12 12 11 14 9 15C7 16 5 15 3 12Z" fill={color} opacity="0.9"/>
-      <path d="M9 15C9 15 8 18 6 19C7 19 10 18 11 16" fill={color} opacity="0.6"/>
-    </svg>
-  )
+const INPUT_STYLE = {
+  background: 'rgba(255,255,255,0.04)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 14,
+  padding: '14px 15px',
+  color: 'var(--text-main)',
+  fontSize: 14,
+  outline: 'none',
+}
+
+const LABEL_STYLE = {
+  fontSize: 11,
+  color: 'var(--text-faint)',
+  letterSpacing: '0.12em',
+  textTransform: 'uppercase',
+}
+
+const LINK_BUTTON_STYLE = {
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  color: 'var(--accent-strong)',
+  fontSize: 12,
+  cursor: 'pointer',
+  textDecoration: 'underline',
+}
+
+function getTokenFromLink(link = '') {
+  try {
+    const url = new URL(link)
+    return url.searchParams.get('token') || ''
+  } catch (_) {
+    return ''
+  }
 }
 
 export function LoginPage() {
-  const { login } = useAuth()
-  const [email, setEmail]       = useState('')
+  const { login, register, forgotPassword, resetPassword } = useAuth()
+  const [mode, setMode] = useState('login')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [resetToken, setResetToken] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [previewResetLink, setPreviewResetLink] = useState('')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('token') || ''
+    const queryMode = params.get('mode')
+
+    if (token || queryMode === 'reset-password') {
+      setMode('reset')
+      setResetToken(token)
+      setSuccess(token ? 'Link de recuperação carregado. Defina sua nova senha.' : '')
+    }
+  }, [])
+
+  const isRegisterMode = mode === 'register'
+  const isForgotMode = mode === 'forgot'
+  const isResetMode = mode === 'reset'
+
+  const screenCopy = useMemo(() => {
+    if (isForgotMode) {
+      return {
+        title: 'Recuperar acesso',
+        description: 'Informe o e-mail cadastrado para receber o link de redefinição da sua senha.',
+        button: 'Enviar instruções',
+      }
+    }
+
+    if (isResetMode) {
+      return {
+        title: 'Criar nova senha',
+        description: 'Defina uma nova senha alfanumérica com pelo menos 8 caracteres.',
+        button: 'Salvar nova senha',
+      }
+    }
+
+    if (isRegisterMode) {
+      return {
+        title: 'Criar conta',
+        description: 'Primeiro acesso com 7 dias gratuitos. Depois você escolhe o plano que faz mais sentido.',
+        button: 'Criar conta e entrar',
+      }
+    }
+
+    return {
+      title: 'Entrar no sistema',
+      description: BRAND.promise,
+      button: 'Entrar no Sistema',
+    }
+  }, [isForgotMode, isRegisterMode, isResetMode])
+
+  const switchMode = (nextMode) => {
+    setMode(nextMode)
+    setError('')
+    setSuccess('')
+    if (nextMode !== 'reset') {
+      setResetToken('')
+      if (window.location.search) {
+        window.history.replaceState({}, '', window.location.pathname)
+      }
+    }
+  }
 
   const handleSubmit = async () => {
-    if (!email || !password) { setError('Preencha todos os campos.'); return }
-    setLoading(true)
     setError('')
+    setSuccess('')
+
+    if (isRegisterMode && (!name || !email || !password)) {
+      setError('Preencha todos os campos.')
+      return
+    }
+
+    if (isForgotMode && !email) {
+      setError('Informe o e-mail cadastrado.')
+      return
+    }
+
+    if (isResetMode) {
+      if (!resetToken || !password || !confirmPassword) {
+        setError('Preencha o token e a nova senha.')
+        return
+      }
+
+      if (password !== confirmPassword) {
+        setError('A confirmação da senha não confere.')
+        return
+      }
+    }
+
+    if (!isRegisterMode && !isForgotMode && !isResetMode && (!email || !password)) {
+      setError('Preencha e-mail e senha.')
+      return
+    }
+
+    setLoading(true)
+
     try {
-      await login(email, password)
+      if (isRegisterMode) {
+        await register(name, email, password)
+      } else if (isForgotMode) {
+        const response = await forgotPassword(email)
+        setPreviewResetLink(response.previewResetLink || '')
+        setSuccess(response.message || 'Se o e-mail estiver cadastrado, enviaremos as instruções de recuperação.')
+      } else if (isResetMode) {
+        const response = await resetPassword(resetToken, password)
+        setSuccess(response.message || 'Senha redefinida com sucesso.')
+        setPassword('')
+        setConfirmPassword('')
+        setResetToken('')
+        setTimeout(() => switchMode('login'), 1200)
+      } else {
+        await login(email, password)
+      }
     } catch (e) {
-      setError(e.response?.data?.message || 'Credenciais inválidas.')
+      setError(e.response?.data?.message || 'Não foi possível concluir a operação.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(145deg, #0A1A0C 0%, #102012 50%, #0D1A10 100%)',
-      position: 'relative', overflow: 'hidden',
-      fontFamily: "'DM Serif Display', serif",
-    }}>
-      {/* Decorative circles */}
-      <div style={{ position: 'absolute', top: -100, right: -100, width: 500, height: 500, borderRadius: '50%', background: 'radial-gradient(circle, rgba(201,80,37,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: -80, left: -80, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(76,175,125,0.05) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-      <div style={{
-        width: 400, padding: '48px 44px',
-        background: 'rgba(21,40,24,0.9)',
-        border: '1px solid rgba(201,80,37,0.2)', borderRadius: 16,
-        backdropFilter: 'blur(20px)', zIndex: 2,
-        boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
-      }}>
-        {/* Logo */}
+    <div className="login-screen">
+      <div className="login-ambient" />
+      <div className="login-card">
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
           <div style={{
-            width: 56, height: 56, borderRadius: 14,
-            background: 'linear-gradient(135deg, #C95025, #A0401D)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 16px', fontSize: 26,
-            boxShadow: '0 8px 24px rgba(201,80,37,0.4)',
+            width: 82,
+            height: 82,
+            borderRadius: 24,
+            margin: '0 auto 18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'linear-gradient(135deg, var(--accent-glow-soft), var(--support-soft))',
+            boxShadow: '0 18px 40px var(--accent-glow-soft)',
           }}>
-            <BirdIcon size={28} color="#0A1A0C" />
+            <BrandMark size={62} compact />
           </div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: '#F2EDE4', marginBottom: 4 }}>Gestão Criatório</div>
-          <div style={{ fontSize: 13, color: '#7A9E7C', fontFamily: "'DM Mono', monospace", letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            Sistema de Gestão Avícola
+          <div style={{ fontSize: 12, color: 'var(--text-faint)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 8 }}>
+            {BRAND.badge}
+          </div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: 'var(--text-main)', marginBottom: 8, fontFamily: "'DM Serif Display', serif" }}>
+            {BRAND.name}
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 10 }}>
+            {BRAND.descriptor}
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--accent-copy)', lineHeight: 1.7, maxWidth: 320, margin: '0 auto' }}>
+            {screenCopy.description}
           </div>
         </div>
 
-        {/* Form */}
+        {!isForgotMode && !isResetMode && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 18 }}>
+            <button
+              type="button"
+              onClick={() => switchMode('login')}
+              style={{
+                borderRadius: 12,
+                border: mode === 'login' ? '1px solid var(--accent-soft-strong)' : '1px solid rgba(255,255,255,0.08)',
+                background: mode === 'login' ? 'rgba(201,80,37,0.12)' : 'rgba(255,255,255,0.03)',
+                color: 'var(--text-main)',
+                padding: '12px 14px',
+                cursor: 'pointer',
+                fontSize: 12,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Entrar
+            </button>
+            <button
+              type="button"
+              onClick={() => switchMode('register')}
+              style={{
+                borderRadius: 12,
+                border: mode === 'register' ? '1px solid var(--accent-soft-strong)' : '1px solid rgba(255,255,255,0.08)',
+                background: mode === 'register' ? 'rgba(201,80,37,0.12)' : 'rgba(255,255,255,0.03)',
+                color: 'var(--text-main)',
+                padding: '12px 14px',
+                cursor: 'pointer',
+                fontSize: 12,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+              }}
+            >
+              Criar conta
+            </button>
+          </div>
+        )}
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {['E-mail', 'Senha'].map((label, i) => (
-            <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 11, fontFamily: "'DM Mono', monospace", color: '#7A9E7C', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                {label}
-              </label>
+          <div style={{ fontSize: 24, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+            {screenCopy.title}
+          </div>
+
+          {isRegisterMode && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL_STYLE}>Nome</label>
               <input
-                style={{
-                  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: 8, padding: '12px 14px', color: '#F2EDE4',
-                  fontSize: 14, fontFamily: "'DM Mono', monospace", outline: 'none',
-                }}
-                type={i === 0 ? 'email' : 'password'}
-                placeholder={i === 0 ? 'seu@email.com' : '••••••••'}
-                value={i === 0 ? email : password}
-                onChange={e => i === 0 ? setEmail(e.target.value) : setPassword(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-                onFocus={e => e.target.style.borderColor = 'rgba(201,80,37,0.5)'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                style={INPUT_STYLE}
+                type="text"
+                placeholder="Seu nome"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
               />
             </div>
-          ))}
+          )}
 
-          {error && <div style={{ fontSize: 12, color: '#E05C4B', fontFamily: "'DM Mono', monospace" }}>{error}</div>}
+          {!isResetMode && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL_STYLE}>E-mail</label>
+              <input
+                style={INPUT_STYLE}
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              />
+            </div>
+          )}
+
+          {isResetMode && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL_STYLE}>Token de recuperação</label>
+              <input
+                style={INPUT_STYLE}
+                type="text"
+                placeholder="Cole o token recebido"
+                value={resetToken}
+                onChange={(e) => setResetToken(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              />
+            </div>
+          )}
+
+          {!isForgotMode && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL_STYLE}>{isResetMode ? 'Nova senha' : 'Senha'}</label>
+              <input
+                style={INPUT_STYLE}
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              />
+            </div>
+          )}
+
+          {isResetMode && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              <label style={LABEL_STYLE}>Confirmar nova senha</label>
+              <input
+                style={INPUT_STYLE}
+                type="password"
+                placeholder="Repita a nova senha"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              />
+            </div>
+          )}
+
+          {error && <div style={{ fontSize: 12, color: '#E05C4B' }}>{error}</div>}
+          {!error && success && <div style={{ fontSize: 12, color: '#4CAF7D', lineHeight: 1.7 }}>{success}</div>}
+          {!error && !success && isRegisterMode && (
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.7 }}>
+              Use sempre um e-mail válido e uma senha com pelo menos 8 caracteres, letras e números.
+            </div>
+          )}
+
+          {previewResetLink && isForgotMode && (
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.7 }}>
+              Ambiente local sem SMTP configurado: você pode abrir a redefinição por este link de teste.
+              <div style={{ marginTop: 8 }}>
+                <button
+                  type="button"
+                  style={LINK_BUTTON_STYLE}
+                  onClick={() => {
+                    const token = getTokenFromLink(previewResetLink)
+                    setResetToken(token)
+                    setPreviewResetLink('')
+                    switchMode('reset')
+                  }}
+                >
+                  Usar link de recuperação neste ambiente
+                </button>
+              </div>
+            </div>
+          )}
 
           <button
             onClick={handleSubmit}
             disabled={loading}
             style={{
-              background: 'linear-gradient(135deg, #C95025, #A0401D)',
-              border: 'none', borderRadius: 8, padding: 13,
-              color: '#0A1A0C', fontSize: 14, fontWeight: 700,
-              fontFamily: "'DM Serif Display', serif", cursor: loading ? 'not-allowed' : 'pointer',
-              marginTop: 8, opacity: loading ? 0.7 : 1,
-              boxShadow: '0 4px 16px rgba(201,80,37,0.3)',
+              background: 'linear-gradient(135deg, var(--accent), var(--accent-strong))',
+              border: 'none',
+              borderRadius: 14,
+              padding: 14,
+              color: 'var(--accent-ink)',
+              fontSize: 14,
+              fontWeight: 700,
+              fontFamily: "'DM Serif Display', serif",
+              cursor: loading ? 'not-allowed' : 'pointer',
+              marginTop: 8,
+              opacity: loading ? 0.7 : 1,
+              boxShadow: '0 10px 26px var(--accent-glow)',
             }}
           >
-            {loading ? 'Autenticando...' : 'Entrar no Sistema'}
+            {loading ? 'Processando...' : screenCopy.button}
           </button>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            {mode === 'login' && (
+              <button type="button" style={LINK_BUTTON_STYLE} onClick={() => switchMode('forgot')}>
+                Esqueci minha senha
+              </button>
+            )}
+
+            {(isForgotMode || isResetMode) && (
+              <button type="button" style={LINK_BUTTON_STYLE} onClick={() => switchMode('login')}>
+                Voltar para o login
+              </button>
+            )}
+          </div>
         </div>
 
-        <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: '#2A4A2C', fontFamily: "'DM Mono', monospace" }}>
-          MVP v0.1 · Módulo Plantel ativo
+        <div style={{ textAlign: 'center', marginTop: 22, fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          {BRAND.tagline}
         </div>
       </div>
     </div>

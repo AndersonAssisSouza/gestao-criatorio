@@ -1,118 +1,150 @@
 import { useAuth } from '../../context/AuthContext'
+import { BRAND } from '../../brand'
+import { BrandMark } from '../shared/BrandMark'
 
-const NAV_ITEMS = [
-  { key: 'plantel',    label: 'Plantel',          path: '/plantel',    available: true },
-  { key: 'chocando',   label: 'Aves em Choco',    path: '/chocando',   available: true },
-  { key: 'gaiolas',    label: 'Gaiolas',           path: '/gaiolas',    available: true },
-  { key: 'filhotes',   label: 'Filhotes',          path: '/filhotes',   available: true },
-  { key: 'especies',   label: 'Espécies',          path: '/especies',   available: true },
-  { key: 'aviario',    label: 'Aviário',           path: '/aviario',    available: true },
-  { key: 'aneis',      label: 'Anéis',             path: '/aneis',      available: true },
-  { key: 'financeiro', label: 'Financeiro',        path: '/financeiro', available: true },
-  { key: 'explantel',  label: 'Ex-Plantel',        path: '/explantel',  available: true },
-  { key: 'mutacoes',   label: 'Mutações',          path: '/mutacoes',   available: true },
+export const NAV_ITEMS = [
+  { key: 'plantel', label: 'Plantel', available: true },
+  { key: 'chocando', label: 'Aves em Choco', available: true },
+  { key: 'gaiolas', label: 'Gaiolas', available: true },
+  { key: 'filhotes', label: 'Filhotes', available: true },
+  { key: 'especies', label: 'Espécies', available: true },
+  { key: 'aviario', label: 'Criatórios', available: true },
+  { key: 'aneis', label: 'Anéis', available: true },
+  { key: 'financeiro', label: 'Financeiro', available: true },
+  { key: 'explantel', label: 'Ex-Plantel', available: true },
+  { key: 'mutacoes', label: 'Mutações', available: true },
+  { key: 'assinatura', label: 'Minha assinatura', available: true },
+  { key: 'proprietario', label: 'Área do proprietário', available: true },
+  { key: 'configuracoes', label: 'Configurações', available: true },
 ]
 
-function BirdIcon() {
-  return (
-    <svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-      <path d="M3 12C3 12 8 6 12 8C16 10 17 7 21 6C21 6 18 12 15 12C12 12 11 14 9 15C7 16 5 15 3 12Z" fill="#0A1A0C" opacity="0.9"/>
-      <path d="M9 15C9 15 8 18 6 19C7 19 10 18 11 16" fill="#0A1A0C" opacity="0.6"/>
-    </svg>
-  )
-}
-
-export function Sidebar({ activePage, onNavigate }) {
+export function Sidebar({ activePage, onNavigate, isOpen = true, onClose }) {
   const { user, logout } = useAuth()
   const userName = user?.name || user?.email?.split('@')[0] || 'Usuário'
+  const initials = userName.slice(0, 2).toUpperCase()
+  const hasOperationalAccess = user?.access?.accessGranted || user?.role === 'owner'
+  const visibleItems = NAV_ITEMS.filter((item) => {
+    if (item.key === 'proprietario') return user?.role === 'owner'
+    if (item.key === 'mutacoes') return user?.role === 'owner'
+    if (item.key === 'assinatura' || item.key === 'configuracoes') return true
+    return hasOperationalAccess
+  })
 
   return (
-    <div style={{
-      width: 240, background: '#0D1A10',
-      borderRight: '1px solid rgba(255,255,255,0.06)',
-      display: 'flex', flexDirection: 'column', padding: '24px 0',
-      flexShrink: 0, height: '100vh', position: 'sticky', top: 0,
-    }}>
-      {/* Logo */}
-      <div style={{ padding: '0 20px 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10, flexShrink: 0,
-            background: 'linear-gradient(135deg, #C95025, #A0401D)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(201,80,37,0.35)',
-          }}>
-            <BirdIcon />
-          </div>
-          <div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>Criatório</div>
-            <div style={{ fontSize: 10, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", letterSpacing: '0.08em', textTransform: 'uppercase' }}>Gestão Avícola</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <div style={{ padding: '0 12px', flex: 1 }}>
-        <div style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", color: '#3A5C3C', letterSpacing: '0.12em', textTransform: 'uppercase', padding: '8px 8px 6px', marginTop: 8 }}>
-          Módulos
-        </div>
-        {NAV_ITEMS.map(item => {
-          const active = activePage === item.key
-          if (!item.available) {
-            return (
-              <div key={item.key} style={{
-                display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px',
-                borderRadius: 8, color: '#2A4A2C', fontSize: 13,
-                fontFamily: "'DM Mono', monospace", marginBottom: 2, opacity: 0.5,
-              }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#1A3A1C', flexShrink: 0 }} />
-                {item.label}
+    <aside className={`app-sidebar ${isOpen ? 'is-open' : ''}`}>
+      <div className="app-sidebar__brand">
+        <div className="app-sidebar__brand-top">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <BrandMark />
+            <div>
+              <div style={{ fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 4 }}>
+                {BRAND.descriptor}
               </div>
-            )
-          }
-          return (
-            <div
-              key={item.key}
-              onClick={() => onNavigate(item.key)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px',
-                borderRadius: 8, cursor: 'pointer', marginBottom: 2,
-                background: active ? 'rgba(201,80,37,0.1)' : 'transparent',
-                color: active ? '#C95025' : '#8A9E8C',
-                fontSize: 13, fontFamily: "'DM Mono', monospace",
-                border: active ? '1px solid rgba(201,80,37,0.2)' : '1px solid transparent',
-                transition: 'all 0.15s',
-              }}
-            >
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: active ? '#C95025' : '#2A4A2C', flexShrink: 0 }} />
-              {item.label}
+              <div style={{ fontSize: 22, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", lineHeight: 1 }}>
+                {BRAND.name}
+              </div>
             </div>
-          )
-        })}
+          </div>
+          <button type="button" className="app-sidebar__close" onClick={onClose} aria-label="Fechar menu">
+            Fechar
+          </button>
+        </div>
+        <div className="app-sidebar__brand-halo" />
+        <div style={{
+          padding: '14px 16px',
+          borderRadius: 16,
+          border: '1px solid var(--accent-border)',
+          background: 'linear-gradient(135deg, var(--accent-soft), rgba(255,255,255,0.03))',
+          color: 'var(--text-soft)',
+          fontSize: 12,
+          lineHeight: 1.6,
+        }}>
+          {BRAND.promise}
+        </div>
+        <div style={{
+          marginTop: 12,
+          fontSize: 10,
+          color: 'var(--accent-copy)',
+          letterSpacing: '0.16em',
+          textTransform: 'uppercase',
+        }}>
+          {BRAND.tagline}
+        </div>
       </div>
 
-      {/* User footer */}
-      <div style={{ padding: '16px 20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div className="app-sidebar__section">
+        <div style={{ fontSize: 10, color: 'var(--text-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', padding: '0 10px 10px' }}>
+          {hasOperationalAccess ? 'Navegação principal' : 'Regularize seu acesso'}
+        </div>
+        <div className="app-sidebar__grid">
+          {visibleItems.map((item) => {
+            const active = activePage === item.key
+
+            return (
+              <button
+                key={item.key}
+                type="button"
+                onClick={() => {
+                  onNavigate(item.key)
+                  onClose?.()
+                }}
+                className={`app-sidebar__nav-item ${active ? 'is-active' : ''}`}
+              >
+                <div className="app-sidebar__nav-main">
+                  <div className="app-sidebar__nav-dot" />
+                  <span>{item.label}</span>
+                </div>
+                <span className="app-sidebar__nav-badge">ativo</span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="app-sidebar__footer">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{
-            width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
-            background: 'linear-gradient(135deg, #2A5C2E, #1A3A1C)',
-            border: '1px solid rgba(201,80,37,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 12, color: '#C95025', fontWeight: 700,
+            width: 38,
+            height: 38,
+            borderRadius: '50%',
+            flexShrink: 0,
+            background: 'linear-gradient(135deg, var(--support), var(--bg-deep))',
+            border: '1px solid var(--accent-soft-strong)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 12,
+            color: 'var(--accent)',
+            fontWeight: 700,
           }}>
-            {userName[0].toUpperCase()}
+            {initials}
           </div>
-          <div>
-            <div style={{ fontSize: 12, color: '#8A9E8C', fontFamily: "'DM Mono', monospace", lineHeight: 1.3 }}>{userName}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 4 }}>
+              Sessão
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {userName}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 4 }}>
+              {user?.access?.label || (user?.role === 'owner' ? 'Vitalício' : 'Sem assinatura')}
+            </div>
             <button onClick={logout} style={{
-              fontSize: 11, color: '#4A6A4C', background: 'none', border: 'none',
-              cursor: 'pointer', fontFamily: "'DM Mono', monospace", padding: 0,
-              textDecoration: 'underline', marginTop: 2,
-            }}>sair</button>
+              marginTop: 8,
+              padding: 0,
+              fontSize: 11,
+              color: 'var(--accent-copy)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              textTransform: 'uppercase',
+              letterSpacing: '0.12em',
+            }}>
+              Encerrar sessão
+            </button>
           </div>
         </div>
       </div>
-    </div>
+    </aside>
   )
 }

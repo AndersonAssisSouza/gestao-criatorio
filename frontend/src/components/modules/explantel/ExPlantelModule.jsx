@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { StatCard }      from '../../shared/StatCard'
 import { StatusBadge }   from '../../shared/StatusBadge'
 import { ConfirmModal }  from '../../shared/ConfirmModal'
+import { plantelService } from '../../../services/plantel.service'
+import { accessService } from '../../../services/access.service'
 
 // ─── MOCK — remover quando backend estiver conectado ─────────────────────────
 const MOCK_ALL = [
@@ -23,40 +25,40 @@ const MOCK_MUTACOES = ['Ancestral', 'Canela', 'Pastel', 'Canela Pastel', 'Topáz
 const STATUS_OPTIONS = ['Vivo', 'Filhote', 'Falecimento', 'Vendido', 'Doado']
 const GENERO_OPTIONS = ['Macho', 'Femea']
 
-const USE_MOCK = true
+const USE_MOCK = !import.meta.env.VITE_API_URL
 
 // ─── Estilos ────────────────────────────────────────────────────────────────
 const S = {
-  page:       { display: 'flex', flexDirection: 'column', height: '100%', gap: 16 },
-  master:     { display: 'flex', gap: 0, flex: 1, minHeight: 0, borderRadius: 12, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.07)' },
-  gallery:    { width: '35%', background: 'rgba(21,40,24,0.6)', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', minHeight: 0 },
-  formPanel:  { width: '65%', background: 'rgba(21,40,24,0.4)', display: 'flex', flexDirection: 'column', minHeight: 0 },
-  galleryHeader: { padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: 10 },
+  page:       { display: 'flex', flexDirection: 'column', height: '100%', gap: 20 },
+  master:     { display: 'flex', gap: 0, flex: 1, minHeight: 0, overflow: 'hidden' },
+  gallery:    { width: '35%', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', minHeight: 0 },
+  formPanel:  { width: '65%', display: 'flex', flexDirection: 'column', minHeight: 0 },
+  galleryHeader: { padding: '20px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: 12 },
   searchRow:  { display: 'flex', gap: 8, alignItems: 'center' },
-  searchInput:{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 12, fontFamily: "'DM Mono', monospace", outline: 'none' },
-  addBtn:     { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 8, width: 36, height: 36, color: '#FFFFFF', fontSize: 18, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  searchInput:{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 12, fontFamily: 'inherit', outline: 'none' },
+  addBtn:     { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 14, width: 42, height: 42, color: '#FFFFFF', fontSize: 18, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   galleryList:{ flex: 1, overflowY: 'auto', overflowX: 'hidden' },
-  galleryItem:{ padding: '14px 18px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer', transition: 'background 0.15s' },
-  galleryItemSelected: { background: 'rgba(201,80,37,0.12)' },
-  galleryName:{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 3 },
-  gallerySub: { fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", marginBottom: 6 },
-  toolbar:    { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(21,40,24,0.3)' },
-  toolbarTitle:{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" },
+  galleryItem:{ padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer', transition: 'background 0.15s' },
+  galleryItemSelected: { background: 'linear-gradient(135deg, rgba(201,80,37,0.12), rgba(255,255,255,0.04))' },
+  galleryName:{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 3 },
+  gallerySub: { fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginBottom: 6 },
+  toolbar:    { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(21,40,24,0.2)' },
+  toolbarTitle:{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
   toolbarBtns:{ display: 'flex', gap: 8 },
-  iconBtn:    (color) => ({ background: 'transparent', border: `1px solid ${color}33`, borderRadius: 8, width: 34, height: 34, color, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }),
+  iconBtn:    (color) => ({ background: 'transparent', border: `1px solid ${color}33`, borderRadius: 14, width: 40, height: 40, color, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }),
   formBody:   { flex: 1, overflowY: 'auto', padding: '22px 26px' },
   formGrid:   { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px 20px' },
   fieldWrap:  { display: 'flex', flexDirection: 'column', gap: 5 },
   fieldWrapFull: { display: 'flex', flexDirection: 'column', gap: 5, gridColumn: '1 / -1' },
-  label:      { fontSize: 11, fontFamily: "'DM Mono', monospace", color: '#5A7A5C', letterSpacing: '0.06em', textTransform: 'uppercase' },
-  input:      { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '9px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none' },
-  inputDisabled:{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '9px 12px', color: '#5A7A5C', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', cursor: 'not-allowed' },
-  select:     { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '9px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', appearance: 'none', WebkitAppearance: 'none' },
-  selectDisabled:{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '9px 12px', color: '#5A7A5C', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', cursor: 'not-allowed', appearance: 'none', WebkitAppearance: 'none' },
-  textarea:   { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '9px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', resize: 'vertical', minHeight: 70 },
-  textareaDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '9px 12px', color: '#5A7A5C', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', resize: 'vertical', minHeight: 70, cursor: 'not-allowed' },
-  emptyForm:  { display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, color: '#3A5C3C', fontFamily: "'DM Mono', monospace", fontSize: 13, flexDirection: 'column', gap: 8 },
-  error:      { background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 12, color: '#E05C4B', fontSize: 13, fontFamily: "'DM Mono', monospace" },
+  label:      { fontSize: 11, fontFamily: 'inherit', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' },
+  input:      { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none' },
+  inputDisabled:{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-muted)', fontSize: 13, fontFamily: 'inherit', outline: 'none', cursor: 'not-allowed' },
+  select:     { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', appearance: 'none', WebkitAppearance: 'none' },
+  selectDisabled:{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-muted)', fontSize: 13, fontFamily: 'inherit', outline: 'none', cursor: 'not-allowed', appearance: 'none', WebkitAppearance: 'none' },
+  textarea:   { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', resize: 'vertical', minHeight: 88 },
+  textareaDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-muted)', fontSize: 13, fontFamily: 'inherit', outline: 'none', resize: 'vertical', minHeight: 88, cursor: 'not-allowed' },
+  emptyForm:  { display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, color: 'var(--text-faint)', fontFamily: 'inherit', fontSize: 13, flexDirection: 'column', gap: 8 },
+  error:      { background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 12, color: '#E05C4B', fontSize: 13, fontFamily: 'inherit' },
 }
 
 const emptyForm = () => ({
@@ -67,6 +69,13 @@ const emptyForm = () => ({
 
 export function ExPlantelModule() {
   const [data,       setData]       = useState([])
+  const [catalogs, setCatalogs] = useState({
+    especies: MOCK_ESPECIES.map((item) => item.Especie),
+    gaiolas: MOCK_GAIOLAS.map((item) => item.NumeroGaiola),
+    criatorios: MOCK_CRIATORIOS.map((item) => item.NomeCriatorio),
+    aneis: MOCK_ANEIS.map((item) => item.NumeroAnel),
+    mutacoes: MOCK_MUTACOES,
+  })
   const [loading,    setLoading]    = useState(true)
   const [search,     setSearch]     = useState('')
   const [selected,   setSelected]   = useState(null)
@@ -81,7 +90,39 @@ export function ExPlantelModule() {
     if (USE_MOCK) {
       setTimeout(() => { setData(MOCK_ALL); setLoading(false) }, 400)
     } else {
-      setLoading(false)
+      Promise.all([
+        plantelService.listar(),
+        accessService.getImportedSharePointData(),
+      ])
+        .then(([response, snapshot]) => {
+          setData(response.items || [])
+          const mutacoes = [
+            ...(snapshot.mutacoes || []).flatMap((item) => [
+              item.MutacaoMacho,
+              item.MutacaoFemea,
+              item.MutacaoFilhoteMacho,
+              item.MutacaoFilhoteFemea,
+            ]),
+            ...(response.items || []).map((item) => item.Mutacao),
+          ]
+            .filter(Boolean)
+            .filter((value, index, array) => array.indexOf(value) === index)
+
+          setCatalogs({
+            especies: (snapshot.especies || []).map((item) => item.Especie).filter(Boolean),
+            gaiolas: (snapshot.gaiolas || []).map((item) => item.NumeroGaiola).filter(Boolean),
+            criatorios: (snapshot.criatorios || []).map((item) => item.NomeCriatorio).filter(Boolean),
+            aneis: (snapshot.aneis || []).map((item) => item.NumeroAnel).filter(Boolean),
+            mutacoes: mutacoes.length > 0 ? mutacoes : MOCK_MUTACOES,
+          })
+          setError('')
+        })
+        .catch((requestError) => {
+          setError(requestError.response?.data?.message || 'Não foi possível carregar o ex-plantel.')
+        })
+        .finally(() => {
+          setLoading(false)
+        })
     }
   }, [])
 
@@ -128,29 +169,43 @@ export function ExPlantelModule() {
   }
 
   const handleSubmit = () => {
-    if (formMode === 'new') {
-      const newRecord = { ...formData, ID: Date.now(), Acesso: 'Anderson' }
-      setData(d => [...d, newRecord])
-      setSelected(newRecord)
-      setFormData({ ...newRecord })
-      setFormMode('view')
-    } else if (formMode === 'edit' && selected) {
-      const updated = { ...formData, ID: selected.ID, Acesso: selected.Acesso }
-      setData(d => d.map(r => r.ID === selected.ID ? updated : r))
-      setSelected(updated)
-      setFormData({ ...updated })
-      setFormMode('view')
-    }
+    const action = formMode === 'new'
+      ? plantelService.criar(formData)
+      : plantelService.atualizar(selected.ID, formData)
+
+    action
+      .then((response) => {
+        const item = response.item
+        if (formMode === 'new') {
+          setData((current) => [...current, item])
+        } else {
+          setData((current) => current.map((record) => (record.ID === selected.ID ? item : record)))
+        }
+        setSelected(item)
+        setFormData({ ...item })
+        setFormMode('view')
+        setError('')
+      })
+      .catch((requestError) => {
+        setError(requestError.response?.data?.message || 'Não foi possível salvar o registro.')
+      })
   }
 
   const handleDeleteConfirm = () => {
-    setData(d => d.filter(r => r.ID !== delTarget.ID))
-    if (selected?.ID === delTarget.ID) {
-      setSelected(null)
-      setFormMode(null)
-      setFormData(emptyForm())
-    }
-    setDelTarget(null)
+    plantelService.remover(delTarget.ID)
+      .then(() => {
+        setData((current) => current.filter((record) => record.ID !== delTarget.ID))
+        if (selected?.ID === delTarget.ID) {
+          setSelected(null)
+          setFormMode(null)
+          setFormData(emptyForm())
+        }
+        setDelTarget(null)
+        setError('')
+      })
+      .catch((requestError) => {
+        setError(requestError.response?.data?.message || 'Não foi possível remover o registro.')
+      })
   }
 
   // ─── Field helpers ────────────────────────────────────────────────────────
@@ -252,17 +307,28 @@ export function ExPlantelModule() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#5A7A5C', fontFamily: "'DM Mono', monospace", fontSize: 13 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
       Carregando ex-plantel...
     </div>
   )
 
   return (
     <div style={S.page}>
+      <div className="module-hero">
+        <div>
+          <div className="module-hero__eyebrow">Histórico</div>
+          <h2 className="module-hero__title">Ex-plantel</h2>
+          <div className="module-hero__text">
+            Reúna aves que saíram do plantel, preservando origem, motivo de saída e contexto histórico para consultas futuras.
+          </div>
+        </div>
+        <div className="pill">Memória do plantel</div>
+      </div>
+
       {error && <div style={S.error}>{error}</div>}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16 }}>
         <StatCard label="Total Ex-Plantel" value={stats.total}       desc="aves desligadas"       color="#C95025" />
         <StatCard label="Falecimento"      value={stats.falecimento} desc="falecimentos"           color="#E05C4B" />
         <StatCard label="Vendidos"         value={stats.vendidos}    desc="aves vendidas"           color="#F5A623" />
@@ -270,11 +336,11 @@ export function ExPlantelModule() {
       </div>
 
       {/* Master-Detail */}
-      <div style={S.master}>
+      <div className="module-panel" style={S.master}>
         {/* ── LEFT: Gallery ───────────────────────────────────────────────── */}
         <div style={S.gallery}>
           <div style={S.galleryHeader}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
               Ex-Plantel
             </div>
             <div style={S.searchRow}>
@@ -288,16 +354,16 @@ export function ExPlantelModule() {
               />
               <button style={S.addBtn} onClick={handleNew} title="Novo registro">+</button>
             </div>
-            <div style={{ fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace" }}>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
               {filtered.length} {filtered.length === 1 ? 'registro' : 'registros'}
             </div>
           </div>
 
           <div style={S.galleryList}>
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 16px', color: '#3A5C3C' }}>
+              <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--text-faint)' }}>
                 <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
-                <div style={{ fontSize: 12, fontFamily: "'DM Mono', monospace", color: '#4A6A4C' }}>Nenhum registro encontrado</div>
+                <div style={{ fontSize: 12, fontFamily: 'inherit', color: 'var(--text-muted)' }}>Nenhum registro encontrado</div>
               </div>
             ) : (
               filtered.map(ave => (
@@ -366,28 +432,28 @@ export function ExPlantelModule() {
                 {renderInput('NomePai', 'Nome do Pai', { placeholder: 'Pai' })}
 
                 {/* 5. Gaiola */}
-                {renderInput('Gaiola', 'Gaiola', { type: 'dropdown', options: MOCK_GAIOLAS.map(g => g.NumeroGaiola) })}
+                {renderInput('Gaiola', 'Gaiola', { type: 'dropdown', options: catalogs.gaiolas })}
 
                 {/* 6. DataNascimento */}
                 {renderInput('DataNascimento', 'Data de Nascimento', { type: 'date' })}
 
                 {/* 7. CategoriaAve / Espécie */}
-                {renderInput('CategoriaAve', 'Espécie', { type: 'dropdown', options: MOCK_ESPECIES.map(e => e.Especie) })}
+                {renderInput('CategoriaAve', 'Espécie', { type: 'dropdown', options: catalogs.especies })}
 
                 {/* 8. Genero */}
                 {renderInput('Genero', 'Gênero', { type: 'dropdown', options: GENERO_OPTIONS })}
 
                 {/* 9. Origem / Criatório */}
-                {renderInput('Origem', 'Criatório / Origem', { type: 'dropdown', options: MOCK_CRIATORIOS.map(c => c.NomeCriatorio) })}
+                {renderInput('Origem', 'Criatório / Origem', { type: 'dropdown', options: catalogs.criatorios })}
 
                 {/* 10. RegistroFOB */}
                 {renderInput('RegistroFOB', 'Registro FOB', { placeholder: 'FOB-XXX' })}
 
                 {/* 11. AnelEsquerdo */}
-                {renderInput('AnelEsquerdo', 'Anel Esquerdo', { type: 'dropdown', options: MOCK_ANEIS.map(a => a.NumeroAnel) })}
+                {renderInput('AnelEsquerdo', 'Anel Esquerdo', { type: 'dropdown', options: catalogs.aneis })}
 
                 {/* 12. Mutacao */}
-                {renderInput('Mutacao', 'Mutação', { type: 'dropdown', options: MOCK_MUTACOES })}
+                {renderInput('Mutacao', 'Mutação', { type: 'dropdown', options: catalogs.mutacoes })}
 
                 {/* 13. observacao */}
                 {renderInput('observacao', 'Observações', { type: 'textarea', fullWidth: true, placeholder: 'Notas adicionais...' })}

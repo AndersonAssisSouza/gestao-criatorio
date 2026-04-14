@@ -1,5 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { StatCard } from '../../shared/StatCard'
+import { mutacoesService } from '../../../services/mutacoes.service'
+import { useAuth } from '../../../context/AuthContext'
 
 // ═══════════════════════════════════════════════════════════════════════════
 //  SIMULADOR GENÉTICO — TARIM (Carduelis cucullata)
@@ -647,6 +649,18 @@ const CROSSING_DB = [
 // ═══════════════════════════════════════════════════════════════════════════
 const SPECIES = ['Tarin']
 
+const EMPTY_MUTATION_FORM = {
+  Especie: '',
+  MutacaoMacho: '',
+  LegendaMutacaoMacho: '',
+  MutacaoFemea: '',
+  LegendaMutacaoFemea: '',
+  MutacaoFilhoteMacho: '',
+  LegendaFilhoteMacho: '',
+  MutacaoFilhoteFemea: '',
+  LegendaFilhoteFemea: '',
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 //  COMPONENTES AUXILIARES
 // ═══════════════════════════════════════════════════════════════════════════
@@ -655,7 +669,7 @@ function CustomSelect({ label, value, onChange, options, placeholder, disabled }
   return (
     <div style={{ marginBottom: 18 }}>
       <label style={{
-        display: 'block', fontSize: 11, fontFamily: "'DM Mono', monospace",
+        display: 'block', fontSize: 11, fontFamily: 'inherit',
         color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase',
         marginBottom: 6,
       }}>
@@ -667,17 +681,17 @@ function CustomSelect({ label, value, onChange, options, placeholder, disabled }
         disabled={disabled}
         style={{
           width: '100%', padding: '10px 14px', fontSize: 14,
-          fontFamily: "'DM Mono', monospace", color: value ? '#F2EDE4' : '#5A7A5C',
-          background: 'rgba(21,40,24,0.9)', border: '1px solid rgba(201,80,37,0.3)',
+          fontFamily: 'inherit', color: value ? '#F2EDE4' : '#5A7A5C',
+          background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)',
           borderRadius: 8, outline: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
           opacity: disabled ? 0.5 : 1, appearance: 'none',
           backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C95025' d='M2 4l4 4 4-4'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
         }}
       >
-        <option value="" style={{ color: '#5A7A5C' }}>{placeholder}</option>
+        <option value="" style={{ color: 'var(--text-muted)' }}>{placeholder}</option>
         {options.map(opt => (
-          <option key={opt} value={opt} style={{ color: '#F2EDE4', background: '#152818' }}>
+          <option key={opt} value={opt} style={{ color: 'var(--text-main)', background: '#152818' }}>
             {opt}
           </option>
         ))}
@@ -700,14 +714,14 @@ function MutationBadge({ name, percentual }) {
         background: color, flexShrink: 0,
       }} />
       <span style={{
-        fontFamily: "'DM Mono', monospace", fontSize: 13,
-        color: '#F2EDE4', flex: 1,
+        fontFamily: 'inherit', fontSize: 13,
+        color: 'var(--text-main)', flex: 1,
       }}>
         {name}
       </span>
       {percentual && (
         <span style={{
-          fontFamily: "'DM Mono', monospace", fontSize: 12,
+          fontFamily: 'inherit', fontSize: 12,
           color: color, fontWeight: 600, flexShrink: 0,
         }}>
           {percentual}
@@ -722,8 +736,8 @@ function LegendText({ name }) {
   if (!legend) return null
   return (
     <div style={{
-      fontSize: 11, fontFamily: "'DM Mono', monospace",
-      color: '#5A7A5C', fontStyle: 'italic', marginTop: -10,
+      fontSize: 11, fontFamily: 'inherit',
+      color: 'var(--text-muted)', fontStyle: 'italic', marginTop: -10,
       marginBottom: 14, paddingLeft: 4, lineHeight: 1.5,
     }}>
       {legend}
@@ -734,7 +748,7 @@ function LegendText({ name }) {
 function ResultSection({ title, icon, results }) {
   return (
     <div style={{
-      background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)',
+      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: 12, padding: '18px 20px', flex: 1, minWidth: 260,
     }}>
       <div style={{
@@ -749,8 +763,8 @@ function ResultSection({ title, icon, results }) {
         <div key={i}>
           <MutationBadge name={r.mutacao} percentual={r.percentual} />
           <div style={{
-            fontSize: 10, fontFamily: "'DM Mono', monospace",
-            color: '#4A6A4C', marginBottom: 8, paddingLeft: 24,
+            fontSize: 10, fontFamily: 'inherit',
+            color: 'var(--text-muted)', marginBottom: 8, paddingLeft: 24,
             lineHeight: 1.4,
           }}>
             {getMutationLegend(r.mutacao)}
@@ -770,13 +784,13 @@ function CrossingOverResult({ crossing }) {
         borderRadius: 10, padding: '12px 16px', marginBottom: 18,
       }}>
         <div style={{
-          fontSize: 12, fontFamily: "'DM Mono', monospace",
+          fontSize: 12, fontFamily: 'inherit',
           color: '#B39DDB', fontWeight: 600, marginBottom: 4,
         }}>
           Cruzamento com Passepartout (sem % definido)
         </div>
         <div style={{
-          fontSize: 11, fontFamily: "'DM Mono', monospace",
+          fontSize: 11, fontFamily: 'inherit',
           color: '#8A7AB0', lineHeight: 1.5,
         }}>
           O fenômeno de crossing-over pode alterar os resultados.
@@ -817,9 +831,53 @@ function CrossingOverResult({ crossing }) {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function MutacoesModule() {
+  const { user } = useAuth()
+  const canManageMutations = user?.role === 'owner'
   const [especie, setEspecie] = useState('')
   const [mutacaoMacho, setMutacaoMacho] = useState('')
   const [mutacaoFemea, setMutacaoFemea] = useState('')
+  const [mutationRecords, setMutationRecords] = useState([])
+  const [mutationForm, setMutationForm] = useState(EMPTY_MUTATION_FORM)
+  const [mutationSaving, setMutationSaving] = useState(false)
+  const [mutationError, setMutationError] = useState('')
+  const [mutationMessage, setMutationMessage] = useState('')
+
+  useEffect(() => {
+    let active = true
+
+    if (!import.meta.env.VITE_API_URL) {
+      if (active) setMutationRecords([])
+      return () => { active = false }
+    }
+
+    mutacoesService.list()
+      .then((items) => {
+        if (active) {
+          setMutationRecords(items || [])
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setMutationRecords([])
+        }
+      })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const registeredSpecies = useMemo(() => {
+    return [...new Set(mutationRecords.map((item) => item.Especie).filter(Boolean))]
+  }, [mutationRecords])
+
+  const mutationSpeciesOptions = useMemo(() => {
+    return [...new Set([...SPECIES, ...registeredSpecies])].sort((left, right) => left.localeCompare(right, 'pt-BR'))
+  }, [registeredSpecies])
+
+  const recentMutations = useMemo(() => {
+    return mutationRecords.slice().reverse().slice(0, 10)
+  }, [mutationRecords])
 
   // Mutações disponíveis para macho (filtradas por espécie)
   const machoOptions = useMemo(() => {
@@ -858,45 +916,47 @@ export function MutacoesModule() {
     setMutacaoFemea('')
   }
 
+  const setMutationField = (field, value) => {
+    setMutationForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const handleCreateMutation = async () => {
+    if (!canManageMutations) {
+      setMutationError('O cadastro de mutação é exclusivo da conta master.')
+      return
+    }
+
+    try {
+      setMutationSaving(true)
+      setMutationError('')
+      setMutationMessage('')
+
+      const response = await mutacoesService.create(mutationForm)
+      setMutationRecords(response.items || [])
+      setMutationForm(EMPTY_MUTATION_FORM)
+      setMutationMessage('Mutação cadastrada com sucesso.')
+    } catch (error) {
+      setMutationError(error.response?.data?.message || 'Não foi possível salvar a mutação.')
+    } finally {
+      setMutationSaving(false)
+    }
+  }
+
   const allSelected = especie && mutacaoMacho && mutacaoFemea && crossing
 
   return (
-    <div style={{
-      minHeight: '100vh', background: '#0A1A0C',
-      padding: '30px 36px', color: '#F2EDE4',
-    }}>
-      {/* ── Header ── */}
-      <div style={{ marginBottom: 30 }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6,
-        }}>
-          <div style={{
-            width: 36, height: 36, borderRadius: 10,
-            background: 'rgba(201,80,37,0.15)', border: '1px solid rgba(201,80,37,0.3)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 18,
-          }}>
-            🧬
-          </div>
-          <div>
-            <h1 style={{
-              fontSize: 26, fontFamily: "'DM Serif Display', serif",
-              color: '#F2EDE4', margin: 0, letterSpacing: '-0.5px',
-            }}>
-              Simulador Genético
-            </h1>
-            <div style={{
-              fontSize: 12, fontFamily: "'DM Mono', monospace",
-              color: '#C95025', letterSpacing: '0.08em',
-            }}>
-              {especie ? `Espécie: ${especie}` : 'TARIM - Acasalamentos entre mutações'}
-            </div>
+    <div className="page-block" style={{ color: 'var(--text-main)' }}>
+      <div className="module-hero">
+        <div>
+          <div className="module-hero__eyebrow">Genética aplicada</div>
+          <h2 className="module-hero__title">Simulador genético</h2>
+          <div className="module-hero__text">
+            Simule cruzamentos, visualize probabilidades de mutação e consulte resultados especiais como crossing-over em uma interface mais integrada ao sistema.
           </div>
         </div>
-        <div style={{
-          height: 1, background: 'linear-gradient(90deg, rgba(201,80,37,0.4), transparent)',
-          marginTop: 16,
-        }} />
+        <div className="pill pill--accent">
+          {especie ? `Espécie: ${especie}` : 'Tarim'}
+        </div>
       </div>
 
       {/* ── Main layout: left selectors + right results ── */}
@@ -904,10 +964,9 @@ export function MutacoesModule() {
         display: 'flex', gap: 30, flexWrap: 'wrap', alignItems: 'flex-start',
       }}>
         {/* ── LEFT: Selectors ── */}
-        <div style={{
+        <div className="module-panel" style={{
           width: 360, flexShrink: 0,
-          background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)',
-          borderRadius: 14, padding: '24px 22px',
+          padding: '24px 22px',
         }}>
           <div style={{
             fontSize: 14, fontFamily: "'DM Serif Display', serif",
@@ -980,20 +1039,19 @@ export function MutacoesModule() {
         <div style={{ flex: 1, minWidth: 300 }}>
           {!allSelected ? (
             /* Instruction text when nothing selected */
-            <div style={{
-              background: 'rgba(21,40,24,0.4)', border: '1px dashed rgba(201,80,37,0.25)',
-              borderRadius: 14, padding: '60px 40px', textAlign: 'center',
+            <div className="module-panel" style={{
+              borderStyle: 'dashed', padding: '60px 40px', textAlign: 'center',
             }}>
               <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.5 }}>🧬</div>
               <div style={{
                 fontSize: 15, fontFamily: "'DM Serif Display', serif",
-                color: '#5A7A5C', lineHeight: 1.7, maxWidth: 420, margin: '0 auto',
+                color: 'var(--text-muted)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto',
               }}>
                 Selecione a espécie e mutações do macho e fêmea para o resultado
                 das possibilidades das mutações no nascimento dos filhotes
               </div>
               <div style={{
-                fontSize: 11, fontFamily: "'DM Mono', monospace",
+                fontSize: 11, fontFamily: 'inherit',
                 color: '#3A5A3C', marginTop: 16,
               }}>
                 Fonte: TARIM - Acasalamentos entre mutações (Décio Junior)
@@ -1001,16 +1059,16 @@ export function MutacoesModule() {
             </div>
           ) : crossing.isCrossingOver ? (
             /* Crossing-over results */
-            <div>
+            <div className="module-panel" style={{ padding: '22px 24px' }}>
               <div style={{
                 fontSize: 18, fontFamily: "'DM Serif Display', serif",
-                color: '#F2EDE4', marginBottom: 4,
+                color: 'var(--text-main)', marginBottom: 4,
               }}>
                 Resultado do Cruzamento
               </div>
               <div style={{
-                fontSize: 12, fontFamily: "'DM Mono', monospace",
-                color: '#5A7A5C', marginBottom: 18,
+                fontSize: 12, fontFamily: 'inherit',
+                color: 'var(--text-muted)', marginBottom: 18,
               }}>
                 {mutacaoMacho} × {mutacaoFemea}
               </div>
@@ -1018,16 +1076,16 @@ export function MutacoesModule() {
             </div>
           ) : (
             /* Normal results */
-            <div>
+            <div className="module-panel" style={{ padding: '22px 24px' }}>
               <div style={{
                 fontSize: 18, fontFamily: "'DM Serif Display', serif",
-                color: '#F2EDE4', marginBottom: 4,
+                color: 'var(--text-main)', marginBottom: 4,
               }}>
                 Resultado do Cruzamento
               </div>
               <div style={{
-                fontSize: 12, fontFamily: "'DM Mono', monospace",
-                color: '#5A7A5C', marginBottom: 18,
+                fontSize: 12, fontFamily: 'inherit',
+                color: 'var(--text-muted)', marginBottom: 18,
               }}>
                 {mutacaoMacho} × {mutacaoFemea}
               </div>
@@ -1051,7 +1109,7 @@ export function MutacoesModule() {
                   borderRadius: 10, padding: '12px 16px', marginTop: 16,
                 }}>
                   <div style={{
-                    fontSize: 11, fontFamily: "'DM Mono', monospace",
+                    fontSize: 11, fontFamily: 'inherit',
                     color: '#EF9A9A', lineHeight: 1.5,
                   }}>
                     Herança autossômica dominante — os resultados são idênticos
@@ -1061,6 +1119,204 @@ export function MutacoesModule() {
               )}
             </div>
           )}
+        </div>
+      </div>
+
+      <div className="module-panel" style={{ marginTop: 26, padding: '22px 24px' }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', marginBottom: 20,
+        }}>
+          <div>
+            <div style={{
+              fontSize: 11, fontFamily: 'inherit', color: '#C95025',
+              letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
+            }}>
+              Cadastro de mutações
+            </div>
+            <div style={{
+              fontSize: 22, fontFamily: "'DM Serif Display', serif", color: 'var(--text-main)', marginBottom: 6,
+            }}>
+              Nova mutação
+            </div>
+            <div style={{
+              fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.7, maxWidth: 720,
+            }}>
+              Cadastre mutações por espécie para alimentar o restante do sistema. Essas mutações passam a ficar disponíveis no cadastro da ave quando a espécie correspondente for selecionada.
+            </div>
+            {!canManageMutations ? (
+              <div style={{
+                marginTop: 10,
+                fontSize: 12,
+                color: '#d8b7a8',
+                lineHeight: 1.7,
+              }}>
+                O cadastro de mutação fica disponível apenas na sua conta master.
+              </div>
+            ) : null}
+          </div>
+
+          <div style={{ minWidth: 160 }}>
+            <StatCard
+              label="Cadastradas"
+              value={mutationRecords.length}
+              desc="regras registradas"
+              color="#C95025"
+            />
+          </div>
+        </div>
+
+        {mutationError ? (
+          <div style={{
+            background: 'rgba(224,92,75,0.12)', border: '1px solid rgba(224,92,75,0.28)', borderRadius: 10,
+            padding: '12px 14px', color: '#ffc9c1', fontSize: 12, marginBottom: 14,
+          }}>
+            {mutationError}
+          </div>
+        ) : null}
+
+        {mutationMessage ? (
+          <div style={{
+            background: 'rgba(76,175,125,0.12)', border: '1px solid rgba(76,175,125,0.28)', borderRadius: 10,
+            padding: '12px 14px', color: '#d6f5e6', fontSize: 12, marginBottom: 14,
+          }}>
+            {mutationMessage}
+          </div>
+        ) : null}
+
+        {canManageMutations ? (
+          <>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
+              <CustomSelect
+                label="Espécie"
+                value={mutationForm.Especie}
+                onChange={(value) => setMutationField('Especie', value)}
+                options={mutationSpeciesOptions}
+                placeholder="Selecione a espécie..."
+              />
+
+              <div>
+                <label style={{
+                  display: 'block', fontSize: 11, fontFamily: 'inherit',
+                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  Mutação macho
+                </label>
+                <input value={mutationForm.MutacaoMacho} onChange={(e) => setMutationField('MutacaoMacho', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block', fontSize: 11, fontFamily: 'inherit',
+                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  Legenda macho
+                </label>
+                <input value={mutationForm.LegendaMutacaoMacho} onChange={(e) => setMutationField('LegendaMutacaoMacho', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block', fontSize: 11, fontFamily: 'inherit',
+                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  Mutação fêmea
+                </label>
+                <input value={mutationForm.MutacaoFemea} onChange={(e) => setMutationField('MutacaoFemea', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block', fontSize: 11, fontFamily: 'inherit',
+                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  Legenda fêmea
+                </label>
+                <input value={mutationForm.LegendaMutacaoFemea} onChange={(e) => setMutationField('LegendaMutacaoFemea', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block', fontSize: 11, fontFamily: 'inherit',
+                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  Filhote macho
+                </label>
+                <input value={mutationForm.MutacaoFilhoteMacho} onChange={(e) => setMutationField('MutacaoFilhoteMacho', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block', fontSize: 11, fontFamily: 'inherit',
+                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  Legenda filhote macho
+                </label>
+                <input value={mutationForm.LegendaFilhoteMacho} onChange={(e) => setMutationField('LegendaFilhoteMacho', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block', fontSize: 11, fontFamily: 'inherit',
+                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  Filhote fêmea
+                </label>
+                <input value={mutationForm.MutacaoFilhoteFemea} onChange={(e) => setMutationField('MutacaoFilhoteFemea', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block', fontSize: 11, fontFamily: 'inherit',
+                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
+                }}>
+                  Legenda filhote fêmea
+                </label>
+                <input value={mutationForm.LegendaFilhoteFemea} onChange={(e) => setMutationField('LegendaFilhoteFemea', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              </div>
+            </div>
+
+            <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                onClick={handleCreateMutation}
+                disabled={mutationSaving}
+                style={{
+                  border: 'none', borderRadius: 10, padding: '12px 18px',
+                  background: 'linear-gradient(135deg, #C95025, #A0401D)', color: '#fff7f2',
+                  fontFamily: 'inherit', cursor: mutationSaving ? 'not-allowed' : 'pointer',
+                  opacity: mutationSaving ? 0.7 : 1,
+                }}
+              >
+                {mutationSaving ? 'Salvando...' : 'Cadastrar mutação'}
+              </button>
+            </div>
+          </>
+        ) : null}
+
+        <div style={{ marginTop: 24 }}>
+          <div style={{
+            fontSize: 13, fontFamily: "'DM Serif Display', serif", color: 'var(--text-main)', marginBottom: 12,
+          }}>
+            Últimas mutações cadastradas
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
+            {recentMutations.map((item) => (
+              <div key={item.ID} style={{
+                borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)',
+                padding: '12px 14px',
+              }}>
+                <div style={{ fontSize: 11, fontFamily: 'inherit', color: '#C95025', marginBottom: 8 }}>
+                  {item.Especie}
+                </div>
+                <div style={{ fontSize: 13, color: 'var(--text-main)', lineHeight: 1.7 }}>
+                  Macho: {item.MutacaoMacho || '-'}<br />
+                  Fêmea: {item.MutacaoFemea || '-'}<br />
+                  Filhote macho: {item.MutacaoFilhoteMacho || '-'}<br />
+                  Filhote fêmea: {item.MutacaoFilhoteFemea || '-'}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

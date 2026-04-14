@@ -4,22 +4,22 @@
 
 export const colors = {
   // Backgrounds
-  bgPrincipal:    '#0A1A0C',
-  bgSuperficie:   '#0D1A10',
-  bgCard:         '#152818',
-  bgCardHover:    'rgba(201,80,37,0.04)',
+  bgPrincipal:    'var(--bg-app)',
+  bgSuperficie:   'var(--bg-deep)',
+  bgCard:         'var(--bg-panel-solid)',
+  bgCardHover:    'var(--accent-ghost)',
 
   // Primária (Power Apps: varCorPrincipal = RGBA(201,80,37,1))
-  principal:      '#C95025',
-  principalTrans: 'rgba(201,80,37,0.3)',
-  principalFundo: 'rgba(201,80,37,0.1)',
-  principalBorda: 'rgba(201,80,37,0.2)',
+  principal:      'var(--accent)',
+  principalTrans: 'var(--accent-soft-strong)',
+  principalFundo: 'var(--accent-soft)',
+  principalBorda: 'var(--accent-border)',
 
   // Compatibilidade
-  ambar:          '#C95025',
-  ambarSombra:    '#A0401D',
-  ambarFundo:     'rgba(201,80,37,0.1)',
-  ambarBorda:     'rgba(201,80,37,0.2)',
+  ambar:          'var(--accent)',
+  ambarSombra:    'var(--accent-strong)',
+  ambarFundo:     'var(--accent-soft)',
+  ambarBorda:     'var(--accent-border)',
 
   // Componente (Power Apps: varCorComponente = RGBA(102,101,101,1))
   componente:     '#666565',
@@ -34,11 +34,11 @@ export const colors = {
   inativoBg:      'rgba(138,158,140,0.12)',
 
   // Texto
-  textoPrimario:  '#F2EDE4',
-  textoSecundario:'#D8E8D8',
-  textoTerciario: '#8A9E8C',
-  textoQuaternario:'#5A7A5C',
-  textoMuted:     '#4A6A4C',
+  textoPrimario:  'var(--text-main)',
+  textoSecundario:'var(--text-soft)',
+  textoTerciario: 'var(--text-muted)',
+  textoQuaternario:'var(--text-faint)',
+  textoMuted:     'var(--text-faint)',
   textoDisabled:  '#3A5C3C',
 
   // Bordas
@@ -79,7 +79,7 @@ export const STATUS_CONFIG = {
   'Vivo':         { color: '#4CAF7D', bg: 'rgba(76,175,125,0.12)',  dot: '#4CAF7D' },
   'Filhote':      { color: '#5BC0EB', bg: 'rgba(91,192,235,0.12)',  dot: '#5BC0EB' },
   'Falecimento':  { color: '#E05C4B', bg: 'rgba(224,92,75,0.12)',   dot: '#E05C4B' },
-  'Vendido':      { color: '#C95025', bg: 'rgba(201,80,37,0.12)',   dot: '#C95025' },
+  'Vendido':      { color: 'var(--accent)', bg: 'var(--accent-soft)', dot: 'var(--accent)' },
   'Doado':        { color: '#9B8EC4', bg: 'rgba(155,142,196,0.12)', dot: '#9B8EC4' },
 
   // ── Gaiolas ──
@@ -88,7 +88,7 @@ export const STATUS_CONFIG = {
   'Preparacao':             { color: '#5BC0EB', bg: 'rgba(91,192,235,0.12)',  dot: '#5BC0EB' },
   'Dividida':               { color: '#9B8EC4', bg: 'rgba(155,142,196,0.12)', dot: '#9B8EC4' },
   'Com Ave Avulsa':         { color: '#4CAF7D', bg: 'rgba(76,175,125,0.12)', dot: '#4CAF7D' },
-  'Com Duas Aves Separadas':{ color: '#C95025', bg: 'rgba(201,80,37,0.12)',  dot: '#C95025' },
+  'Com Duas Aves Separadas':{ color: 'var(--accent)', bg: 'var(--accent-soft)', dot: 'var(--accent)' },
   'Acasalando':             { color: '#E88DB4', bg: 'rgba(232,141,180,0.12)', dot: '#E88DB4' },
 
   // ── Ovos ──
@@ -99,7 +99,7 @@ export const STATUS_CONFIG = {
 
   // ── Filhotes ──
   'Faleceu':      { color: '#E05C4B', bg: 'rgba(224,92,75,0.12)',  dot: '#E05C4B' },
-  'Plantel':      { color: '#C95025', bg: 'rgba(201,80,37,0.12)',  dot: '#C95025' },
+  'Plantel':      { color: 'var(--accent)', bg: 'var(--accent-soft)', dot: 'var(--accent)' },
 
   // ── Anéis ──
   'Utilizado':    { color: '#F5A623', bg: 'rgba(245,166,35,0.12)',  dot: '#F5A623' },

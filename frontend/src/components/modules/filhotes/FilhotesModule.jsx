@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo } from 'react'
-import { StatCard }    from '../../shared/StatCard'
+import { StatCard } from '../../shared/StatCard'
 import { StatusBadge } from '../../shared/StatusBadge'
+import { ConfirmModal } from '../../shared/ConfirmModal'
+import { accessService } from '../../../services/access.service'
+import { filhotesService } from '../../../services/filhotes.service'
+
+const USE_MOCK = !import.meta.env.VITE_API_URL
 
 // ─── MOCK DATA — remover quando backend estiver conectado ───────────────────
 const MOCK_FILHOTES = [
@@ -8,64 +13,113 @@ const MOCK_FILHOTES = [
   { ID: 2, NomeAve: 'Filhote-02', NumeroOvo: '2', Status: 'Vivo', DataNascimento: '2026-04-03', DataPrevistaAnilhamento: '2026-04-08', Gaiola: 'G-01', IDMae: 2, IDPai: 1, NomeMae: 'Athena', MutacaoMae: 'Canela',    NomePai: 'Thor',   MutacaoPai: 'Ancestral' },
 ]
 
-// ─── Mutation Lookup (MutacaoTarin simplified) ──────────────────────────────
-const MUTATION_RESULTS = {
-  'Tarin': {
-    'Ancestral|Canela': {
-      machos:  ['Ancestral /canela', 'Ancestral /canela'],
-      femeas:  ['Canela', 'Ancestral'],
-    },
-    'Pastel|Canela Pastel': {
-      machos:  ['Pastel /canela', 'Pastel /canela'],
-      femeas:  ['Canela Pastel', 'Pastel'],
-    },
-    'Ancestral|Ancestral': {
-      machos:  ['Ancestral', 'Ancestral'],
-      femeas:  ['Ancestral', 'Ancestral'],
-    },
-    'Pastel|Canela': {
-      machos:  ['Ancestral /canela /pastel', 'Ancestral /canela /pastel'],
-      femeas:  ['Pastel', 'Canela', 'Canela Pastel', 'Ancestral'],
-    },
-    'Canela|Canela': {
-      machos:  ['Canela', 'Canela'],
-      femeas:  ['Canela', 'Canela'],
-    },
-  },
-}
-
 const ESPECIES = ['Tarin', 'Canario', 'Pintassilgo']
-const MUTACOES_TARIN = ['Ancestral', 'Canela', 'Pastel', 'Canela Pastel', 'Agata', 'Satine', 'Isabel']
 
 const STATUS_OPTIONS = ['Vivo', 'Faleceu', 'Plantel']
 
+function normalizeKey(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase()
+}
+
+function buildMutationCatalog(records = []) {
+  return records.reduce((accumulator, item) => {
+    const speciesKey = normalizeKey(item.Especie)
+    if (!speciesKey) return accumulator
+
+    const nextOptions = [
+      item.MutacaoMacho,
+      item.MutacaoFemea,
+      item.MutacaoFilhoteMacho,
+      item.MutacaoFilhoteFemea,
+    ]
+      .map((value) => String(value || '').trim())
+      .filter(Boolean)
+
+    accumulator[speciesKey] = [...new Set([...(accumulator[speciesKey] || []), ...nextOptions])]
+    return accumulator
+  }, {})
+}
+
+function uniqueValues(values = []) {
+  return [...new Set(values.map((value) => String(value || '').trim()).filter(Boolean))]
+}
+
+function buildPredictionCatalog(records = []) {
+  return records.reduce((accumulator, item) => {
+    const speciesKey = normalizeKey(item.Especie)
+    const maleKey = normalizeKey(item.MutacaoMacho)
+    const femaleKey = normalizeKey(item.MutacaoFemea)
+
+    if (!speciesKey || !maleKey || !femaleKey) return accumulator
+
+    const pairKey = `${maleKey}|${femaleKey}`
+    const currentSpecies = accumulator[speciesKey] || {}
+    const currentEntry = currentSpecies[pairKey] || {
+      pai: String(item.MutacaoMacho || '').trim(),
+      mae: String(item.MutacaoFemea || '').trim(),
+      machos: [],
+      femeas: [],
+    }
+
+    currentSpecies[pairKey] = {
+      ...currentEntry,
+      machos: uniqueValues([...currentEntry.machos, item.MutacaoFilhoteMacho]),
+      femeas: uniqueValues([...currentEntry.femeas, item.MutacaoFilhoteFemea]),
+    }
+
+    accumulator[speciesKey] = currentSpecies
+    return accumulator
+  }, {})
+}
+
+function isActiveFilhote(item = {}) {
+  const status = normalizeKey(item.Status)
+  return status !== 'faleceu' && status !== 'plantel'
+}
+
+function toIsoDate(value = '') {
+  if (!value) return ''
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value
+
+  const match = String(value).match(/^(\d{2})\/(\d{2})\/(\d{4})$/)
+  if (!match) return ''
+  return `${match[3]}-${match[2]}-${match[1]}`
+}
+
 // ─── Styles ─────────────────────────────────────────────────────────────────
 const S = {
-  container:    { display: 'flex', gap: 16, minHeight: 'calc(100vh - 200px)' },
-  panel:        { background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  panelHeader:  { padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  panelTitle:   { fontSize: 15, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" },
-  panelSub:     { fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 2 },
+  container:    { display: 'grid', gap: 16, minHeight: 'calc(100vh - 260px)', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' },
+  panel:        { padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  panelHeader:  { padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  panelTitle:   { fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
+  panelSub:     { fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4, letterSpacing: '0.08em', textTransform: 'uppercase' },
   panelBody:    { padding: '12px 16px', flex: 1, overflowY: 'auto' },
-  card:         { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '14px 16px', marginBottom: 10, cursor: 'pointer', transition: 'all 0.15s' },
-  cardSelected: { background: 'rgba(201,80,37,0.1)', border: '1px solid rgba(201,80,37,0.3)' },
-  label:        { fontSize: 10, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 },
-  value:        { fontSize: 13, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" },
-  valueMuted:   { fontSize: 12, color: '#8A9E8C', fontFamily: "'DM Mono', monospace" },
-  valueReadonly:{ fontSize: 13, color: '#8A9E8C', fontFamily: "'DM Mono', monospace", background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 8, padding: '8px 12px' },
-  row:          { display: 'flex', gap: 12, marginBottom: 8 },
-  col:          { flex: 1 },
-  btn:          { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 8, padding: '8px 16px', color: '#F2EDE4', fontSize: 12, fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 },
-  btnSecondary: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 16px', color: '#F2EDE4', fontSize: 12, fontWeight: 600, fontFamily: "'DM Mono', monospace", cursor: 'pointer' },
-  select:       { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', appearance: 'none' },
-  input:        { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', boxSizing: 'border-box' },
+  card:         { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 18, padding: '16px 16px', marginBottom: 10, cursor: 'pointer', transition: 'all 0.15s' },
+  cardSelected: { background: 'linear-gradient(135deg, rgba(201,80,37,0.12), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.3)' },
+  label:        { fontSize: 10, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 },
+  value:        { fontSize: 13, color: 'var(--text-main)', fontFamily: 'inherit' },
+  valueMuted:   { fontSize: 12, color: 'var(--text-soft)', fontFamily: 'inherit' },
+  valueReadonly:{ fontSize: 13, color: 'var(--text-soft)', fontFamily: 'inherit', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 14, padding: '12px 14px' },
+  row:          { display: 'flex', gap: 12, marginBottom: 8, flexWrap: 'wrap' },
+  col:          { flex: '1 1 140px', minWidth: 0 },
+  btn:          { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 14, padding: '12px 16px', color: 'var(--text-main)', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 },
+  btnSecondary: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '12px 16px', color: 'var(--text-main)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' },
+  select:       { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', width: '100%', appearance: 'none' },
+  input:        { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box' },
   divider:      { height: 1, background: 'rgba(255,255,255,0.06)', margin: '12px 0' },
-  resultCard:   { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 8, padding: '10px 14px', marginBottom: 6 },
+  resultCard:   { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '12px 14px', marginBottom: 8 },
 }
 
 const fmtDate = (d) => {
   if (!d) return '---'
-  const dt = new Date(d + 'T00:00:00')
+  const normalized = toIsoDate(d) || d
+  const dt = new Date(normalized + 'T00:00:00')
+  if (Number.isNaN(dt.getTime())) return d
   return dt.toLocaleDateString('pt-BR')
 }
 
@@ -73,23 +127,77 @@ const fmtDate = (d) => {
 // MAIN MODULE
 // ═════════════════════════════════════════════════════════════════════════════
 export function FilhotesModule() {
-  const [filhotes, setFilhotes]           = useState([])
-  const [loading, setLoading]             = useState(true)
+  const [filhotes, setFilhotes] = useState([])
+  const [loading, setLoading] = useState(true)
   const [selectedFilhote, setSelectedFilhote] = useState(null)
-  const [editMode, setEditMode]           = useState(false)
-  const [editForm, setEditForm]           = useState({})
-
-  // Mutation prediction state
-  const [predEspecie, setPredEspecie]       = useState('Tarin')
-  const [predMutMacho, setPredMutMacho]     = useState('')
-  const [predMutFemea, setPredMutFemea]     = useState('')
+  const [editMode, setEditMode] = useState(false)
+  const [transferMode, setTransferMode] = useState(false)
+  const [editForm, setEditForm] = useState({})
+  const [transferForm, setTransferForm] = useState({
+    Nome: '',
+    CategoriaAve: '',
+    Genero: '',
+    Gaiola: '',
+    Mutacao: '',
+    AnelEsquerdo: '',
+    RegistroFOB: '',
+    observacao: '',
+  })
+  const [catalogs, setCatalogs] = useState({
+    especies: ESPECIES,
+    gaiolas: [],
+    aneis: [],
+    registroFobCriatorio: '',
+    mutacoesPorEspecie: {},
+    predicoesPorEspecie: {},
+  })
+  const [allFilhotesCount, setAllFilhotesCount] = useState({ total: 0, plantel: 0, faleceu: 0 })
+  const [error, setError] = useState('')
+  const [deathTarget, setDeathTarget] = useState(null)
 
   // ─── Load data ────────────────────────────────────────────────────────────
   useEffect(() => {
-    setTimeout(() => {
-      setFilhotes(MOCK_FILHOTES)
-      setLoading(false)
-    }, 400)
+    if (USE_MOCK) {
+      setTimeout(() => {
+        setFilhotes(MOCK_FILHOTES)
+        setLoading(false)
+      }, 400)
+      return
+    }
+
+    Promise.all([
+      filhotesService.list(),
+      accessService.getImportedSharePointData(),
+    ])
+      .then(([response, snapshot]) => {
+        const criatorio = (snapshot.criatorios || [])[0] || {}
+        const sourceItems = snapshot.filhotes || response.items || []
+        setFilhotes((response.items || []).filter(isActiveFilhote))
+        setAllFilhotesCount({
+          total: sourceItems.length,
+          plantel: sourceItems.filter((item) => normalizeKey(item.Status) === 'plantel').length,
+          faleceu: sourceItems.filter((item) => normalizeKey(item.Status) === 'faleceu').length,
+        })
+        setCatalogs({
+          especies: uniqueValues([...(snapshot.especies || []).map((item) => item.Especie), ...ESPECIES]),
+          gaiolas: uniqueValues((snapshot.gaiolas || []).map((item) => item.NumeroGaiola)),
+          aneis: uniqueValues(
+            (snapshot.aneis || [])
+              .filter((item) => normalizeKey(item.Status || 'Ativo') !== 'inativo')
+              .map((item) => item.NumeroAnel),
+          ),
+          registroFobCriatorio: String(criatorio.RegistroFOB || criatorio.CTFCriador || '').trim(),
+          mutacoesPorEspecie: buildMutationCatalog(snapshot.mutacoes || []),
+          predicoesPorEspecie: buildPredictionCatalog(snapshot.mutacoes || []),
+        })
+        setError('')
+      })
+      .catch((requestError) => {
+        setError(requestError.response?.data?.message || 'Não foi possível carregar os filhotes.')
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [])
 
   // ─── Select first chick on load ──────────────────────────────────────────
@@ -99,6 +207,22 @@ export function FilhotesModule() {
     }
   }, [filhotes, selectedFilhote])
 
+  useEffect(() => {
+    if (!selectedFilhote) return
+
+    const initialSpecies = selectedFilhote.CategoriaAve || selectedFilhote.Especie || (catalogs.especies.length === 1 ? catalogs.especies[0] : '')
+    setTransferForm({
+      Nome: selectedFilhote.NomeAve || '',
+      CategoriaAve: initialSpecies,
+      Genero: selectedFilhote.Genero || '',
+      Gaiola: selectedFilhote.Gaiola || '',
+      Mutacao: selectedFilhote.Mutacao || '',
+      AnelEsquerdo: selectedFilhote.AnelEsquerdo || '',
+      RegistroFOB: selectedFilhote.RegistroFOB || catalogs.registroFobCriatorio || '',
+      observacao: selectedFilhote.observacao || '',
+    })
+  }, [selectedFilhote, catalogs.especies, catalogs.registroFobCriatorio])
+
   // ─── Start editing ────────────────────────────────────────────────────────
   const startEdit = () => {
     if (!selectedFilhote) return
@@ -107,6 +231,7 @@ export function FilhotesModule() {
       Status:  selectedFilhote.Status || 'Vivo',
     })
     setEditMode(true)
+    setTransferMode(false)
   }
 
   const cancelEdit = () => {
@@ -114,55 +239,168 @@ export function FilhotesModule() {
     setEditForm({})
   }
 
-  const saveEdit = () => {
+  const startTransfer = () => {
     if (!selectedFilhote) return
-    const updated = { ...selectedFilhote, ...editForm }
-    setFilhotes(prev => prev.map(f => f.ID === selectedFilhote.ID ? updated : f))
-    setSelectedFilhote(updated)
+    setTransferMode(true)
     setEditMode(false)
-    setEditForm({})
+    setError('')
   }
 
-  // ─── Mutation Prediction ──────────────────────────────────────────────────
-  const predictionResults = useMemo(() => {
-    if (!predMutMacho || !predMutFemea || !predEspecie) return null
-    const specieData = MUTATION_RESULTS[predEspecie]
-    if (!specieData) return null
-    const key = `${predMutMacho}|${predMutFemea}`
-    const reverseKey = `${predMutFemea}|${predMutMacho}`
-    return specieData[key] || specieData[reverseKey] || null
-  }, [predEspecie, predMutMacho, predMutFemea])
+  const cancelTransfer = () => {
+    setTransferMode(false)
+  }
+
+  const saveEdit = async () => {
+    if (!selectedFilhote) return
+
+    if (USE_MOCK) {
+      const updated = { ...selectedFilhote, ...editForm }
+      setFilhotes(prev => prev.map(f => f.ID === selectedFilhote.ID ? updated : f))
+      setSelectedFilhote(updated)
+      setEditMode(false)
+      setEditForm({})
+      return
+    }
+
+    try {
+      const response = await filhotesService.update(selectedFilhote.ID, editForm)
+      const activeItems = (response.items || []).filter(isActiveFilhote)
+      setFilhotes(activeItems)
+      setSelectedFilhote(isActiveFilhote(response.item) ? response.item : (activeItems[0] || null))
+      setEditMode(false)
+      setEditForm({})
+      setError('')
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Não foi possível salvar o filhote.')
+    }
+  }
+
+  const handleMarkDeath = async () => {
+    if (!deathTarget) return
+
+    try {
+      const response = await filhotesService.markDeath(deathTarget.ID)
+      const activeItems = (response.items || []).filter(isActiveFilhote)
+      setFilhotes(activeItems)
+      setSelectedFilhote(activeItems[0] || null)
+      setDeathTarget(null)
+      setEditMode(false)
+      setTransferMode(false)
+      setError('')
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Não foi possível registrar o óbito do filhote.')
+      setDeathTarget(null)
+    }
+  }
+
+  const predictedMutationResults = useMemo(() => {
+    if (!selectedFilhote || !transferForm.CategoriaAve) return null
+
+    const speciesPredictions = catalogs.predicoesPorEspecie[normalizeKey(transferForm.CategoriaAve)]
+    if (!speciesPredictions) return null
+
+    const directKey = `${normalizeKey(selectedFilhote.MutacaoPai)}|${normalizeKey(selectedFilhote.MutacaoMae)}`
+    const reverseKey = `${normalizeKey(selectedFilhote.MutacaoMae)}|${normalizeKey(selectedFilhote.MutacaoPai)}`
+    return speciesPredictions[directKey] || speciesPredictions[reverseKey] || null
+  }, [catalogs.predicoesPorEspecie, selectedFilhote, transferForm.CategoriaAve])
+
+  const predictedMutationOptions = useMemo(() => {
+    if (!predictedMutationResults) return []
+    if (transferForm.Genero === 'Macho') return predictedMutationResults.machos
+    if (transferForm.Genero === 'Femea') return predictedMutationResults.femeas
+    return uniqueValues([...predictedMutationResults.machos, ...predictedMutationResults.femeas])
+  }, [predictedMutationResults, transferForm.Genero])
+
+  const speciesMutationOptions = catalogs.mutacoesPorEspecie[normalizeKey(transferForm.CategoriaAve)] || []
+  const mutationOptionsForTransfer = predictedMutationOptions.length > 0 ? predictedMutationOptions : speciesMutationOptions
+
+  useEffect(() => {
+    if (!transferMode) return
+
+    setTransferForm((current) => {
+      const nextMutation = mutationOptionsForTransfer.includes(current.Mutacao)
+        ? current.Mutacao
+        : (mutationOptionsForTransfer[0] || '')
+      const nextRegistro = current.RegistroFOB || catalogs.registroFobCriatorio || ''
+
+      if (nextMutation === current.Mutacao && nextRegistro === current.RegistroFOB) {
+        return current
+      }
+
+      return {
+        ...current,
+        Mutacao: nextMutation,
+        RegistroFOB: nextRegistro,
+      }
+    })
+  }, [transferMode, mutationOptionsForTransfer, catalogs.registroFobCriatorio])
+
+  const setTransferField = (field, value) => {
+    setTransferForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const handleTransferToPlantel = async () => {
+    if (!selectedFilhote) return
+
+    try {
+      const response = await filhotesService.transferToPlantel(selectedFilhote.ID, transferForm)
+      const activeItems = (response.items || []).filter(isActiveFilhote)
+      setFilhotes(activeItems)
+      setSelectedFilhote(activeItems[0] || null)
+      setTransferMode(false)
+      setError('')
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Não foi possível enviar o filhote ao plantel.')
+    }
+  }
 
   // ─── Stats ────────────────────────────────────────────────────────────────
   const stats = {
-    total:    filhotes.length,
-    vivos:    filhotes.filter(f => f.Status === 'Vivo').length,
-    plantel:  filhotes.filter(f => f.Status === 'Plantel').length,
-    faleceu:  filhotes.filter(f => f.Status === 'Faleceu').length,
+    total: allFilhotesCount.total,
+    vivos: filhotes.filter((f) => normalizeKey(f.Status) === 'vivo').length,
+    plantel: allFilhotesCount.plantel,
+    faleceu: allFilhotesCount.faleceu,
   }
 
   // ─── Loading ──────────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#5A7A5C', fontFamily: "'DM Mono', monospace", fontSize: 13 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
       Carregando filhotes...
     </div>
   )
 
   return (
     <div>
+      {error ? (
+        <div style={{ background: 'rgba(224,92,75,0.12)', border: '1px solid rgba(224,92,75,0.24)', borderRadius: 12, padding: '12px 14px', color: '#ffc9c1', marginBottom: 14, fontSize: 12, fontFamily: 'inherit' }}>
+          {error}
+        </div>
+      ) : null}
+
+      <div className="module-hero">
+        <div>
+          <div className="module-hero__eyebrow">Nascimento e genética</div>
+          <h2 className="module-hero__title">Gestão de filhotes</h2>
+          <div className="module-hero__text">
+            Acompanhe evolução dos filhotes, revise dados herdados dos pais e use a previsão genética para apoiar decisões de plantel.
+          </div>
+        </div>
+        <div className="pill">Nova geração</div>
+      </div>
+
       {/* Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard label="Total Filhotes"  value={stats.total}   desc="filhotes registrados" color="#5BC0EB" />
         <StatCard label="Vivos"           value={stats.vivos}   desc="filhotes vivos"       color="#4CAF7D" />
-        <StatCard label="Plantel"         value={stats.plantel} desc="enviados ao plantel"   color="#C95025" />
-        <StatCard label="Falecidos"       value={stats.faleceu} desc="obitos registrados"    color="#E05C4B" />
+        <StatCard label="Plantel"         value={stats.plantel} desc="fora da lista ativa"   color="#C95025" />
+        <StatCard label="Falecidos"       value={stats.faleceu} desc="fora da lista ativa"   color="#E05C4B" />
       </div>
 
       {/* 3-Panel Layout */}
       <div style={S.container}>
 
         {/* ─── LEFT PANEL: Chicks Gallery ────────────────────────────────── */}
-        <div style={{ ...S.panel, flex: '0 0 260px' }}>
+        <div className="module-panel" style={S.panel}>
           <div style={S.panelHeader}>
             <div>
               <div style={S.panelTitle}>Filhotes</div>
@@ -177,10 +415,10 @@ export function FilhotesModule() {
                   ...S.card,
                   ...(selectedFilhote?.ID === f.ID ? S.cardSelected : {}),
                 }}
-                onClick={() => { setSelectedFilhote(f); setEditMode(false) }}
+                onClick={() => { setSelectedFilhote(f); setEditMode(false); setTransferMode(false) }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
                     {f.NomeAve || `Filhote (Ovo #${f.NumeroOvo})`}
                   </div>
                   <StatusBadge status={f.Status} />
@@ -214,15 +452,15 @@ export function FilhotesModule() {
               </div>
             ))}
             {filhotes.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
-                Nenhum filhote registrado
+              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+                Nenhum filhote ativo no momento. Os registros que já foram enviados ao plantel ou marcados como falecidos saem desta lista.
               </div>
             )}
           </div>
         </div>
 
         {/* ─── MIDDLE PANEL: Chick Detail Form ──────────────────────────── */}
-        <div style={{ ...S.panel, flex: '1 1 340px' }}>
+        <div className="module-panel" style={S.panel}>
           <div style={S.panelHeader}>
             <div>
               <div style={S.panelTitle}>
@@ -237,7 +475,15 @@ export function FilhotesModule() {
               )}
             </div>
             {selectedFilhote && !editMode && (
-              <button style={S.btn} onClick={startEdit}>Editar</button>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {selectedFilhote.Status !== 'Faleceu' && selectedFilhote.Status !== 'Plantel' ? (
+                  <>
+                    <button style={S.btn} onClick={startEdit}>Editar</button>
+                    <button style={S.btnSecondary} onClick={startTransfer}>Cadastrar no plantel</button>
+                    <button style={{ ...S.btnSecondary, borderColor: 'rgba(224,92,75,0.24)', color: '#ffc9c1' }} onClick={() => setDeathTarget(selectedFilhote)}>Sinalizar morte</button>
+                  </>
+                ) : null}
+              </div>
             )}
             {editMode && (
               <div style={{ display: 'flex', gap: 8 }}>
@@ -248,14 +494,108 @@ export function FilhotesModule() {
           </div>
           <div style={S.panelBody}>
             {!selectedFilhote ? (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
                 Selecione um filhote para ver os detalhes
               </div>
+            ) : transferMode ? (
+              <>
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Transferir para o plantel
+                  </div>
+                  <div style={{ color: 'var(--text-soft)', fontSize: 12, lineHeight: 1.7, marginBottom: 14, fontFamily: 'inherit' }}>
+                    Escolha a gaiola final, selecione um anel cadastrado e use a previsão genética do casal para definir a mutação do filhote.
+                  </div>
+
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={S.label}>Nome final</div>
+                    <input style={S.input} value={transferForm.Nome} onChange={(e) => setTransferField('Nome', e.target.value)} />
+                  </div>
+
+                  <div style={S.row}>
+                    <div style={S.col}>
+                      <div style={S.label}>Espécie</div>
+                      <select style={S.select} value={transferForm.CategoriaAve} onChange={(e) => setTransferField('CategoriaAve', e.target.value)}>
+                        <option value="">Selecionar</option>
+                        {catalogs.especies.map((item) => <option key={item} value={item}>{item}</option>)}
+                      </select>
+                    </div>
+                    <div style={S.col}>
+                      <div style={S.label}>Gênero</div>
+                      <select style={S.select} value={transferForm.Genero} onChange={(e) => setTransferField('Genero', e.target.value)}>
+                        <option value="">Selecionar</option>
+                        <option value="Macho">Macho</option>
+                        <option value="Femea">Fêmea</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div style={S.row}>
+                    <div style={S.col}>
+                        <div style={S.label}>Gaiola de destino</div>
+                        <select style={S.select} value={transferForm.Gaiola} onChange={(e) => setTransferField('Gaiola', e.target.value)}>
+                          <option value="">Selecionar</option>
+                          {catalogs.gaiolas.map((item) => <option key={item} value={item}>{item}</option>)}
+                        </select>
+                      </div>
+                      {mutationOptionsForTransfer.length > 0 ? (
+                        <div style={S.col}>
+                          <div style={S.label}>Mutação prevista</div>
+                          <select style={S.select} value={transferForm.Mutacao} onChange={(e) => setTransferField('Mutacao', e.target.value)}>
+                            <option value="">Selecionar</option>
+                            {mutationOptionsForTransfer.map((item) => <option key={item} value={item}>{item}</option>)}
+                          </select>
+                        </div>
+                    ) : null}
+                  </div>
+
+                  <div style={S.row}>
+                    <div style={S.col}>
+                      <div style={S.label}>Anel cadastrado</div>
+                      <select style={S.select} value={transferForm.AnelEsquerdo} onChange={(e) => setTransferField('AnelEsquerdo', e.target.value)}>
+                        <option value="">Selecionar</option>
+                        {catalogs.aneis.map((item) => <option key={item} value={item}>{item}</option>)}
+                      </select>
+                    </div>
+                    <div style={S.col}>
+                      <div style={S.label}>Registro FOB do criatório</div>
+                      <input
+                        style={{ ...S.input, color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)' }}
+                        value={transferForm.RegistroFOB}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+
+                  {predictedMutationResults ? (
+                    <div style={{ background: 'rgba(91,192,235,0.08)', border: '1px solid rgba(91,192,235,0.18)', borderRadius: 14, padding: '12px 14px', marginBottom: 14 }}>
+                      <div style={{ ...S.label, marginBottom: 8 }}>Previsão automática aplicada</div>
+                      <div style={{ color: '#DCEFF8', fontSize: 12, lineHeight: 1.7, fontFamily: 'inherit' }}>
+                        Pai: {predictedMutationResults.pai || selectedFilhote.MutacaoPai || '---'}
+                        <br />
+                        Mãe: {predictedMutationResults.mae || selectedFilhote.MutacaoMae || '---'}
+                        <br />
+                        Opções do filhote: {mutationOptionsForTransfer.join(', ') || 'Sem previsão cadastrada'}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div style={{ marginBottom: 14 }}>
+                    <div style={S.label}>Observações finais</div>
+                    <textarea style={{ ...S.input, minHeight: 96, resize: 'vertical' }} value={transferForm.observacao} onChange={(e) => setTransferField('observacao', e.target.value)} />
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                    <button style={S.btn} onClick={handleTransferToPlantel}>Enviar ao plantel</button>
+                    <button style={S.btnSecondary} onClick={cancelTransfer}>Cancelar</button>
+                  </div>
+                </div>
+              </>
             ) : (
               <>
                 {/* Parent Info (read-only) */}
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: "'DM Mono', monospace", marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Informacoes dos Pais
                   </div>
                   <div style={S.row}>
@@ -284,7 +624,7 @@ export function FilhotesModule() {
 
                 {/* Chick Info */}
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: "'DM Mono', monospace", marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Dados do Filhote
                   </div>
 
@@ -337,11 +677,11 @@ export function FilhotesModule() {
                   <div style={S.row}>
                     <div style={S.col}>
                       <div style={S.label}>Data Nascimento</div>
-                      <div style={S.valueReadonly}>{fmtDate(selectedFilhote.DataNascimento)}</div>
+                      <div style={S.valueReadonly}>{fmtDate(toIsoDate(selectedFilhote.DataNascimento) || selectedFilhote.DataNascimento)}</div>
                     </div>
                     <div style={S.col}>
                       <div style={S.label}>Prev. Anilhamento</div>
-                      <div style={S.valueReadonly}>{fmtDate(selectedFilhote.DataPrevistaAnilhamento)}</div>
+                      <div style={S.valueReadonly}>{fmtDate(toIsoDate(selectedFilhote.DataPrevistaAnilhamento) || selectedFilhote.DataPrevistaAnilhamento)}</div>
                     </div>
                   </div>
                 </div>
@@ -351,84 +691,55 @@ export function FilhotesModule() {
         </div>
 
         {/* ─── RIGHT PANEL: Mutation Prediction ──────────────────────────── */}
-        <div style={{ ...S.panel, flex: '1 1 300px' }}>
+        <div className="module-panel" style={S.panel}>
           <div style={S.panelHeader}>
             <div>
               <div style={S.panelTitle}>Previsao de Mutacao</div>
-              <div style={S.panelSub}>Simulador genetico</div>
+              <div style={S.panelSub}>Analise automática do casal</div>
             </div>
           </div>
           <div style={S.panelBody}>
-            {/* Especie */}
-            <div style={{ marginBottom: 14 }}>
-              <div style={S.label}>Especie</div>
-              <select
-                style={S.select}
-                value={predEspecie}
-                onChange={e => { setPredEspecie(e.target.value); setPredMutMacho(''); setPredMutFemea('') }}
-              >
-                {ESPECIES.map(e => (
-                  <option key={e} value={e}>{e}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Mutacao Macho */}
-            <div style={{ marginBottom: 14 }}>
-              <div style={S.label}>Mutacao Macho</div>
-              <select
-                style={S.select}
-                value={predMutMacho}
-                onChange={e => setPredMutMacho(e.target.value)}
-              >
-                <option value="">-- Selecione --</option>
-                {MUTACOES_TARIN.map(m => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Mutacao Femea */}
-            <div style={{ marginBottom: 14 }}>
-              <div style={S.label}>Mutacao Femea</div>
-              <select
-                style={S.select}
-                value={predMutFemea}
-                onChange={e => setPredMutFemea(e.target.value)}
-              >
-                <option value="">-- Selecione --</option>
-                {MUTACOES_TARIN.map(m => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={S.divider} />
-
-            {/* Results */}
-            {!predMutMacho || !predMutFemea ? (
-              <div style={{ textAlign: 'center', padding: '30px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
-                Selecione as mutacoes do macho e da femea para ver a previsao
+            {!selectedFilhote ? (
+              <div style={{ textAlign: 'center', padding: '30px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+                Selecione um filhote para analisar a previsão genética.
               </div>
-            ) : !predictionResults ? (
-              <div style={{ textAlign: 'center', padding: '30px 12px', color: '#4A6A4C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+            ) : !transferForm.CategoriaAve ? (
+              <div style={{ textAlign: 'center', padding: '30px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+                Selecione a espécie do filhote para cruzar as mutações do pai e da mãe.
+              </div>
+            ) : !predictedMutationResults ? (
+              <div style={{ textAlign: 'center', padding: '30px 12px', color: 'var(--text-muted)', fontSize: 12, fontFamily: 'inherit' }}>
                 <div style={{ fontSize: 28, marginBottom: 8 }}>&#x1F9EC;</div>
-                Combinacao nao encontrada na tabela de mutacoes.
+                Cruzamento não encontrado na tabela de mutações da espécie selecionada.
                 <br />
-                Cadastre no modulo de Mutacoes para habilitar.
+                Cadastre essa combinação no módulo de Mutações para habilitar a previsão automática.
               </div>
             ) : (
               <>
-                {/* Filhotes Machos */}
+                <div style={{ ...S.resultCard, marginBottom: 16 }}>
+                  <div style={S.label}>Base do cálculo</div>
+                  <div style={{ color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', lineHeight: 1.8 }}>
+                    Espécie: {transferForm.CategoriaAve}
+                    <br />
+                    Pai: {predictedMutationResults.pai || selectedFilhote.MutacaoPai || '---'}
+                    <br />
+                    Mãe: {predictedMutationResults.mae || selectedFilhote.MutacaoMae || '---'}
+                  </div>
+                </div>
+
                 <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#5BC0EB', fontFamily: "'DM Mono', monospace", marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#5BC0EB', fontFamily: 'inherit', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Filhotes Machos
                   </div>
-                  {predictionResults.machos.map((mut, i) => (
-                    <div key={i} style={S.resultCard}>
+                  {predictedMutationResults.machos.length === 0 ? (
+                    <div style={S.resultCard}>
+                      <span style={{ fontSize: 13, color: 'var(--text-soft)', fontFamily: 'inherit' }}>Sem previsão masculina cadastrada.</span>
+                    </div>
+                  ) : predictedMutationResults.machos.map((mut) => (
+                    <div key={mut} style={S.resultCard}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#5BC0EB', flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" }}>{mut}</span>
+                        <span style={{ fontSize: 13, color: 'var(--text-main)', fontFamily: 'inherit' }}>{mut}</span>
                       </div>
                     </div>
                   ))}
@@ -436,14 +747,18 @@ export function FilhotesModule() {
 
                 {/* Filhotes Femeas */}
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#E88DB4', fontFamily: "'DM Mono', monospace", marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#E88DB4', fontFamily: 'inherit', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Filhotes Femeas
                   </div>
-                  {predictionResults.femeas.map((mut, i) => (
-                    <div key={i} style={S.resultCard}>
+                  {predictedMutationResults.femeas.length === 0 ? (
+                    <div style={S.resultCard}>
+                      <span style={{ fontSize: 13, color: 'var(--text-soft)', fontFamily: 'inherit' }}>Sem previsão feminina cadastrada.</span>
+                    </div>
+                  ) : predictedMutationResults.femeas.map((mut) => (
+                    <div key={mut} style={S.resultCard}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#E88DB4', flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" }}>{mut}</span>
+                        <span style={{ fontSize: 13, color: 'var(--text-main)', fontFamily: 'inherit' }}>{mut}</span>
                       </div>
                     </div>
                   ))}
@@ -453,6 +768,17 @@ export function FilhotesModule() {
           </div>
         </div>
       </div>
+
+      {deathTarget ? (
+        <ConfirmModal
+          title="Registrar óbito do filhote?"
+          message={`O filhote "${deathTarget.NomeAve || `Ovo #${deathTarget.NumeroOvo}`}" será marcado como falecido.`}
+          confirmLabel="Confirmar óbito"
+          danger
+          onConfirm={handleMarkDeath}
+          onCancel={() => setDeathTarget(null)}
+        />
+      ) : null}
     </div>
   )
 }

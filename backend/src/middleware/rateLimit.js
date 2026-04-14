@@ -9,11 +9,21 @@ const loginLimiter = rateLimit({
   legacyHeaders:   false,
 })
 
+const registerLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: 'Muitas tentativas de cadastro. Aguarde alguns minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+})
+
 // Limite geral de API: 100 req/min por IP
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
   max:      100,
   message:  { message: 'Limite de requisições atingido.' },
+  standardHeaders: true,
+  legacyHeaders: false,
 })
 
-module.exports = { loginLimiter, apiLimiter }
+module.exports = { apiLimiter, loginLimiter, registerLimiter }

@@ -1,0 +1,353 @@
+const userRepository = require('../repositories/user.repository')
+const paymentRepository = require('../repositories/payment.repository')
+const { applyPaymentProfile, buildAccessSummary } = require('../utils/subscription.utils')
+const { SUBSCRIPTION_PRICING } = require('../config/subscription.config')
+const { createPixPayload, normalizePaymentMethod, validateCardCheckout } = require('../utils/payment.utils')
+const { notifyContractRelease } = require('../services/subscription-notification.service')
+const { getCheckoutAvailability } = require('../config/payment-gateway.config')
+const { createCheckoutPreference, getPaymentById } = require('../services/mercadopago.service')
+const { settleMercadoPagoPayment } = require('./payment.controller')
+
+function serializeUser(user) {
+  return {
+    ...userRepository.sanitizeUser(user),
+    access: buildAccessSummary(user),
+  }
+}
+
+function normalizeRequestedPlan(plan = '') {
+  return String(plan || '').trim().toLowerCase()
+}
+
+async function getMyAccess(req, res) {
+  return res.json({
+    user: serializeUser(req.currentUser),
+    payments: await paymentRepository.listPaymentsByUser(req.currentUser.id),
+    checkout: getCheckoutAvailability(),
+  })
+}
+
+async function requestSubscription(req, res) {
+  const plan = normalizeRequestedPlan(req.body?.plan)
+  if (!['monthly', 'annual'].includes(plan)) {
+    return res.status(400).json({ message: 'Plano inválido. Escolha mensal ou anual.' })
+  }
+
+  const updatedUser = await userRepository.updateUser(req.currentUser.id, (user) => ({
+    ...user,
+    subscriptionRequestedPlan: plan,
+    requestedAt: new Date().toISOString(),
+    subscriptionStatus: user.isLifetimeOwner ? 'lifetime' : 'pending_review',
+    paymentStatus: user.isLifetimeOwner ? 'waived' : 'pending',
+  }))
+
+  return res.json({ user: serializeUser(updatedUser) })
+}
+
+async function createCheckout(req, res) {
+  const plan = normalizeRequestedPlan(req.body?.plan)
+  const method = normalizePaymentMethod(req.body?.method)
+
+  if (!['monthly', 'annual'].includes(plan)) {
+    return res.status(400).json({ message: 'Plano inválido. Escolha mensal ou anual.' })
+  }
+
+  if (!['pix', 'card'].includes(method)) {
+    return res.status(400).json({ message: 'Forma de pagamento inválida. Use PIX ou cartão.' })
+  }
+
+  if (req.currentUser.role === 'owner') {
+    return res.status(400).json({ message: 'A conta proprietária não precisa realizar pagamento.' })
+  }
+
+  const amount = SUBSCRIPTION_PRICING[plan] ?? 0
+  const now = new Date().toISOString()
+  const checkoutAvailability = getCheckoutAvailability()
+
+  let paymentPayload = {
+    userId: req.currentUser.id,
+    customerName: req.currentUser.name,
+    customerEmail: req.currentUser.email,
+    plan,
+    amount,
+    method,
+    status: checkoutAvailability.configured ? 'redirect_pending' : method === 'pix' ? 'awaiting_payment' : 'processing',
+    initiatedAt: now,
+    notes: 'Checkout iniciado pelo próprio cliente.',
+  }
+
+  if (!checkoutAvailability.configured && method === 'pix') {
+    paymentPayload = {
+      ...paymentPayload,
+      ...createPixPayload({ user: req.currentUser, plan, amount }),
+    }
+  }
+
+  if (!checkoutAvailability.configured && method === 'card') {
+    const validation = validateCardCheckout(req.body)
+    if (!validation.valid) {
+      return res.status(400).json({ message: validation.message })
+    }
+
+    paymentPayload = {
+      ...paymentPayload,
+      ...validation.card,
+      paymentReference: `CARD-${Date.now().toString(36).toUpperCase()}`,
+    }
+  }
+
+  let payment = await paymentRepository.createPayment(paymentPayload)
+  let checkout = {
+    configured: checkoutAvailability.configured,
+    provider: checkoutAvailability.provider,
+    redirectUrl: null,
+    reasons: checkoutAvailability.reasons,
+  }
+
+  if (checkoutAvailability.configured) {
+    const preference = await createCheckoutPreference({
+      payment,
+      user: req.currentUser,
+      method,
+    })
+
+    payment = await paymentRepository.updatePayment(payment.id, (current) => ({
+      ...current,
+      provider: 'mercadopago',
+      providerStatus: 'preference_created',
+      providerCheckoutId: preference.preferenceId,
+      paymentReference: preference.preferenceId,
+      checkoutUrl: preference.checkoutUrl,
+      sandboxCheckoutUrl: preference.sandboxCheckoutUrl,
+      preferredMethod: method,
+    }))
+
+    checkout = {
+      configured: true,
+      provider: 'mercadopago',
+      redirectUrl: preference.checkoutUrl,
+      preferenceId: preference.preferenceId,
+      reasons: [],
+    }
+  }
+
+  const updatedUser = await userRepository.updateUser(req.currentUser.id, (user) => ({
+    ...user,
+    subscriptionRequestedPlan: plan,
+    requestedAt: now,
+    subscriptionStatus: 'pending_review',
+    paymentStatus: checkoutAvailability.configured ? 'redirect_pending' : method === 'pix' ? 'awaiting_payment' : 'processing',
+  }))
+
+  return res.status(201).json({
+    user: serializeUser(updatedUser),
+    payment,
+    checkout,
+  })
+}
+
+async function reconcileCheckout(req, res) {
+  const providerPaymentId = String(req.body?.paymentId || '').trim()
+  const externalReference = String(req.body?.externalReference || '').trim()
+
+  if (!providerPaymentId && !externalReference) {
+    return res.status(400).json({ message: 'Dados do checkout ausentes para conciliação.' })
+  }
+
+  const localPayment = externalReference
+    ? await paymentRepository.findPaymentById(externalReference)
+    : null
+
+  if (!localPayment || localPayment.userId !== req.currentUser.id) {
+    return res.status(404).json({ message: 'Pagamento não encontrado para esta conta.' })
+  }
+
+  if (!providerPaymentId) {
+    return res.json({
+      payment: localPayment,
+      user: serializeUser(req.currentUser),
+    })
+  }
+
+  const providerPayment = await getPaymentById(providerPaymentId)
+  const settlement = await settleMercadoPagoPayment(localPayment, providerPayment, 'mercadopago_return')
+
+  const refreshedUser = await userRepository.findById(req.currentUser.id)
+  return res.json({
+    payment: settlement.payment,
+    user: serializeUser(refreshedUser),
+    access: buildAccessSummary(refreshedUser),
+    notifications: settlement.notifications,
+  })
+}
+
+async function listSubscribers(req, res) {
+  const users = await userRepository.readUsers()
+  const payments = await paymentRepository.listPayments()
+  return res.json({
+    users: users.map(serializeUser),
+    payments,
+  })
+}
+
+async function grantAccess(req, res) {
+  const userId = req.params.userId
+  const plan = normalizeRequestedPlan(req.body?.plan)
+  const requestedAmount = Number(req.body?.amount || 0)
+  const notes = String(req.body?.notes || '').trim()
+
+  if (!['monthly', 'annual', 'lifetime'].includes(plan)) {
+    return res.status(400).json({ message: 'Plano inválido para liberação.' })
+  }
+
+  const existingUser = await userRepository.findById(userId)
+  if (!existingUser) {
+    return res.status(404).json({ message: 'Usuário não encontrado.' })
+  }
+
+  const amount = requestedAmount > 0
+    ? requestedAmount
+    : SUBSCRIPTION_PRICING[plan] ?? 0
+
+  const updatedUser = await userRepository.updateUser(userId, (user) =>
+    applyPaymentProfile(user, plan, { amount, paidAt: new Date().toISOString() })
+  )
+
+  const access = buildAccessSummary(updatedUser)
+  const payment = await paymentRepository.createPayment({
+    userId,
+    recordedBy: req.currentUser.email,
+    plan,
+    amount,
+    method: req.body?.method || 'manual',
+    customerName: existingUser.name,
+    customerEmail: existingUser.email,
+    paymentReference: req.body?.paymentReference || `MANUAL-${Date.now().toString(36).toUpperCase()}`,
+    status: 'paid',
+    paidAt: updatedUser.lastPaymentAt,
+    validUntil: access.expiresAt,
+    notes,
+  })
+
+  let notifications = []
+  try {
+    notifications = await notifyContractRelease({
+      user: updatedUser,
+      payment,
+      access,
+      approvedBy: req.currentUser.email,
+    })
+  } catch (error) {
+    console.error('[access/grantAccess/email]', error)
+  }
+
+  return res.json({
+    user: serializeUser(updatedUser),
+    payment,
+    notifications,
+  })
+}
+
+async function approvePayment(req, res) {
+  const paymentId = req.params.paymentId
+  const notes = String(req.body?.notes || '').trim()
+
+  const existingPayment = await paymentRepository.findPaymentById(paymentId)
+  if (!existingPayment) {
+    return res.status(404).json({ message: 'Pagamento não encontrado.' })
+  }
+
+  if (!['awaiting_payment', 'processing', 'pending'].includes(existingPayment.status)) {
+    return res.status(409).json({ message: 'Este pagamento não pode mais ser aprovado.' })
+  }
+
+  const existingUser = await userRepository.findById(existingPayment.userId)
+  if (!existingUser) {
+    return res.status(404).json({ message: 'Usuário vinculado ao pagamento não encontrado.' })
+  }
+
+  const paidAt = new Date().toISOString()
+  const updatedUser = await userRepository.updateUser(existingUser.id, (user) =>
+    applyPaymentProfile(user, existingPayment.plan, { amount: existingPayment.amount, paidAt })
+  )
+
+  const access = buildAccessSummary(updatedUser)
+  const payment = await paymentRepository.updatePayment(paymentId, (current) => ({
+    ...current,
+    status: 'paid',
+    paidAt,
+    validUntil: access.expiresAt,
+    recordedBy: req.currentUser.email,
+    notes: [current.notes, notes].filter(Boolean).join(' | '),
+  }))
+
+  let notifications = []
+  try {
+    notifications = await notifyContractRelease({
+      user: updatedUser,
+      payment,
+      access,
+      approvedBy: req.currentUser.email,
+    })
+  } catch (error) {
+    console.error('[access/approvePayment/email]', error)
+  }
+
+  return res.json({
+    user: serializeUser(updatedUser),
+    payment,
+    notifications,
+  })
+}
+
+async function rejectPayment(req, res) {
+  const paymentId = req.params.paymentId
+  const reason = String(req.body?.reason || '').trim()
+
+  const existingPayment = await paymentRepository.findPaymentById(paymentId)
+  if (!existingPayment) {
+    return res.status(404).json({ message: 'Pagamento não encontrado.' })
+  }
+
+  if (!['awaiting_payment', 'processing', 'pending'].includes(existingPayment.status)) {
+    return res.status(409).json({ message: 'Este pagamento não pode mais ser recusado.' })
+  }
+
+  const existingUser = await userRepository.findById(existingPayment.userId)
+  if (!existingUser) {
+    return res.status(404).json({ message: 'Usuário vinculado ao pagamento não encontrado.' })
+  }
+
+  const userAccess = buildAccessSummary(existingUser)
+  const updatedUser = await userRepository.updateUser(existingUser.id, (user) => ({
+    ...user,
+    subscriptionStatus: userAccess.accessGranted ? user.subscriptionStatus : 'past_due',
+    subscriptionRequestedPlan: null,
+    requestedAt: null,
+    paymentStatus: 'rejected',
+  }))
+
+  const payment = await paymentRepository.updatePayment(paymentId, (current) => ({
+    ...current,
+    status: 'rejected',
+    rejectedAt: new Date().toISOString(),
+    recordedBy: req.currentUser.email,
+    notes: [current.notes, reason].filter(Boolean).join(' | '),
+  }))
+
+  return res.json({
+    user: serializeUser(updatedUser),
+    payment,
+  })
+}
+
+module.exports = {
+  approvePayment,
+  createCheckout,
+  getMyAccess,
+  grantAccess,
+  listSubscribers,
+  reconcileCheckout,
+  rejectPayment,
+  requestSubscription,
+}

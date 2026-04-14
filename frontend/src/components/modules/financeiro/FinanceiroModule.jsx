@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { StatCard } from '../../shared/StatCard'
 import { StatusBadge } from '../../shared/StatusBadge'
 import { ConfirmModal } from '../../shared/ConfirmModal'
+import { accessService } from '../../../services/access.service'
 
 // ─── MOCK — remover quando backend estiver conectado ─────────────────────────
-const USE_MOCK = true
+const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const MOCK_FINANCEIRO = [
   { ID: 1, Item: 'Ração Premium', TipoMovimentacao: 'Despesa', Valor: 150.00, Data: '2026-03-01', Acesso: 'Anderson' },
@@ -20,38 +21,36 @@ const MOCK_LISTA_ITENS = [
 ]
 
 const TIPO_OPTIONS = ['Receita', 'Despesa']
-const CURRENT_USER = 'Anderson'
-
+const CURRENT_USER = 'Anderson Assis'
 // ─── Estilos reutilizáveis ──────────────────────────────────────────────────
 const s = {
   input: {
     background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13,
-    fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', boxSizing: 'border-box',
+    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
+    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
   },
   select: {
     background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13,
-    fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', boxSizing: 'border-box',
+    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
+    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
     appearance: 'none', cursor: 'pointer',
   },
   label: {
-    fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace",
+    fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit',
     letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4, display: 'block',
   },
   btnPrimary: {
     background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none',
-    borderRadius: 8, padding: '10px 20px', color: '#F2EDE4', fontSize: 12,
-    fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer',
+    borderRadius: 14, padding: '12px 20px', color: 'var(--text-main)', fontSize: 12,
+    fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
   },
   btnSecondary: {
     background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 8, padding: '10px 20px', color: '#8A9E8C', fontSize: 12,
-    fontFamily: "'DM Mono', monospace", cursor: 'pointer',
+    borderRadius: 14, padding: '12px 20px', color: 'var(--text-soft)', fontSize: 12,
+    fontFamily: 'inherit', cursor: 'pointer',
   },
   card: {
-    background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)',
-    borderRadius: 12, overflow: 'hidden',
+    overflow: 'hidden',
   },
 }
 
@@ -59,6 +58,7 @@ const EMPTY_FORM = { Item: '', TipoMovimentacao: 'Despesa', Valor: '', Data: '' 
 
 export function FinanceiroModule() {
   const [data, setData] = useState([])
+  const [listaItens, setListaItens] = useState(MOCK_LISTA_ITENS)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
@@ -72,7 +72,17 @@ export function FinanceiroModule() {
     if (USE_MOCK) {
       setTimeout(() => { setData(MOCK_FINANCEIRO); setLoading(false) }, 400)
     } else {
-      setLoading(false)
+      accessService.getImportedSharePointData()
+        .then((snapshot) => {
+          setData(snapshot.financeiro || [])
+          setListaItens(snapshot.listaItens || [])
+        })
+        .catch(() => {
+          setError('Não foi possível carregar os lançamentos importados.')
+        })
+        .finally(() => {
+          setLoading(false)
+        })
     }
   }, [])
 
@@ -89,7 +99,7 @@ export function FinanceiroModule() {
   }, [selected])
 
   // ─── Filter by Acesso = current user ──────────────────────────────────────
-  const userFiltered = data.filter(r => r.Acesso === CURRENT_USER)
+  const userFiltered = data
 
   // ─── CRUD ─────────────────────────────────────────────────────────────────
   const handleSaveEdit = () => {
@@ -131,10 +141,10 @@ export function FinanceiroModule() {
   const saldo = totalReceitas - totalDespesas
 
   // ─── Distinct items for dropdown ──────────────────────────────────────────
-  const distinctItens = [...new Set(MOCK_LISTA_ITENS.map(i => i.Item))]
+  const distinctItens = [...new Set(listaItens.map(i => i.Item))]
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#5A7A5C', fontFamily: "'DM Mono', monospace", fontSize: 13 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
       Carregando registros financeiros...
     </div>
   )
@@ -168,34 +178,40 @@ export function FinanceiroModule() {
 
   return (
     <div>
-      {/* Title */}
-      <div style={{ fontSize: 20, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
-        Gestão Financeira Total do Criatório
+      <div className="module-hero">
+        <div>
+          <div className="module-hero__eyebrow">Fluxo financeiro</div>
+          <h2 className="module-hero__title">Gestão financeira do criatório</h2>
+          <div className="module-hero__text">
+            Registre receitas e despesas, acompanhe saldo e mantenha uma leitura rápida da saúde financeira da operação.
+          </div>
+        </div>
+        <div className="pill">Resumo mensal</div>
       </div>
 
       {error && (
-        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: "'DM Mono', monospace" }}>
+        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: 'inherit' }}>
           {error}
           <span onClick={() => setError('')} style={{ float: 'right', cursor: 'pointer', opacity: 0.7 }}>x</span>
         </div>
       )}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
         <StatCard label="Total Receitas" value={`R$ ${fmt(totalReceitas)}`} desc="receitas acumuladas" color="#4CAF7D" />
         <StatCard label="Total Despesas" value={`R$ ${fmt(totalDespesas)}`} desc="despesas acumuladas" color="#E05C4B" />
         <StatCard label="Saldo" value={`R$ ${fmt(saldo)}`} desc="receitas - despesas" color={saldo >= 0 ? '#C95025' : '#E05C4B'} />
       </div>
 
       {/* Master-Detail Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
 
         {/* ═══ LEFT PANEL: Gallery ═══ */}
-        <div style={s.card}>
+        <div className="module-panel" style={s.card}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             <div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>Movimentações</div>
-              <div style={{ fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 2 }}>
+              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>Movimentações</div>
+              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 2 }}>
                 {filtered.length} de {userFiltered.length} registros
               </div>
             </div>
@@ -217,8 +233,8 @@ export function FinanceiroModule() {
           {/* Gallery Items */}
           <div style={{ maxHeight: 480, overflowY: 'auto' }}>
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: '#3A5C3C' }}>
-                <div style={{ fontSize: 14, fontFamily: "'DM Mono', monospace", color: '#4A6A4C' }}>Nenhum registro encontrado</div>
+              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-faint)' }}>
+                <div style={{ fontSize: 14, fontFamily: 'inherit', color: 'var(--text-muted)' }}>Nenhum registro encontrado</div>
               </div>
             ) : filtered.map(r => (
               <div
@@ -236,24 +252,24 @@ export function FinanceiroModule() {
                 onMouseLeave={e => { if (selected?.ID !== r.ID) e.currentTarget.style.background = 'transparent' }}
               >
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" }}>
-                    {r.Item}
-                  </div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+                  {r.Item}
+                </div>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
                     <span style={{
-                      fontSize: 11, fontWeight: 600, fontFamily: "'DM Mono', monospace",
+                      fontSize: 11, fontWeight: 600, fontFamily: 'inherit',
                       color: r.TipoMovimentacao === 'Receita' ? '#4CAF7D' : '#E05C4B',
                     }}>
                       {r.TipoMovimentacao}
                     </span>
-                    <span style={{ fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
                       {r.Data}
                     </span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{
-                    fontSize: 14, fontWeight: 700, fontFamily: "'DM Mono', monospace",
+                    fontSize: 14, fontWeight: 700, fontFamily: 'inherit',
                     color: r.TipoMovimentacao === 'Receita' ? '#4CAF7D' : '#E05C4B',
                   }}>
                     R$ {fmt(r.Valor)}
@@ -270,47 +286,47 @@ export function FinanceiroModule() {
         </div>
 
         {/* ═══ RIGHT PANEL: Detail Form ═══ */}
-        <div style={s.card}>
+        <div className="module-panel" style={s.card}>
           {isAdding ? (
             <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
+              <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
                 Nova Movimentação
               </div>
               {renderForm(newForm, setNewForm)}
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
                 <button onClick={handleAddNew} style={s.btnPrimary}>Salvar</button>
                 <button onClick={() => setIsAdding(false)} style={s.btnSecondary}>Cancelar</button>
               </div>
             </div>
           ) : selected && editForm ? (
             <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 18, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 4 }}>
+              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 4 }}>
                 {selected.Item}
               </div>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 20 }}>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
                 <span style={{
-                  fontSize: 13, fontWeight: 600, fontFamily: "'DM Mono', monospace",
+                  fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
                   color: selected.TipoMovimentacao === 'Receita' ? '#4CAF7D' : '#E05C4B',
                 }}>
                   {selected.TipoMovimentacao}
                 </span>
-                <span style={{ fontSize: 13, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
                   R$ {fmt(selected.Valor)} | {selected.Data}
                 </span>
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: "'DM Mono', monospace", marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Editar Movimentação
               </div>
               {renderForm(editForm, setEditForm)}
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
                 <button onClick={handleSaveEdit} style={s.btnPrimary}>Salvar Alterações</button>
               </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 300, padding: 40 }}>
+            <div className="module-empty">
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>&#9675;</div>
-                <div style={{ fontSize: 14, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", lineHeight: 1.6 }}>
+                <div style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', lineHeight: 1.6 }}>
                   Selecione uma movimentação ao lado<br />para visualizar e editar detalhes
                 </div>
               </div>

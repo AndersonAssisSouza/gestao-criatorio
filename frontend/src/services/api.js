@@ -1,27 +1,34 @@
 import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const CSRF_COOKIE_NAME = import.meta.env.VITE_CSRF_COOKIE_NAME || 'plumar_csrf'
+
+function readCookie(name) {
+  const cookies = document.cookie.split(';').map((part) => part.trim())
+  const prefix = `${name}=`
+  const cookie = cookies.find((part) => part.startsWith(prefix))
+  return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : ''
+}
 
 const api = axios.create({
   baseURL: API_URL,
   headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
 })
 
-// Interceptor: injeta JWT em todas as requisições autenticadas
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('gc_token')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  const csrfToken = readCookie(CSRF_COOKIE_NAME)
+  if (csrfToken && !['get', 'head', 'options'].includes(config.method)) {
+    config.headers['X-CSRF-Token'] = csrfToken
+  }
   return config
 })
 
-// Interceptor: trata token expirado
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('gc_token')
-      localStorage.removeItem('gc_user')
-      window.location.href = '/login'
+      window.dispatchEvent(new Event('auth:unauthorized'))
     }
     return Promise.reject(error)
   }

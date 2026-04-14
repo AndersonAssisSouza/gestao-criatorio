@@ -5,40 +5,72 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser]       = useState(null)
-  const [token, setToken]     = useState(null)
   const [loading, setLoading] = useState(true)
 
-  // Restaurar sessão ao carregar
+  const refreshUser = async () => {
+    const data = await authService.me()
+    setUser(data.user)
+    return data.user
+  }
+
   useEffect(() => {
-    const storedToken = localStorage.getItem('gc_token')
-    const storedUser  = localStorage.getItem('gc_user')
-    if (storedToken && storedUser) {
-      setToken(storedToken)
-      setUser(JSON.parse(storedUser))
+    let active = true
+
+    const restoreSession = async () => {
+      try {
+        const data = await authService.me()
+        if (active) setUser(data.user)
+      } catch (_) {
+        if (active) setUser(null)
+      } finally {
+        if (active) setLoading(false)
+      }
     }
-    setLoading(false)
+
+    restoreSession()
+
+    const handleUnauthorized = () => setUser(null)
+    window.addEventListener('auth:unauthorized', handleUnauthorized)
+
+    return () => {
+      active = false
+      window.removeEventListener('auth:unauthorized', handleUnauthorized)
+    }
   }, [])
 
   const login = async (email, password) => {
     const data = await authService.login(email, password)
-    setToken(data.token)
     setUser(data.user)
-    localStorage.setItem('gc_token', data.token)
-    localStorage.setItem('gc_user', JSON.stringify(data.user))
     return data
   }
 
-  const logout = () => {
-    setToken(null)
-    setUser(null)
-    localStorage.removeItem('gc_token')
-    localStorage.removeItem('gc_user')
+  const register = async (name, email, password) => {
+    const data = await authService.register(name, email, password)
+    setUser(data.user)
+    return data
   }
 
-  const isAuthenticated = !!token
+  const logout = async () => {
+    try {
+      await authService.logout()
+    } catch (_) {
+      // A limpeza local ainda precisa acontecer mesmo se o backend já tiver expirado a sessão.
+    }
+    setUser(null)
+  }
+
+  const forgotPassword = async (email) => {
+    return authService.forgotPassword(email)
+  }
+
+  const resetPassword = async (token, password) => {
+    return authService.resetPassword(token, password)
+  }
+
+  const isAuthenticated = !!user
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isAuthenticated, loading }}>
+    <AuthContext.Provider value={{ user, login, register, logout, refreshUser, forgotPassword, resetPassword, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   )

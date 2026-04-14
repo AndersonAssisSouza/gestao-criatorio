@@ -3,3 +3,8 @@ dist/
 .env
 .DS_Store
 *.log
+backend/storage/users.json
+backend/storage/users.runtime.json
+backend/storage/payments.json
+backend/storage/*.json
+storage/*.json

@@ -31,6 +31,7 @@ async function getGraphToken() {
 
   const { data } = await axios.post(url, body.toString(), {
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    proxy: false,
   })
 
   cachedToken    = data.access_token

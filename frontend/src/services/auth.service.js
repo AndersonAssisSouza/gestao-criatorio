@@ -1,27 +1,44 @@
 import api from './api'
 
-const USE_MOCK = true
+const USE_MOCK = !import.meta.env.VITE_API_URL
+
+const MOCK_USER = {
+  id: 'mock-owner-1',
+  name: 'Anderson',
+  email: 'admin@plumar.com',
+  role: 'owner',
+  access: {
+    accessGranted: true,
+    label: 'Vitalício',
+    status: 'active',
+    plan: 'lifetime',
+    expiresAt: null,
+    remainingDays: null,
+  },
+}
 
 const mockAuth = {
   async login(email, password) {
-    await new Promise(r => setTimeout(r, 500))
-    if (!email || !password) throw new Error('Email e senha obrigatórios')
-    return {
-      token: 'mock-jwt-token-' + Date.now(),
-      user: { id: '1', name: email.split('@')[0], email, role: 'admin' }
-    }
+    if (!email || !password) throw { response: { data: { message: 'Preencha e-mail e senha.' } } }
+    return { user: { ...MOCK_USER, email, name: email.split('@')[0] } }
   },
   async register(name, email, password) {
-    await new Promise(r => setTimeout(r, 500))
-    return {
-      token: 'mock-jwt-token-' + Date.now(),
-      user: { id: '1', name, email, role: 'admin' }
-    }
+    return { user: { ...MOCK_USER, name, email } }
   },
   async me() {
-    const stored = localStorage.getItem('gc_user')
-    return { user: stored ? JSON.parse(stored) : null }
-  }
+    const stored = window.sessionStorage.getItem('plumar_mock_user')
+    if (stored) return { user: JSON.parse(stored) }
+    throw { response: { status: 401 } }
+  },
+  async forgotPassword(email) {
+    return { message: 'Instruções enviadas para ' + email }
+  },
+  async resetPassword(token, password) {
+    return { message: 'Senha redefinida com sucesso.' }
+  },
+  async logout() {
+    window.sessionStorage.removeItem('plumar_mock_user')
+  },
 }
 
 const realAuth = {
@@ -37,6 +54,34 @@ const realAuth = {
     const { data } = await api.get('/api/auth/me')
     return data
   },
+  async forgotPassword(email) {
+    const { data } = await api.post('/api/auth/forgot-password', { email })
+    return data
+  },
+  async resetPassword(token, password) {
+    const { data } = await api.post('/api/auth/reset-password', { token, password })
+    return data
+  },
+  async logout() {
+    await api.post('/api/auth/logout')
+  },
 }
 
-export const authService = USE_MOCK ? mockAuth : realAuth
+function wrapMockLogin(backend) {
+  const original = backend.login
+  return {
+    ...backend,
+    async login(email, password) {
+      const result = await original(email, password)
+      window.sessionStorage.setItem('plumar_mock_user', JSON.stringify(result.user))
+      return result
+    },
+    async register(name, email, password) {
+      const result = await backend.register(name, email, password)
+      window.sessionStorage.setItem('plumar_mock_user', JSON.stringify(result.user))
+      return result
+    },
+  }
+}
+
+export const authService = USE_MOCK ? wrapMockLogin(mockAuth) : realAuth

@@ -1,6 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { StatCard }    from '../../shared/StatCard'
 import { StatusBadge } from '../../shared/StatusBadge'
+import { accessService } from '../../../services/access.service'
+import { ovosService } from '../../../services/ovos.service'
+
+const USE_MOCK = !import.meta.env.VITE_API_URL
 
 // ─── MOCK DATA — remover quando backend estiver conectado ───────────────────
 const MOCK_GAIOLAS_CHOCANDO = [
@@ -25,30 +29,60 @@ const MOCK_OVOS = [
 // TempoChoco por especie (dias) — lookup simplificado
 const TEMPO_CHOCO = { Tarin: 14, Canario: 13, Pintassilgo: 14 }
 
+function mapPlantelRecord(record) {
+  return {
+    ID: record.id,
+    Nome: record.nome,
+    Genero: record.genero,
+    Status: record.status,
+    CategoriaAve: record.categoriaAve,
+    Mutacao: record.mutacao,
+    Gaiola: record.gaiola,
+  }
+}
+
+function normalizeText(value = '') {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+}
+
+function isAliveBird(record = {}) {
+  return normalizeText(record.Status) === 'vivo'
+}
+
+function matchesGender(record = {}, expected) {
+  return normalizeText(record.Genero) === normalizeText(expected)
+}
+
 // ─── Styles ─────────────────────────────────────────────────────────────────
 const S = {
-  container:    { display: 'flex', gap: 16, minHeight: 'calc(100vh - 200px)' },
-  panel:        { background: 'rgba(21,40,24,0.6)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 12, padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  panelHeader:  { padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  panelTitle:   { fontSize: 15, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" },
-  panelSub:     { fontSize: 11, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 2 },
+  container:    { display: 'grid', gap: 16, minHeight: 'calc(100vh - 260px)', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' },
+  panel:        { padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
+  panelHeader:  { padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  panelTitle:   { fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
+  panelSub:     { fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4, letterSpacing: '0.08em', textTransform: 'uppercase' },
   panelBody:    { padding: '12px 16px', flex: 1, overflowY: 'auto' },
-  card:         { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 10, padding: '14px 16px', marginBottom: 10, cursor: 'pointer', transition: 'all 0.15s' },
-  cardSelected: { background: 'rgba(201,80,37,0.1)', border: '1px solid rgba(201,80,37,0.3)' },
-  label:        { fontSize: 10, color: '#5A7A5C', fontFamily: "'DM Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 },
-  value:        { fontSize: 13, color: '#F2EDE4', fontFamily: "'DM Mono', monospace" },
-  valueMuted:   { fontSize: 12, color: '#8A9E8C', fontFamily: "'DM Mono', monospace" },
-  row:          { display: 'flex', gap: 12, marginBottom: 8 },
-  col:          { flex: 1 },
-  btn:          { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 8, padding: '8px 16px', color: '#F2EDE4', fontSize: 12, fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 },
-  btnSecondary: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 16px', color: '#F2EDE4', fontSize: 12, fontWeight: 600, fontFamily: "'DM Mono', monospace", cursor: 'pointer' },
-  select:       { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%', appearance: 'none' },
-  input:        { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: '#F2EDE4', fontSize: 13, fontFamily: "'DM Mono', monospace", outline: 'none', width: '100%' },
+  card:         { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 18, padding: '16px 16px', marginBottom: 10, cursor: 'pointer', transition: 'all 0.15s' },
+  cardSelected: { background: 'linear-gradient(135deg, rgba(201,80,37,0.12), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.3)' },
+  label:        { fontSize: 10, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 },
+  value:        { fontSize: 13, color: 'var(--text-main)', fontFamily: 'inherit' },
+  valueMuted:   { fontSize: 12, color: 'var(--text-soft)', fontFamily: 'inherit' },
+  row:          { display: 'flex', gap: 12, marginBottom: 8, flexWrap: 'wrap' },
+  col:          { flex: '1 1 140px', minWidth: 0 },
+  btn:          { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 8, padding: '8px 16px', color: 'var(--text-main)', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 },
+  btnSecondary: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 16px', color: 'var(--text-main)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' },
+  select:       { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', width: '100%', appearance: 'none' },
+  input:        { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', width: '100%' },
   overlay:      { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  popup:        { background: '#0D1A10', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '28px 32px', width: 420, maxHeight: '80vh', overflowY: 'auto' },
-  popupTitle:   { fontSize: 18, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 20 },
+  popup:        { background: 'var(--bg-deep)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, padding: '28px 32px', width: 'min(420px, calc(100vw - 24px))', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.35)' },
+  popupTitle:   { fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 20 },
   divider:      { height: 1, background: 'rgba(255,255,255,0.06)', margin: '12px 0' },
-  eggCircle:    { width: 52, height: 52, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, fontFamily: "'DM Mono', monospace", cursor: 'pointer', transition: 'all 0.15s', border: '2px solid transparent' },
+  eggCircle:    { width: 52, height: 52, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', transition: 'all 0.15s', border: '2px solid transparent' },
+  historyButton: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 999, padding: '8px 12px', color: 'var(--text-main)', fontSize: 11, fontFamily: 'inherit', cursor: 'pointer' },
+  historyButtonActive: { background: 'rgba(201,80,37,0.16)', borderColor: 'rgba(201,80,37,0.3)' },
 }
 
 // ─── Helper: format date ────────────────────────────────────────────────────
@@ -59,6 +93,10 @@ const fmtDate = (d) => {
 }
 
 const todayISO = () => new Date().toISOString().split('T')[0]
+
+function sortClutches(items = []) {
+  return items.slice().sort((left, right) => Number(right.Numero || 0) - Number(left.Numero || 0))
+}
 
 // ─── Egg status colors for the circle ───────────────────────────────────────
 const EGG_COLORS = {
@@ -155,7 +193,7 @@ function EggPopup({ egg, onSave, onDiscard, onClose }) {
         )}
 
         {['Nasceu', 'Descartado'].includes(egg.Status) && (
-          <div style={{ fontSize: 12, color: '#8A9E8C', fontFamily: "'DM Mono', monospace", padding: '8px 0' }}>
+          <div style={{ fontSize: 12, color: 'var(--text-soft)', fontFamily: 'inherit', padding: '8px 0' }}>
             Este ovo ja foi finalizado ({egg.Status}).
           </div>
         )}
@@ -177,7 +215,7 @@ function ParentCard({ bird, role }) {
   return (
     <div style={{ ...S.card, cursor: 'default', borderLeft: `3px solid ${role === 'Femea' ? '#E88DB4' : '#5BC0EB'}` }}>
       <div style={S.label}>{role}</div>
-      <div style={{ fontSize: 15, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 8 }}>{bird.Nome}</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 8 }}>{bird.Nome}</div>
       <div style={S.row}>
         <div style={S.col}>
           <div style={S.label}>Especie</div>
@@ -209,20 +247,39 @@ export function ChocandoModule() {
   const [gaiolas, setGaiolas]         = useState([])
   const [plantel, setPlantel]         = useState([])
   const [ovos, setOvos]               = useState([])
+  const [ninhadas, setNinhadas]       = useState([])
   const [loading, setLoading]         = useState(true)
   const [selectedGaiola, setSelectedGaiola] = useState(null)
+  const [selectedNinhadaId, setSelectedNinhadaId] = useState('')
   const [selectedFemea, setSelectedFemea]   = useState('')
   const [selectedMacho, setSelectedMacho]   = useState('')
   const [eggPopup, setEggPopup]       = useState(null)   // egg object or null
 
   // ─── Load data ────────────────────────────────────────────────────────────
   useEffect(() => {
-    setTimeout(() => {
-      setGaiolas(MOCK_GAIOLAS_CHOCANDO)
-      setPlantel(MOCK_PLANTEL)
-      setOvos(MOCK_OVOS)
-      setLoading(false)
-    }, 400)
+    if (USE_MOCK) {
+      setTimeout(() => {
+        setGaiolas(MOCK_GAIOLAS_CHOCANDO)
+        setPlantel(MOCK_PLANTEL)
+        setOvos(MOCK_OVOS)
+        setLoading(false)
+      }, 400)
+      return
+    }
+
+    Promise.all([
+      accessService.getImportedSharePointData(),
+      ovosService.listar(),
+    ])
+      .then(([snapshot, ovosResponse]) => {
+        setGaiolas((snapshot.gaiolas || []).filter((gaiola) => gaiola.Status === 'Chocando'))
+        setPlantel((snapshot.plantel || []).map(mapPlantelRecord))
+        setOvos(ovosResponse.items || [])
+        setNinhadas(ovosResponse.ninhadas || [])
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   }, [])
 
   // ─── Select first cage on load ────────────────────────────────────────────
@@ -236,22 +293,46 @@ export function ChocandoModule() {
   useEffect(() => {
     if (!selectedGaiola) { setSelectedFemea(''); setSelectedMacho(''); return }
     const cage = selectedGaiola.NumeroGaiola
-    const femea = plantel.find(p => p.Gaiola === cage && p.Genero === 'Femea' && p.Status === 'Vivo')
-    const macho = plantel.find(p => p.Gaiola === cage && p.Genero === 'Macho' && p.Status === 'Vivo')
+    const femea = plantel.find(p => p.Gaiola === cage && matchesGender(p, 'Fêmea') && isAliveBird(p))
+    const macho = plantel.find(p => p.Gaiola === cage && matchesGender(p, 'Macho') && isAliveBird(p))
     setSelectedFemea(femea ? String(femea.ID) : '')
     setSelectedMacho(macho ? String(macho.ID) : '')
   }, [selectedGaiola, plantel])
 
+  useEffect(() => {
+    if (!selectedGaiola) {
+      setSelectedNinhadaId('')
+      return
+    }
+
+    const cageClutches = sortClutches(
+      ninhadas.filter((item) => item.Gaiola === selectedGaiola.NumeroGaiola),
+    )
+    const activeClutch = cageClutches.find((item) => item.Status === 'Ativa')
+    setSelectedNinhadaId(activeClutch?.id || cageClutches[0]?.id || '')
+  }, [selectedGaiola, ninhadas])
+
   // ─── Derived data ─────────────────────────────────────────────────────────
-  const femeas = useMemo(() => plantel.filter(p => p.Genero === 'Femea' && p.Status === 'Vivo'), [plantel])
-  const machos = useMemo(() => plantel.filter(p => p.Genero === 'Macho' && p.Status === 'Vivo'), [plantel])
+  const femeas = useMemo(() => plantel.filter(p => matchesGender(p, 'Fêmea') && isAliveBird(p)), [plantel])
+  const machos = useMemo(() => plantel.filter(p => matchesGender(p, 'Macho') && isAliveBird(p)), [plantel])
   const selectedFemeaObj = plantel.find(p => String(p.ID) === selectedFemea) || null
   const selectedMachoObj = plantel.find(p => String(p.ID) === selectedMacho) || null
 
+  const cageClutches = useMemo(() => {
+    if (!selectedGaiola) return []
+    return sortClutches(ninhadas.filter((item) => item.Gaiola === selectedGaiola.NumeroGaiola))
+  }, [ninhadas, selectedGaiola])
+
+  const selectedNinhada = useMemo(
+    () => cageClutches.find((item) => item.id === selectedNinhadaId) || null,
+    [cageClutches, selectedNinhadaId],
+  )
+
   const cageEggs = useMemo(() => {
     if (!selectedGaiola) return []
-    return ovos.filter(o => o.Gaiola === selectedGaiola.NumeroGaiola)
-  }, [ovos, selectedGaiola])
+    if (!selectedNinhadaId) return ovos.filter(o => o.Gaiola === selectedGaiola.NumeroGaiola)
+    return ovos.filter((item) => item.Gaiola === selectedGaiola.NumeroGaiola && item.NinhadaId === selectedNinhadaId)
+  }, [ovos, selectedGaiola, selectedNinhadaId])
 
   // ─── Stats ────────────────────────────────────────────────────────────────
   const stats = {
@@ -263,89 +344,91 @@ export function ChocandoModule() {
 
   // ─── Egg Lifecycle Logic (Power Apps Patch) ───────────────────────────────
   const handleEggAction = (egg, nextStatus, actionDate) => {
-    setOvos(prev => prev.map(o => {
-      if (o.ID !== egg.ID) return o
+    const payload = {
+      Status: nextStatus,
+      ActionDate: actionDate,
+    }
 
-      const updated = { ...o }
+    if (nextStatus === 'Chocando') {
+      const especie = selectedFemeaObj?.CategoriaAve || 'Tarin'
+      const tempoChoco = TEMPO_CHOCO[especie] || 14
+      const startDate = new Date(`${actionDate}T00:00:00`)
+      startDate.setDate(startDate.getDate() + tempoChoco)
+      payload.DataPrevistaNascimento = startDate.toISOString().split('T')[0]
+    }
 
-      switch (nextStatus) {
-        case 'Chocando': {
-          // Postura -> Chocando
-          updated.Status = 'Chocando'
-          updated.DataInicioChoco = actionDate
-          updated.ConfirmaInicioChoco = 'Sim'
-          // Calculate DataPrevistaNascimento = DataInicioChoco + TempoChoco
-          const especie = selectedFemeaObj?.CategoriaAve || 'Tarin'
-          const tempoChoco = TEMPO_CHOCO[especie] || 14
-          const startDate = new Date(actionDate + 'T00:00:00')
-          startDate.setDate(startDate.getDate() + tempoChoco)
-          updated.DataPrevistaNascimento = startDate.toISOString().split('T')[0]
-          break
-        }
-        case 'Fertilizado': {
-          // Chocando -> Fertilizado
-          updated.Status = 'Fertilizado'
-          updated.DataConfirmacaoFetilizacao = actionDate
-          break
-        }
-        case 'Nasceu': {
-          // Fertilizado -> Nasceu: also auto-creates Filhote record
-          updated.Status = 'Nasceu'
-          updated.DataNascimento = actionDate
-          // TODO: Auto-create Filhote record via backend
-          // filhotesService.criar({ NumeroOvo: egg.NumeroOvo, Gaiola: egg.Gaiola, ... })
-          console.log('[ChocandoModule] Auto-criando filhote para Ovo #' + egg.NumeroOvo)
-          break
-        }
-        default: break
-      }
-
-      return updated
-    }))
-    setEggPopup(null)
+    ovosService.atualizarStatus(egg.ID, payload)
+      .then((response) => {
+        setOvos(response.items || [])
+        setNinhadas(response.ninhadas || [])
+        setEggPopup(null)
+      })
   }
 
   const handleEggDiscard = (egg, actionDate) => {
-    setOvos(prev => prev.map(o => {
-      if (o.ID !== egg.ID) return o
-      return { ...o, Status: 'Descartado', DataDescarte: actionDate }
-    }))
-    setEggPopup(null)
+    ovosService.atualizarStatus(egg.ID, { Status: 'Descartado', ActionDate: actionDate })
+      .then((response) => {
+        setOvos(response.items || [])
+        setNinhadas(response.ninhadas || [])
+        setEggPopup(null)
+      })
   }
 
   // ─── Add new egg ──────────────────────────────────────────────────────────
   const handleAddEgg = () => {
     if (!selectedGaiola) return
-    const cageNum = selectedGaiola.NumeroGaiola
-    const existingEggs = ovos.filter(o => o.Gaiola === cageNum)
-    const nextNum = String(existingEggs.length + 1)
-    const newEgg = {
-      ID: Date.now(),
-      NumeroOvo: nextNum,
-      Gaiola: cageNum,
-      Status: 'Postura',
+    ovosService.criar({
+      Gaiola: selectedGaiola.NumeroGaiola,
+      NomeMae: selectedFemeaObj?.Nome || '',
+      NomePai: selectedMachoObj?.Nome || '',
       DataPostura: todayISO(),
-      DataInicioChoco: '',
-      ConfirmaInicioChoco: '',
-      DataPrevistaNascimento: '',
-      DataNascimento: '',
-      DataConfirmacaoFetilizacao: '',
-      DataDescarte: '',
-    }
-    setOvos(prev => [...prev, newEgg])
+    })
+      .then((response) => {
+        setOvos(response.items || [])
+        setNinhadas(response.ninhadas || [])
+        if (selectedNinhadaId !== response.item?.NinhadaId) {
+          setSelectedNinhadaId(response.item?.NinhadaId || '')
+        }
+      })
+  }
+
+  const handleRestartClutch = () => {
+    if (!selectedGaiola) return
+
+    ovosService.reiniciarNinhada({
+      Gaiola: selectedGaiola.NumeroGaiola,
+      NomeMae: selectedFemeaObj?.Nome || '',
+      NomePai: selectedMachoObj?.Nome || '',
+    })
+      .then((response) => {
+        setNinhadas(response.ninhadas || [])
+        setOvos(response.items || [])
+        setSelectedNinhadaId(response.ninhada?.id || '')
+      })
   }
 
   // ─── Loading ──────────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#5A7A5C', fontFamily: "'DM Mono', monospace", fontSize: 13 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
       Carregando dados de choco...
     </div>
   )
 
   return (
     <div>
+      <div className="module-hero">
+        <div>
+          <div className="module-hero__eyebrow">Reprodução</div>
+          <h2 className="module-hero__title">Acompanhamento de choco</h2>
+          <div className="module-hero__text">
+            Visualize gaiolas em choco, confira o casal reprodutor e acompanhe o ciclo de cada ovo com uma leitura mais clara do processo.
+          </div>
+        </div>
+        <div className="pill pill--accent">Ciclo ativo</div>
+      </div>
+
       {/* Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
         <StatCard label="Gaiolas Chocando" value={stats.gaiolas}      desc="gaiolas ativas"       color="#F5A623" />
         <StatCard label="Total Ovos"       value={stats.totalOvos}    desc="ovos registrados"     color="#5BC0EB" />
         <StatCard label="Em Choco"         value={stats.chocando}     desc="ovos em choco"        color="#C95025" />
@@ -356,7 +439,7 @@ export function ChocandoModule() {
       <div style={S.container}>
 
         {/* ─── LEFT PANEL: Cage Gallery ──────────────────────────────────── */}
-        <div style={{ ...S.panel, flex: '0 0 220px' }}>
+        <div className="module-panel" style={S.panel}>
           <div style={S.panelHeader}>
             <div>
               <div style={S.panelTitle}>Gaiolas</div>
@@ -373,17 +456,17 @@ export function ChocandoModule() {
                 }}
                 onClick={() => setSelectedGaiola(g)}
               >
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif", marginBottom: 6 }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 6 }}>
                   {g.NumeroGaiola}
                 </div>
                 <StatusBadge status={g.Status} />
-                <div style={{ marginTop: 8, fontSize: 11, color: '#5A7A5C', fontFamily: "'DM Mono', monospace" }}>
+                <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
                   {ovos.filter(o => o.Gaiola === g.NumeroGaiola).length} ovo(s)
                 </div>
               </div>
             ))}
             {gaiolas.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
                 Nenhuma gaiola chocando
               </div>
             )}
@@ -391,7 +474,7 @@ export function ChocandoModule() {
         </div>
 
         {/* ─── MIDDLE PANEL: Parent Selection ────────────────────────────── */}
-        <div style={{ ...S.panel, flex: '1 1 320px' }}>
+        <div className="module-panel" style={S.panel}>
           <div style={S.panelHeader}>
             <div>
               <div style={S.panelTitle}>Casal Reprodutor</div>
@@ -450,12 +533,12 @@ export function ChocandoModule() {
                 >
                   Simulacao Mutacao dos Filhotes
                 </button>
-                <div style={{ fontSize: 10, color: '#4A6A4C', fontFamily: "'DM Mono', monospace", marginTop: 6, textAlign: 'center' }}>
+                <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 6, textAlign: 'center' }}>
                   Abre o simulador de previsao genetica
                 </div>
               </>
             ) : (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
                 Selecione uma gaiola para ver o casal
               </div>
             )}
@@ -463,34 +546,72 @@ export function ChocandoModule() {
         </div>
 
         {/* ─── RIGHT PANEL: Eggs Gallery ─────────────────────────────────── */}
-        <div style={{ ...S.panel, flex: '1 1 360px' }}>
+        <div className="module-panel" style={S.panel}>
           <div style={S.panelHeader}>
             <div>
               <div style={S.panelTitle}>Ovos</div>
               <div style={S.panelSub}>
-                {selectedGaiola ? `${cageEggs.length} ovo(s) — ${selectedGaiola.NumeroGaiola}` : 'Selecione uma gaiola'}
+                {selectedGaiola
+                  ? `${cageEggs.length} ovo(s) — ${selectedGaiola.NumeroGaiola}${selectedNinhada ? ` · ninhada ${selectedNinhada.Numero}` : ''}`
+                  : 'Selecione uma gaiola'}
               </div>
             </div>
             {selectedGaiola && (
-              <button style={S.btn} onClick={handleAddEgg}>
-                + Adicionar Ovo
-              </button>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button style={S.btnSecondary} onClick={handleRestartClutch}>
+                  Reiniciar nova ninhada
+                </button>
+                <button style={S.btn} onClick={handleAddEgg}>
+                  + Adicionar Ovo
+                </button>
+              </div>
             )}
           </div>
           <div style={S.panelBody}>
             {!selectedGaiola ? (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: '#3A5C3C', fontSize: 12, fontFamily: "'DM Mono', monospace" }}>
+              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
                 Selecione uma gaiola para ver os ovos
               </div>
             ) : cageEggs.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: '#3A5C3C' }}>
-                <div style={{ fontSize: 36, marginBottom: 8 }}>&#x1F95A;</div>
-                <div style={{ fontSize: 12, fontFamily: "'DM Mono', monospace", color: '#4A6A4C' }}>
-                  Nenhum ovo registrado nesta gaiola
+              <>
+                {cageClutches.length > 0 ? (
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+                    {cageClutches.map((item) => (
+                      <button
+                        key={item.id}
+                        style={{ ...S.historyButton, ...(selectedNinhadaId === item.id ? S.historyButtonActive : {}) }}
+                        onClick={() => setSelectedNinhadaId(item.id)}
+                      >
+                        Ninhada {item.Numero} · {item.Status}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+                <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)' }}>
+                  <div style={{ fontSize: 36, marginBottom: 8 }}>&#x1F95A;</div>
+                  <div style={{ fontSize: 12, fontFamily: 'inherit', color: 'var(--text-muted)' }}>
+                    {selectedNinhada
+                      ? 'Nenhum ovo registrado nesta ninhada.'
+                      : 'Nenhum ovo registrado nesta gaiola.'}
+                  </div>
                 </div>
-              </div>
+              </>
             ) : (
               <>
+                {cageClutches.length > 0 ? (
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+                    {cageClutches.map((item) => (
+                      <button
+                        key={item.id}
+                        style={{ ...S.historyButton, ...(selectedNinhadaId === item.id ? S.historyButtonActive : {}) }}
+                        onClick={() => setSelectedNinhadaId(item.id)}
+                      >
+                        Ninhada {item.Numero} · {item.Status}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+
                 {/* Eggs as circles/cards */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 16, justifyContent: 'center', padding: '8px 0' }}>
                   {cageEggs.map(egg => {
@@ -521,7 +642,7 @@ export function ChocandoModule() {
                     onClick={() => setEggPopup(egg)}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#F2EDE4', fontFamily: "'DM Serif Display', serif" }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
                         Ovo #{egg.NumeroOvo}
                       </div>
                       <StatusBadge status={egg.Status} />
