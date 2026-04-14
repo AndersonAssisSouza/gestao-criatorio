@@ -176,21 +176,19 @@ export function ProprietarioModule() {
                 type="button"
                 onClick={() => setSelectedUserId(user.id)}
                 className={`p-list-item${selectedUserId === user.id ? ' is-active' : ''}`}
-                style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', textAlign: 'left', width: '100%' }}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <strong style={{ flex: '0 0 auto' }}>{user.name}</strong>
-                  <span
-                    className={user.access?.accessGranted ? 'text-success' : 'text-danger'}
-                    style={{ flex: '0 0 auto', fontSize: 12, fontWeight: 600 }}
-                  >
-                    {user.access?.label || 'Sem status'}
-                  </span>
-                </div>
-                <div className="text-muted" style={{ fontSize: 13, marginTop: 4 }}>{user.email}</div>
-                <div className="text-faint" style={{ fontSize: 12, marginTop: 2 }}>
-                  Plano {user.access?.plan || 'trial'} • expira em {formatDate(user.access?.expiresAt)}
-                </div>
+                <strong>{user.name}</strong>
+                <span className="text-muted" style={{ fontSize: 13 }}>{user.email}</span>
+                <span className="text-faint" style={{ fontSize: 12 }}>
+                  {user.access?.plan || 'trial'} • {formatDate(user.access?.expiresAt)}
+                </span>
+                <span
+                  className={user.access?.accessGranted ? 'text-success' : 'text-danger'}
+                  style={{ fontSize: 12, fontWeight: 600, marginLeft: 'auto' }}
+                >
+                  {user.access?.label || 'Sem status'}
+                </span>
               </button>
             ))}
           </div>
