@@ -40,6 +40,7 @@ export function ProprietarioModule() {
   const [extendingTrial, setExtendingTrial] = useState(false)
   const [trialDays, setTrialDays] = useState(7)
   const [deletingPaymentId, setDeletingPaymentId] = useState('')
+  const [revokingAccess, setRevokingAccess] = useState(false)
 
   const loadData = async () => {
     setLoading(true)
@@ -322,6 +323,39 @@ export function ProprietarioModule() {
                   </button>
                 </div>
               </div>
+
+              {selectedUser.access?.accessGranted && selectedUser.access?.status !== 'trialing' && (
+                <div className="mt-2" style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div className="mb-1" style={{ fontWeight: 700, color: '#C95025' }}>Cancelar assinatura</div>
+                  <div className="text-muted mb-1" style={{ fontSize: 13 }}>
+                    Remove o acesso do usuário imediatamente. O histórico de pagamentos é mantido.
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!window.confirm(`Revogar o acesso de ${selectedUser.name}? O usuário perderá acesso ao sistema imediatamente.`)) return
+                      setRevokingAccess(true)
+                      setError('')
+                      setSuccess('')
+                      try {
+                        await accessService.revokeAccess(selectedUser.id)
+                        setSuccess(`Assinatura de ${selectedUser.name} cancelada com sucesso.`)
+                        await loadData()
+                        setSelectedUserId(selectedUser.id)
+                      } catch (err) {
+                        setError(err.response?.data?.message || 'Não foi possível cancelar a assinatura.')
+                      } finally {
+                        setRevokingAccess(false)
+                      }
+                    }}
+                    disabled={revokingAccess}
+                    className="p-btn p-btn--ghost"
+                    style={{ color: '#C95025', borderColor: '#C95025' }}
+                  >
+                    {revokingAccess ? 'Cancelando...' : 'Revogar acesso'}
+                  </button>
+                </div>
+              )}
             </>
           )}
         </section>

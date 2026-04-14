@@ -467,6 +467,29 @@ async function extendTrial(req, res) {
   })
 }
 
+async function revokeAccess(req, res) {
+  const userId = req.params.userId
+
+  const existingUser = await userRepository.findById(userId)
+  if (!existingUser) {
+    return res.status(404).json({ message: 'Usuário não encontrado.' })
+  }
+
+  const now = new Date().toISOString()
+  const updatedUser = await userRepository.updateUser(userId, (user) => ({
+    ...user,
+    subscriptionPlan: user.subscriptionPlan || 'trial',
+    subscriptionStatus: 'cancelled',
+    accessReleasedUntil: now,
+    currentPeriodEnd: now,
+    paymentStatus: 'cancelled',
+    subscriptionRequestedPlan: null,
+    requestedAt: null,
+  }))
+
+  return res.json({ user: serializeUser(updatedUser) })
+}
+
 async function deletePayment(req, res) {
   const paymentId = req.params.paymentId
 
@@ -485,6 +508,7 @@ module.exports = {
   createCheckout,
   deletePayment,
   extendTrial,
+  revokeAccess,
   getMyAccess,
   grantAccess,
   listSubscribers,

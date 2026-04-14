@@ -368,6 +368,24 @@ const mockAccessService = {
     return { deleted: true }
   },
 
+  async revokeAccess(userId) {
+    const users = getMockUsers()
+    const user = users.find(u => u.id === userId)
+    if (!user) throw { response: { data: { message: 'Usuário não encontrado.' } } }
+    const access = {
+      accessGranted: false,
+      status: 'expired',
+      plan: user.access?.plan || 'trial',
+      label: 'Cancelado',
+      expiresAt: new Date().toISOString(),
+      remainingDays: 0,
+      requestedPlan: null,
+      paymentStatus: 'cancelled',
+    }
+    updateMockUser(userId, { access })
+    return { user: { ...user, access } }
+  },
+
   async importMySharePointData() {
     return { message: 'Mock: importação simulada.' }
   },
@@ -433,6 +451,11 @@ const realAccessService = {
 
   async deletePayment(paymentId) {
     const { data } = await api.delete(`/api/access/admin/payments/${paymentId}`)
+    return data
+  },
+
+  async revokeAccess(userId) {
+    const { data } = await api.post(`/api/access/admin/subscribers/${userId}/revoke`)
     return data
   },
 

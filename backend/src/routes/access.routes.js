@@ -18,6 +18,7 @@ router.post('/checkout/reconcile', csrfProtection, accessController.reconcileChe
 router.get('/admin/subscribers', requireOwner, accessController.listSubscribers)
 router.post('/admin/subscribers/:userId/grant', requireOwner, csrfProtection, accessController.grantAccess)
 router.post('/admin/subscribers/:userId/extend-trial', requireOwner, csrfProtection, accessController.extendTrial)
+router.post('/admin/subscribers/:userId/revoke', requireOwner, csrfProtection, accessController.revokeAccess)
 router.post('/admin/payments/:paymentId/approve', requireOwner, csrfProtection, accessController.approvePayment)
 router.post('/admin/payments/:paymentId/reject', requireOwner, csrfProtection, accessController.rejectPayment)
 router.delete('/admin/payments/:paymentId', requireOwner, csrfProtection, accessController.deletePayment)
