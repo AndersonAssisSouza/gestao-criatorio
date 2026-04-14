@@ -28,11 +28,12 @@ function getCheckoutAvailability() {
   const isMercadoPago = config.provider === 'mercadopago'
   const hasHttpsFront = isHttpsUrl(config.frontendPublicUrl)
   const hasHttpsBack = isHttpsUrl(config.backendPublicUrl)
+  const isDev = process.env.NODE_ENV !== 'production'
   const configured = Boolean(
     isMercadoPago &&
     config.mercadoPago.accessToken &&
-    hasHttpsFront &&
-    hasHttpsBack
+    (hasHttpsFront || isDev) &&
+    (hasHttpsBack || isDev)
   )
 
   return {
