@@ -1,6 +1,6 @@
 import { useAuth } from '../../context/AuthContext'
 
-export function Topbar({ page, title, description, onOpenMenu }) {
+export function Topbar({ onOpenMenu }) {
   const { user } = useAuth()
   const hoje = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',
@@ -11,17 +11,10 @@ export function Topbar({ page, title, description, onOpenMenu }) {
 
   return (
     <header className="app-topbar">
-      <div className="app-hero">
-        <div className="app-hero__main">
-          <div className="app-topbar__controls">
-            <button type="button" className="app-menu-button" onClick={onOpenMenu}>
-              ☰ Menu
-            </button>
-          </div>
-          <div className="app-hero__eyebrow">{page}</div>
-          <h1 className="app-hero__title">{title}</h1>
-          <div className="app-hero__subtitle">{description}</div>
-        </div>
+      <div className="app-topbar__left">
+        <button type="button" className="app-menu-button" onClick={onOpenMenu}>
+          ☰ Menu
+        </button>
       </div>
       <div className="app-topbar__aside">
         <span className="pill">{hoje}</span>

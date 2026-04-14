@@ -118,7 +118,7 @@ function Dashboard() {
     }
   }, [])
 
-  const meta = PAGE_META[resolvedPage] || { title: resolvedPage, description: '' }
+  const meta = PAGE_META[resolvedPage] || { title: resolvedPage }
 
   useEffect(() => {
     document.title = `${meta.title} • ${BRAND.name}`
@@ -139,12 +139,7 @@ function Dashboard() {
       />
       <Sidebar activePage={resolvedPage} onNavigate={navigateTo} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="app-main">
-        <Topbar
-          page={resolvedPage}
-          title={meta.title}
-          description={meta.description}
-          onOpenMenu={() => setSidebarOpen(true)}
-        />
+        <Topbar onOpenMenu={() => setSidebarOpen(true)} />
         <div className="app-content">
           {resolvedPage === 'plantel'    && <PlantelModule />}
           {resolvedPage === 'chocando'   && <ChocandoModule onNavigate={navigateTo} />}
