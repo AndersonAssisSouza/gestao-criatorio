@@ -179,7 +179,7 @@ async function register(req, res) {
     const token = signToken(user)
 
     setSessionCookies(res, token)
-    return res.status(201).json({ user: serializeUser(user) })
+    return res.status(201).json({ user: serializeUser(user), token })
   } catch (error) {
     console.error('[auth/register]', error)
 
@@ -215,7 +215,7 @@ async function login(req, res) {
     const token = signToken(safeUser)
 
     setSessionCookies(res, token)
-    return res.json({ user: safeUser })
+    return res.json({ user: safeUser, token })
   } catch (error) {
     console.error('[auth/login]', error)
     return res.status(500).json({ message: 'Erro ao fazer login.' })

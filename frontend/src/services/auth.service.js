@@ -71,13 +71,34 @@ const mockAuth = {
   },
 }
 
+const TOKEN_KEY = 'plumar_token'
+
+function saveToken(token) {
+  if (token) localStorage.setItem(TOKEN_KEY, token)
+}
+function clearToken() {
+  localStorage.removeItem(TOKEN_KEY)
+}
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY) || ''
+}
+
+// Injeta o Bearer token em todas as requests
+api.interceptors.request.use((config) => {
+  const token = getToken()
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
+
 const realAuth = {
   async login(email, password) {
     const { data } = await api.post('/api/auth/login', { email, password })
+    if (data.token) saveToken(data.token)
     return data
   },
   async register(name, email, password) {
     const { data } = await api.post('/api/auth/register', { name, email, password })
+    if (data.token) saveToken(data.token)
     return data
   },
   async me() {
@@ -93,7 +114,8 @@ const realAuth = {
     return data
   },
   async logout() {
-    await api.post('/api/auth/logout')
+    try { await api.post('/api/auth/logout') } catch (_) {}
+    clearToken()
   },
 }
 
