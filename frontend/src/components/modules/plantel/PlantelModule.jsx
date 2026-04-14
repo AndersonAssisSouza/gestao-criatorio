@@ -336,18 +336,18 @@ export function PlantelModule() {
             <button className="p-btn p-btn--primary" onClick={handleNew}>Nova ave</button>
           </div>
 
-          <div className="p-stats" style={{ padding: '0 16px' }}>
-            <div className="module-panel" style={{ padding: '12px 14px' }}>
-              <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>Filtradas</div>
-              <div className="font-serif" style={{ fontSize: 16 }}>{filtered.length}</div>
+          <div style={{ display: 'flex', gap: 8, padding: '0 16px' }}>
+            <div className="module-panel" style={{ flex: 1, padding: '8px 10px', textAlign: 'center' }}>
+              <div className="text-faint" style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Filtradas</div>
+              <div className="font-serif" style={{ fontSize: 15 }}>{filtered.length}</div>
             </div>
-            <div className="module-panel" style={{ padding: '12px 14px' }}>
-              <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>Origens</div>
-              <div className="font-serif" style={{ fontSize: 16 }}>{new Set(vivosOnly.map((item) => item.Origem)).size}</div>
+            <div className="module-panel" style={{ flex: 1, padding: '8px 10px', textAlign: 'center' }}>
+              <div className="text-faint" style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Origens</div>
+              <div className="font-serif" style={{ fontSize: 15 }}>{new Set(vivosOnly.map((item) => item.Origem)).size}</div>
             </div>
-            <div className="module-panel" style={{ padding: '12px 14px' }}>
-              <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>Mutações</div>
-              <div className="font-serif" style={{ fontSize: 16 }}>{new Set(vivosOnly.map((item) => item.Mutacao)).size}</div>
+            <div className="module-panel" style={{ flex: 1, padding: '8px 10px', textAlign: 'center' }}>
+              <div className="text-faint" style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Mutações</div>
+              <div className="font-serif" style={{ fontSize: 15 }}>{new Set(vivosOnly.map((item) => item.Mutacao)).size}</div>
             </div>
           </div>
 
