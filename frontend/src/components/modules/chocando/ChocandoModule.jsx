@@ -71,6 +71,12 @@ function findCrossing(especie, mutMacho, mutFemea) {
   ) || null
 }
 
+function speciesHasCrossings(especie) {
+  if (!especie) return false
+  const sp = normalizeSpecies(especie)
+  return CROSSING_DB.some(c => c.especie === sp)
+}
+
 // ─── Mini MutationBadge para exibição compacta ─────────────────────────────
 function MiniMutBadge({ name, percentual }) {
   const color = getMutationColor(name)
@@ -371,12 +377,14 @@ export function ChocandoModule({ onNavigate }) {
   const selectedMachoObj = plantel.find(p => String(p.ID) === selectedMacho) || null
 
   // ─── Previsão genética baseada nas mutações do casal ──────────────────────
-  const crossing = useMemo(() => {
-    if (!selectedFemeaObj || !selectedMachoObj) return null
+  const crossingInfo = useMemo(() => {
+    if (!selectedFemeaObj || !selectedMachoObj) return { crossing: null, hasSpecies: false, mutMacho: '', mutFemea: '' }
     const especie = selectedFemeaObj.CategoriaAve || selectedMachoObj.CategoriaAve
     const mutMacho = selectedMachoObj.Mutacao
     const mutFemea = selectedFemeaObj.Mutacao
-    return findCrossing(especie, mutMacho, mutFemea)
+    const crossing = findCrossing(especie, mutMacho, mutFemea)
+    const hasSpecies = speciesHasCrossings(especie)
+    return { crossing, hasSpecies, mutMacho, mutFemea }
   }, [selectedFemeaObj, selectedMachoObj])
 
   const cageClutches = useMemo(() => {
@@ -625,9 +633,22 @@ export function ChocandoModule({ onNavigate }) {
               </div>
             )}
           </div>
-          {crossing && (
-            <div style={{ padding: '0 16px 8px', borderBottom: '1px solid var(--line-soft)' }}>
-              <MutationPreview crossing={crossing} />
+          {selectedGaiola && crossingInfo.hasSpecies && (
+            <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--line-soft)' }}>
+              {crossingInfo.crossing ? (
+                <MutationPreview crossing={crossingInfo.crossing} />
+              ) : (
+                crossingInfo.mutMacho && crossingInfo.mutFemea ? (
+                  <div style={{ padding: '8px 0' }}>
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8a7e74', marginBottom: 6 }}>
+                      Previsão genética dos filhotes
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', background: 'var(--accent-ghost)', borderRadius: 8, padding: '10px 14px' }}>
+                      Combinação <strong>{crossingInfo.mutMacho}</strong> × <strong>{crossingInfo.mutFemea}</strong> não cadastrada no simulador genético.
+                    </div>
+                  </div>
+                ) : null
+              )}
             </div>
           )}
           <div className="p-panel-body">
