@@ -8,26 +8,23 @@ const USE_MOCK = !import.meta.env.VITE_API_URL
 
 // ─── MOCK DATA — remover quando backend estiver conectado ───────────────────
 const MOCK_GAIOLAS_CHOCANDO = [
-  { ID: 1, NumeroGaiola: 'G-01', Status: 'Chocando' },
-  { ID: 2, NumeroGaiola: 'G-02', Status: 'Chocando' },
+  { ID: 1, NumeroGaiola: '001', Status: 'Chocando' },
 ]
 
 const MOCK_PLANTEL = [
-  { ID: 1, Nome: 'Thor',   Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'Tarin', Mutacao: 'Ancestral',      Gaiola: 'G-01' },
-  { ID: 2, Nome: 'Athena', Genero: 'Femea', Status: 'Vivo', CategoriaAve: 'Tarin', Mutacao: 'Canela',         Gaiola: 'G-01' },
-  { ID: 3, Nome: 'Apollo', Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'Tarin', Mutacao: 'Pastel',         Gaiola: 'G-02' },
-  { ID: 4, Nome: 'Diana',  Genero: 'Femea', Status: 'Vivo', CategoriaAve: 'Tarin', Mutacao: 'Canela Pastel',  Gaiola: 'G-02' },
+  { ID: 4, Nome: 'Manchinha', Genero: 'Fêmea', Status: 'Vivo', CategoriaAve: 'Tarim', Mutacao: 'Canela Pastel', Gaiola: '001' },
+  { ID: 9, Nome: 'Pardinho',  Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'Tarim', Mutacao: 'Duplo Diluído', Gaiola: '001' },
+  { ID: 8, Nome: 'Hulk',      Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'Tarim', Mutacao: 'Canela',        Gaiola: '002' },
+  { ID: 10, Nome: 'Bandite',  Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'canário belga', Mutacao: '',       Gaiola: '003' },
+  { ID: 11, Nome: 'Pardinha', Genero: 'Femea', Status: 'Vivo', CategoriaAve: 'Tarim', Mutacao: 'Canela Pastel', Gaiola: '003' },
 ]
 
 const MOCK_OVOS = [
-  { ID: 1, NumeroOvo: '1', Gaiola: 'G-01', Status: 'Postura',     DataPostura: '2026-03-20', DataInicioChoco: '',           ConfirmaInicioChoco: '', DataPrevistaNascimento: '',           DataNascimento: '', DataConfirmacaoFetilizacao: '', DataDescarte: '' },
-  { ID: 2, NumeroOvo: '2', Gaiola: 'G-01', Status: 'Chocando',    DataPostura: '2026-03-18', DataInicioChoco: '2026-03-20', ConfirmaInicioChoco: 'Sim', DataPrevistaNascimento: '2026-04-03', DataNascimento: '', DataConfirmacaoFetilizacao: '', DataDescarte: '' },
-  { ID: 3, NumeroOvo: '3', Gaiola: 'G-01', Status: 'Fertilizado', DataPostura: '2026-03-15', DataInicioChoco: '2026-03-17', ConfirmaInicioChoco: 'Sim', DataPrevistaNascimento: '2026-03-31', DataNascimento: '', DataConfirmacaoFetilizacao: '2026-03-25', DataDescarte: '' },
-  { ID: 4, NumeroOvo: '1', Gaiola: 'G-02', Status: 'Postura',     DataPostura: '2026-04-01', DataInicioChoco: '',           ConfirmaInicioChoco: '', DataPrevistaNascimento: '',           DataNascimento: '', DataConfirmacaoFetilizacao: '', DataDescarte: '' },
+  { ID: 1776113513899, NumeroOvo: '1', Gaiola: '001', Status: 'Fertilizado', DataPostura: '2026-04-13', DataInicioChoco: '2026-04-01', ConfirmaInicioChoco: 'Sim', DataPrevistaNascimento: '2026-04-15', DataNascimento: '', DataConfirmacaoFetilizacao: '2026-04-13', DataDescarte: '', NomeMae: 'Manchinha', NomePai: 'Pardinho', NinhadaId: '0f5b6011-fa57-4e94-a9c1-b8d8b49115d4', NinhadaNumero: 4 },
 ]
 
 // TempoChoco por especie (dias) — lookup simplificado
-const TEMPO_CHOCO = { Tarin: 14, Canario: 13, Pintassilgo: 14 }
+const TEMPO_CHOCO = { Tarim: 13, 'canário belga': 13 }
 
 function mapPlantelRecord(record) {
   return {

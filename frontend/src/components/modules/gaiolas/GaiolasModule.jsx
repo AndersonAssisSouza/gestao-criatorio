@@ -9,20 +9,17 @@ import { gaiolasService } from '../../../services/gaiolas.service'
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const MOCK_GAIOLAS = [
-  { ID: 1, NumeroGaiola: 'G-01', Status: 'Chocando' },
-  { ID: 2, NumeroGaiola: 'G-02', Status: 'Chocando' },
-  { ID: 3, NumeroGaiola: 'G-03', Status: 'Com Ave Avulsa' },
-  { ID: 4, NumeroGaiola: 'G-04', Status: 'Vazia' },
-  { ID: 5, NumeroGaiola: 'G-05', Status: 'Acasalando' },
-  { ID: 6, NumeroGaiola: 'G-06', Status: 'Preparacao' },
+  { ID: 1, NumeroGaiola: '001', Status: 'Chocando' },
+  { ID: 4, NumeroGaiola: '002', Status: 'Com Ave Avulsa' },
+  { ID: 5, NumeroGaiola: '003', Status: 'Dividida' },
 ]
 
 const MOCK_PLANTEL_IN_CAGE = [
-  { ID: 1, Nome: 'Thor', Status: 'Vivo', DataNascimento: '2024-08-15', Mutacao: 'Ancestral', Gaiola: 'G-01' },
-  { ID: 2, Nome: 'Athena', Status: 'Vivo', DataNascimento: '2025-01-10', Mutacao: 'Canela', Gaiola: 'G-01' },
-  { ID: 3, Nome: 'Apollo', Status: 'Vivo', DataNascimento: '2024-11-20', Mutacao: 'Pastel', Gaiola: 'G-02' },
-  { ID: 4, Nome: 'Diana', Status: 'Vivo', DataNascimento: '2025-06-05', Mutacao: 'Canela Pastel', Gaiola: 'G-02' },
-  { ID: 5, Nome: 'Hermes', Status: 'Vivo', DataNascimento: '2025-09-12', Mutacao: 'Diluído', Gaiola: 'G-03' },
+  { ID: 4, Nome: 'Manchinha', Status: 'Vivo', DataNascimento: '10/08/2023', Mutacao: 'Canela Pastel', Gaiola: '001', Genero: 'Fêmea', CategoriaAve: 'Tarim' },
+  { ID: 9, Nome: 'Pardinho', Status: 'Vivo', DataNascimento: '10/08/2023', Mutacao: 'Duplo Diluído', Gaiola: '001', Genero: 'Macho', CategoriaAve: 'Tarim' },
+  { ID: 8, Nome: 'Hulk', Status: 'Vivo', DataNascimento: '', Mutacao: 'Canela', Gaiola: '002', Genero: 'Macho', CategoriaAve: 'Tarim' },
+  { ID: 10, Nome: 'Bandite', Status: 'Vivo', DataNascimento: '', Mutacao: '', Gaiola: '003', Genero: 'Macho', CategoriaAve: 'canário belga' },
+  { ID: 11, Nome: 'Pardinha', Status: 'Vivo', DataNascimento: '2025-11-18', Mutacao: 'Canela Pastel', Gaiola: '003', Genero: 'Femea', CategoriaAve: 'Tarim' },
 ]
 
 const STATUS_OPTIONS = ['Chocando', 'Vazia', 'Preparacao', 'Dividida', 'Com Ave Avulsa', 'Com Duas Aves Separadas', 'Acasalando']

@@ -3,8 +3,8 @@ import api from './api'
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const MOCK_USER = {
-  id: 'mock-owner-1',
-  name: 'Anderson',
+  id: '50e3b170-5e31-4cfb-99a1-b96d83c918a8',
+  name: 'Anderson Assis',
   email: 'admin@plumar.com',
   role: 'owner',
   access: {

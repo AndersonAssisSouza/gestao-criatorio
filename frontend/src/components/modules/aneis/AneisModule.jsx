@@ -8,12 +8,9 @@ import { accessService } from '../../../services/access.service'
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const MOCK_ANEIS = [
-  { ID: 1, NumeroAnel: 'AZ-2024-001', Status: 'Utilizado', Cor: 'Azul', Ano: '2024', OrgaoRegulador: 'FOB' },
-  { ID: 2, NumeroAnel: 'AZ-2024-002', Status: 'Utilizado', Cor: 'Azul', Ano: '2024', OrgaoRegulador: 'FOB' },
-  { ID: 3, NumeroAnel: 'AZ-2024-003', Status: 'Utilizado', Cor: 'Azul', Ano: '2024', OrgaoRegulador: 'FOB' },
-  { ID: 4, NumeroAnel: 'AZ-2025-001', Status: 'Utilizado', Cor: 'Verde', Ano: '2025', OrgaoRegulador: 'FOB' },
-  { ID: 5, NumeroAnel: 'AZ-2025-002', Status: 'Disponível', Cor: 'Verde', Ano: '2025', OrgaoRegulador: 'FOB' },
-  { ID: 6, NumeroAnel: 'AZ-2025-003', Status: 'Disponível', Cor: 'Verde', Ano: '2025', OrgaoRegulador: 'FOB' },
+  { ID: 1, NumeroAnel: '033', Status: 'Ativo', Cor: 'Rosa', Ano: '2021', OrgaoRegulador: 'FOB' },
+  { ID: 2, NumeroAnel: '002', Status: 'Ativo', Cor: 'Rosa', Ano: '2021', OrgaoRegulador: 'FOB' },
+  { ID: 3, NumeroAnel: 'JI783', Status: 'Ativo', Cor: 'Preto', Ano: '2023', OrgaoRegulador: '' },
 ]
 
 // ─── Estilos reutilizáveis ──────────────────────────────────────────────────

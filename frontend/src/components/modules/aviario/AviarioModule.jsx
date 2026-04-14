@@ -7,12 +7,12 @@ import { criatorioService } from '../../../services/criatorio.service'
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const MOCK_CRIATORIO = {
-  id: 'mock-1',
-  NomeCriatorio: 'Criadouro Marbella',
-  Responsavel: 'Anderson',
-  CTFCriador: 'CTF-001234',
-  Endereco: 'São Paulo - SP',
-  Telefone: '(11) 99999-0000',
+  id: 'c30e294f-b7e8-4a63-8e38-39c55cb4b4b6',
+  NomeCriatorio: 'Criatório Assis',
+  Responsavel: 'Anderson Assis',
+  CTFCriador: '5177616',
+  Endereco: 'Belo Horizonte - MG',
+  Telefone: '31988761694',
 }
 
 const s = {

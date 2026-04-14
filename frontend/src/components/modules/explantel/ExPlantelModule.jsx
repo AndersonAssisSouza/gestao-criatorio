@@ -5,22 +5,26 @@ import { ConfirmModal }  from '../../shared/ConfirmModal'
 import { plantelService } from '../../../services/plantel.service'
 import { accessService } from '../../../services/access.service'
 
-// ─── MOCK — remover quando backend estiver conectado ─────────────────────────
+// ─── MOCK — dados reais do SharePoint ────────────────────────────────────────
 const MOCK_ALL = [
-  { ID: 1, Nome: 'Thor', Status: 'Vivo', NomeMae: 'Luna', NomePai: 'Zeus', Gaiola: 'G-01', DataNascimento: '2024-08-15', CategoriaAve: 'Tarin', Genero: 'Macho', Origem: 'Criadouro Marbella', RegistroFOB: 'FOB-001', AnelEsquerdo: 'AZ-2024-001', Mutacao: 'Ancestral', Acesso: 'Anderson', observacao: '' },
-  { ID: 2, Nome: 'Athena', Status: 'Vivo', NomeMae: 'Hera', NomePai: 'Thor', Gaiola: 'G-02', DataNascimento: '2025-01-10', CategoriaAve: 'Tarin', Genero: 'Femea', Origem: 'Criadouro Próprio', RegistroFOB: 'FOB-002', AnelEsquerdo: 'AZ-2024-002', Mutacao: 'Canela', Acesso: 'Anderson', observacao: '' },
-  { ID: 3, Nome: 'Apollo', Status: 'Vivo', NomeMae: 'Luna', NomePai: 'Zeus', Gaiola: 'G-03', DataNascimento: '2024-11-20', CategoriaAve: 'Tarin', Genero: 'Macho', Origem: 'Criadouro Marbella', RegistroFOB: 'FOB-003', AnelEsquerdo: 'AZ-2024-003', Mutacao: 'Pastel', Acesso: 'Anderson', observacao: 'Excelente reprodutor' },
-  { ID: 4, Nome: 'Diana', Status: 'Vivo', NomeMae: 'Athena', NomePai: 'Apollo', Gaiola: 'G-01', DataNascimento: '2025-06-05', CategoriaAve: 'Tarin', Genero: 'Femea', Origem: 'Criadouro Próprio', RegistroFOB: '', AnelEsquerdo: '', Mutacao: 'Canela Pastel', Acesso: 'Anderson', observacao: '' },
-  { ID: 5, Nome: 'Hermes', Status: 'Vivo', NomeMae: 'Athena', NomePai: 'Thor', Gaiola: 'G-04', DataNascimento: '2025-09-12', CategoriaAve: 'Tarin', Genero: 'Macho', Origem: 'Criadouro Próprio', RegistroFOB: 'FOB-005', AnelEsquerdo: 'AZ-2025-001', Mutacao: 'Diluído', Acesso: 'Anderson', observacao: '' },
-  { ID: 6, Nome: 'Ares', Status: 'Falecimento', NomeMae: 'Luna', NomePai: 'Zeus', Gaiola: '', DataNascimento: '2023-05-10', CategoriaAve: 'Tarin', Genero: 'Macho', Origem: 'Criadouro Marbella', RegistroFOB: 'FOB-006', AnelEsquerdo: 'AZ-2023-001', Mutacao: 'Ancestral', Acesso: 'Anderson', observacao: 'Faleceu em 2025-02-01' },
-  { ID: 7, Nome: 'Perséfone', Status: 'Vendido', NomeMae: 'Hera', NomePai: 'Thor', Gaiola: '', DataNascimento: '2024-03-22', CategoriaAve: 'Tarin', Genero: 'Femea', Origem: 'Criadouro Próprio', RegistroFOB: 'FOB-007', AnelEsquerdo: 'AZ-2024-004', Mutacao: 'Pastel', Acesso: 'Anderson', observacao: 'Vendido para Criadouro Saragoça' },
+  { ID: 1, Nome: 'Cinzinha', Status: 'Falecimento', NomeMae: 'NA', NomePai: 'NA', Gaiola: '001', DataNascimento: '', CategoriaAve: 'Tarim', Genero: 'Fêmea', Origem: 'Criatório 2W', RegistroFOB: '5177616', AnelEsquerdo: 'FOB-002-2021', Mutacao: 'Ancestral', Acesso: 'Anderson Assis', observacao: 'Ave faleceu sem motivo aparente durante 2ª choca da temporada 2023' },
+  { ID: 2, Nome: 'Red', Status: 'Falecimento', NomeMae: 'NA', NomePai: 'NA', Gaiola: '001', DataNascimento: '15/08/2021', CategoriaAve: 'Tarim', Genero: 'Macho', Origem: 'Criatório 2W', RegistroFOB: '5177616', AnelEsquerdo: '', Mutacao: 'Portador de Canela', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 3, Nome: 'Pardinha', Status: 'Falecimento', NomeMae: 'Cinzinha', NomePai: 'Red', Gaiola: '', DataNascimento: '20/01/2023', CategoriaAve: 'Tarim', Genero: 'Fêmea', Origem: 'Criatório Assis', RegistroFOB: '5177616', AnelEsquerdo: '', Mutacao: 'Canela', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 4, Nome: 'Manchinha', Status: 'Vivo', NomeMae: 'NA', NomePai: 'NA', Gaiola: '001', DataNascimento: '10/08/2023', CategoriaAve: 'Tarim', Genero: 'Fêmea', Origem: 'Criatório 2W', RegistroFOB: '5177616', AnelEsquerdo: 'FOB - 031 - 2023', Mutacao: 'Canela Pastel', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 5, Nome: 'Hulk', Status: 'Falecimento', NomeMae: 'NA', NomePai: 'NA', Gaiola: '002', DataNascimento: '30/07/2023', CategoriaAve: 'Tarim', Genero: 'Macho', Origem: 'Criatório 2W', RegistroFOB: '5177616', AnelEsquerdo: 'FOB - 019 - 2023', Mutacao: 'Canela Pastel', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 6, Nome: 'Mainha', Status: 'Falecimento', NomeMae: 'NA', NomePai: 'NA', Gaiola: '001', DataNascimento: '11/05/2021', CategoriaAve: 'Tarim', Genero: 'Fêmea', Origem: 'Criatório 2W', RegistroFOB: '5177616', AnelEsquerdo: 'FOB - 004 - 2021', Mutacao: 'Ancestral', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 7, Nome: 'Pastelzinha', Status: 'Falecimento', NomeMae: 'NA', NomePai: 'NA', Gaiola: '002', DataNascimento: '11/10/2022', CategoriaAve: 'Tarim', Genero: 'Fêmea', Origem: 'Criatório 2W', RegistroFOB: '5177616', AnelEsquerdo: 'FOB - 284 - 2022', Mutacao: 'Pastel', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 8, Nome: 'Hulk', Status: 'Vivo', NomeMae: 'NA', NomePai: 'NA', Gaiola: '002', DataNascimento: '', CategoriaAve: 'Tarim', Genero: 'Macho', Origem: 'Criatório Assis', RegistroFOB: '5177616', AnelEsquerdo: '', Mutacao: 'Canela', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 9, Nome: 'Pardinho', Status: 'Vivo', NomeMae: 'NA', NomePai: 'NA', Gaiola: '001', DataNascimento: '10/08/2023', CategoriaAve: 'Tarim', Genero: 'Macho', Origem: 'Criatório Assis', RegistroFOB: '5177616', AnelEsquerdo: '', Mutacao: 'Duplo Diluído', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 10, Nome: 'Bandite', Status: 'Vivo', NomeMae: '', NomePai: '', Gaiola: '003', DataNascimento: '', CategoriaAve: 'canário belga', Genero: 'Macho', Origem: 'Criatório Assis', RegistroFOB: '', AnelEsquerdo: '', Mutacao: '', Acesso: 'Anderson Assis', observacao: '' },
+  { ID: 11, Nome: 'Pardinha', Status: 'Vivo', NomeMae: 'Manchinha', NomePai: 'Pardinho', Gaiola: '003', DataNascimento: '2025-11-18', CategoriaAve: 'Tarim', Genero: 'Femea', Origem: 'Criatório Assis', RegistroFOB: '5177616', AnelEsquerdo: '002', Mutacao: 'Canela Pastel', Acesso: 'Anderson Assis', observacao: '' },
 ]
 
-const MOCK_ESPECIES = [{ Especie: 'Tarin' }, { Especie: 'Canário' }, { Especie: 'Pintassilgo' }]
-const MOCK_GAIOLAS = [{ NumeroGaiola: 'G-01' }, { NumeroGaiola: 'G-02' }, { NumeroGaiola: 'G-03' }, { NumeroGaiola: 'G-04' }, { NumeroGaiola: 'G-05' }]
-const MOCK_CRIATORIOS = [{ NomeCriatorio: 'Criadouro Marbella' }, { NomeCriatorio: 'Criadouro Próprio' }, { NomeCriatorio: 'Criadouro Saragoça' }]
-const MOCK_ANEIS = [{ NumeroAnel: 'AZ-2024-001' }, { NumeroAnel: 'AZ-2024-002' }, { NumeroAnel: 'AZ-2024-003' }, { NumeroAnel: 'AZ-2025-001' }, { NumeroAnel: 'AZ-2024-004' }, { NumeroAnel: 'AZ-2023-001' }]
-const MOCK_MUTACOES = ['Ancestral', 'Canela', 'Pastel', 'Canela Pastel', 'Topázio', 'Diluído', 'Duplo Diluído']
+const MOCK_ESPECIES = [{ Especie: 'Tarim' }, { Especie: 'canário belga' }]
+const MOCK_GAIOLAS = [{ NumeroGaiola: '001' }, { NumeroGaiola: '002' }, { NumeroGaiola: '003' }]
+const MOCK_CRIATORIOS = [{ NomeCriatorio: 'Criatório Assis' }, { NomeCriatorio: 'Criatório 2W' }]
+const MOCK_ANEIS = [{ NumeroAnel: '033' }, { NumeroAnel: '002' }, { NumeroAnel: 'JI783' }]
+const MOCK_MUTACOES = ['Ancestral', 'Canela', 'Pastel', 'Canela Pastel', 'Portador de Canela', 'Duplo Diluído', 'Topázio', 'Diluído']
 
 const STATUS_OPTIONS = ['Vivo', 'Filhote', 'Falecimento', 'Vendido', 'Doado']
 const GENERO_OPTIONS = ['Macho', 'Femea']

@@ -8,19 +8,28 @@ import { accessService } from '../../../services/access.service'
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const MOCK_FINANCEIRO = [
-  { ID: 1, Item: 'Ração Premium', TipoMovimentacao: 'Despesa', Valor: 150.00, Data: '2026-03-01', Acesso: 'Anderson' },
-  { ID: 2, Item: 'Venda de Filhote', TipoMovimentacao: 'Receita', Valor: 800.00, Data: '2026-03-10', Acesso: 'Anderson' },
-  { ID: 3, Item: 'Vitaminas', TipoMovimentacao: 'Despesa', Valor: 45.00, Data: '2026-03-15', Acesso: 'Anderson' },
-  { ID: 4, Item: 'Gaiola Nova', TipoMovimentacao: 'Despesa', Valor: 320.00, Data: '2026-03-20', Acesso: 'Anderson' },
-  { ID: 5, Item: 'Anéis 2025', TipoMovimentacao: 'Despesa', Valor: 60.00, Data: '2026-04-01', Acesso: 'Anderson' },
+  { ID: 9, Item: 'Ave', TipoMovimentacao: 'Compra', Produto: 'Ave', Quantidade: 1, Valor: 800, ValorTotal: 800, Data: '2023-11-29', Acesso: 'Anderson Assis' },
+  { ID: 10, Item: 'Ave', TipoMovimentacao: 'Compra', Produto: 'Ave', Quantidade: 1, Valor: 800, ValorTotal: 800, Data: '2023-11-29', Acesso: 'Anderson Assis' },
+  { ID: 11, Item: 'Ave', TipoMovimentacao: 'Venda', Produto: 'Ave', Quantidade: 1, Valor: 250, ValorTotal: 250, Data: '2023-11-29', Acesso: 'Anderson Assis' },
+  { ID: 12, Item: 'Ave', TipoMovimentacao: 'Venda', Produto: 'Ave', Quantidade: 1, Valor: 300, ValorTotal: 300, Data: '2023-11-29', Acesso: 'Anderson Assis' },
+  { ID: 13, Item: 'Ave', TipoMovimentacao: 'Compra', Produto: 'Ave', Quantidade: 2, Valor: 275, ValorTotal: 550, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 14, Item: 'Acessório', TipoMovimentacao: 'Compra', Produto: 'Ninhos', Quantidade: 1, Valor: 90, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 15, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração Tarim', Quantidade: 1, Valor: 152.83, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 16, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 273.10, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 17, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 174.50, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 18, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 293.31, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 19, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 126, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 20, Item: 'Acessório', TipoMovimentacao: 'Venda', Produto: 'Bebedouros automáticos', Quantidade: 1, Valor: 69.75, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 21, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 254.99, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 22, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 97.17, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 23, Item: 'Ave', TipoMovimentacao: 'Venda', Produto: 'Macho Tarim Ancestral', Quantidade: 1, Valor: 500, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
 ]
 
 const MOCK_LISTA_ITENS = [
-  { Item: 'Ração Premium' }, { Item: 'Vitaminas' }, { Item: 'Gaiola Nova' }, { Item: 'Anéis 2025' },
-  { Item: 'Venda de Filhote' }, { Item: 'Venda de Ave' }, { Item: 'Medicamentos' }, { Item: 'Sementes' },
+  { Item: 'Ave' }, { Item: 'Ração' }, { Item: 'Gaiola' }, { Item: 'Acessório' }, { Item: 'Medicação' },
 ]
 
-const TIPO_OPTIONS = ['Receita', 'Despesa']
+const TIPO_OPTIONS = ['Compra', 'Venda']
 const CURRENT_USER = 'Anderson Assis'
 // ─── Estilos reutilizáveis ──────────────────────────────────────────────────
 const s = {
@@ -54,7 +63,7 @@ const s = {
   },
 }
 
-const EMPTY_FORM = { Item: '', TipoMovimentacao: 'Despesa', Valor: '', Data: '' }
+const EMPTY_FORM = { Item: '', TipoMovimentacao: 'Compra', Produto: '', Quantidade: 1, Valor: '', Data: '' }
 
 export function FinanceiroModule() {
   const [data, setData] = useState([])
@@ -136,8 +145,8 @@ export function FinanceiroModule() {
 
   // ─── Stats (summary) ─────────────────────────────────────────────────────
   const fmt = v => v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  const totalReceitas = userFiltered.filter(r => r.TipoMovimentacao === 'Receita').reduce((sum, r) => sum + r.Valor, 0)
-  const totalDespesas = userFiltered.filter(r => r.TipoMovimentacao === 'Despesa').reduce((sum, r) => sum + r.Valor, 0)
+  const totalReceitas = userFiltered.filter(r => r.TipoMovimentacao === 'Venda').reduce((sum, r) => sum + r.Valor, 0)
+  const totalDespesas = userFiltered.filter(r => r.TipoMovimentacao === 'Compra').reduce((sum, r) => sum + r.Valor, 0)
   const saldo = totalReceitas - totalDespesas
 
   // ─── Distinct items for dropdown ──────────────────────────────────────────
@@ -198,8 +207,8 @@ export function FinanceiroModule() {
 
       {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
-        <StatCard label="Total Receitas" value={`R$ ${fmt(totalReceitas)}`} desc="receitas acumuladas" color="#4CAF7D" />
-        <StatCard label="Total Despesas" value={`R$ ${fmt(totalDespesas)}`} desc="despesas acumuladas" color="#E05C4B" />
+        <StatCard label="Total Vendas" value={`R$ ${fmt(totalReceitas)}`} desc="vendas acumuladas" color="#4CAF7D" />
+        <StatCard label="Total Compras" value={`R$ ${fmt(totalDespesas)}`} desc="compras acumuladas" color="#E05C4B" />
         <StatCard label="Saldo" value={`R$ ${fmt(saldo)}`} desc="receitas - despesas" color={saldo >= 0 ? '#C95025' : '#E05C4B'} />
       </div>
 

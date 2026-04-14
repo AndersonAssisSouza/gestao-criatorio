@@ -9,11 +9,11 @@ const USE_MOCK = !import.meta.env.VITE_API_URL
 
 // ─── MOCK DATA — remover quando backend estiver conectado ───────────────────
 const MOCK_FILHOTES = [
-  { ID: 1, NomeAve: '',            NumeroOvo: '3', Status: 'Vivo', DataNascimento: '2026-03-31', DataPrevistaAnilhamento: '2026-04-05', Gaiola: 'G-01', IDMae: 2, IDPai: 1, NomeMae: 'Athena', MutacaoMae: 'Canela',    NomePai: 'Thor',   MutacaoPai: 'Ancestral' },
-  { ID: 2, NomeAve: 'Filhote-02', NumeroOvo: '2', Status: 'Vivo', DataNascimento: '2026-04-03', DataPrevistaAnilhamento: '2026-04-08', Gaiola: 'G-01', IDMae: 2, IDPai: 1, NomeMae: 'Athena', MutacaoMae: 'Canela',    NomePai: 'Thor',   MutacaoPai: 'Ancestral' },
+  { ID: 3, NomeAve: 'Pardinha', NumeroOvo: 'Ovo-2-2025', Status: 'Plantel', DataNascimento: '18/11/2025', DataPrevistaAnilhamento: '23/11/2025', Gaiola: '001', IDMae: 7, IDPai: 13, NomeMae: 'Manchinha', MutacaoMae: 'Canela Pastel', NomePai: 'Pardinho', MutacaoPai: 'Duplo Diluído', CategoriaAve: 'Tarim', Genero: 'Femea', Mutacao: 'Canela Pastel', AnelEsquerdo: '002', RegistroFOB: '5177616' },
+  { ID: 2, NomeAve: 'Pardinha', NumeroOvo: 'Ovo-1-2025', Status: 'Faleceu', DataNascimento: '17/11/2025', DataPrevistaAnilhamento: '22/11/2025', Gaiola: '001', IDMae: 7, IDPai: 13, NomeMae: 'Manchinha', MutacaoMae: 'Canela Pastel', NomePai: 'Pardinho', MutacaoPai: 'Duplo Diluído' },
 ]
 
-const ESPECIES = ['Tarin', 'Canario', 'Pintassilgo']
+const ESPECIES = ['Tarim', 'canário belga']
 
 const STATUS_OPTIONS = ['Vivo', 'Faleceu', 'Plantel']
 
