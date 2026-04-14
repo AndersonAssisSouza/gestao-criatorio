@@ -159,7 +159,7 @@ export function ProprietarioModule() {
       {error && <div className="p-alert--error">{error}</div>}
       {success && <div className="p-alert--success">{success}</div>}
 
-      <div className="stat-grid">
+      <div className="p-stats">
         <StatCard label="Clientes" value={stats.total} desc="usuarios cadastrados" color="#C95025" />
         <StatCard label="Ativos" value={stats.ativos} desc="acesso liberado" color="#4CAF7D" />
         <StatCard label="Cobranças" value={stats.pendentes} desc="pendentes de conferência" color="#F5A623" />
