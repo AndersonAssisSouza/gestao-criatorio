@@ -3,7 +3,7 @@ import api from './api'
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
 function buildMockUser(email, name) {
-  const isOwner = email === 'admin@plumar.com' || email === 'anderson'
+  const isOwner = email === 'admin@plumar.com' || email === 'admin' || email === 'anderson'
 
   if (isOwner) {
     return {
