@@ -31,12 +31,6 @@ const GENERO_OPTIONS = ['Macho', 'Femea']
 
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
-const emptyForm = () => ({
-  Nome: '', Status: 'Falecimento', NomeMae: '', NomePai: '', Gaiola: '',
-  DataNascimento: '', CategoriaAve: '', Genero: '', Origem: '',
-  RegistroFOB: '', AnelEsquerdo: '', Mutacao: '', observacao: '',
-})
-
 export function ExPlantelModule() {
   const [data,       setData]       = useState([])
   const [catalogs, setCatalogs] = useState({
@@ -49,8 +43,6 @@ export function ExPlantelModule() {
   const [loading,    setLoading]    = useState(true)
   const [search,     setSearch]     = useState('')
   const [selected,   setSelected]   = useState(null)
-  const [formMode,   setFormMode]   = useState(null) // null | 'new' | 'edit' | 'view'
-  const [formData,   setFormData]   = useState(emptyForm())
   const [delTarget,  setDelTarget]  = useState(null)
   const [error,      setError]      = useState('')
 
@@ -112,53 +104,6 @@ export function ExPlantelModule() {
   // ─── Seleção na galeria ───────────────────────────────────────────────────
   const handleSelect = (ave) => {
     setSelected(ave)
-    setFormData({ ...ave })
-    setFormMode('view')
-  }
-
-  // ─── Ações do toolbar ────────────────────────────────────────────────────
-  const handleNew = () => {
-    setSelected(null)
-    setFormData(emptyForm())
-    setFormMode('new')
-  }
-
-  const handleEdit = () => {
-    if (!selected) return
-    setFormMode('edit')
-  }
-
-  const handleCancel = () => {
-    if (selected) {
-      setFormData({ ...selected })
-      setFormMode('view')
-    } else {
-      setFormData(emptyForm())
-      setFormMode(null)
-    }
-  }
-
-  const handleSubmit = () => {
-    const action = formMode === 'new'
-      ? plantelService.criar(formData)
-      : plantelService.atualizar(selected.ID, formData)
-
-    action
-      .then((response) => {
-        const item = response.item
-        if (formMode === 'new') {
-          setData((current) => [...current, item])
-        } else {
-          setData((current) => current.map((record) => (record.ID === selected.ID ? item : record)))
-        }
-        setSelected(item)
-        setFormData({ ...item })
-        setFormMode('view')
-        setError('')
-      })
-      .catch((requestError) => {
-        setError(requestError.response?.data?.message || 'Não foi possível salvar o registro.')
-      })
   }
 
   const handleDeleteConfirm = () => {
@@ -167,8 +112,6 @@ export function ExPlantelModule() {
         setData((current) => current.filter((record) => record.ID !== delTarget.ID))
         if (selected?.ID === delTarget.ID) {
           setSelected(null)
-          setFormMode(null)
-          setFormData(emptyForm())
         }
         setDelTarget(null)
         setError('')
@@ -176,103 +119,6 @@ export function ExPlantelModule() {
       .catch((requestError) => {
         setError(requestError.response?.data?.message || 'Não foi possível remover o registro.')
       })
-  }
-
-  // ─── Field helpers ────────────────────────────────────────────────────────
-  const isNewMode  = formMode === 'new'
-  const isEditMode = formMode === 'edit'
-  const isViewMode = formMode === 'view'
-  const canEditField = (field) => {
-    const newOnly = ['Nome', 'NomeMae', 'NomePai', 'DataNascimento', 'RegistroFOB', 'Origem']
-    const editableInEdit = ['Gaiola', 'observacao']
-    const filhoteOrNew = ['CategoriaAve', 'Genero']
-
-    if (isNewMode) return true
-    if (isEditMode) {
-      if (editableInEdit.includes(field)) return true
-      if (field === 'Status') return true
-      if (field === 'AnelEsquerdo') return true
-      if (field === 'Mutacao') return true
-      if (filhoteOrNew.includes(field) && formData.Status === 'Filhote') return true
-      if (field === 'Gaiola') return true
-      return false
-    }
-    return false
-  }
-
-  const setField = (key, val) => setFormData(f => ({ ...f, [key]: val }))
-
-  const renderInput = (key, label, opts = {}) => {
-    const editable = canEditField(key)
-    const { type = 'text', options, fullWidth, placeholder } = opts
-    const wrapClass = fullWidth ? 'p-field p-form-grid--full' : 'p-field'
-
-    if (type === 'dropdown') {
-      return (
-        <div className={wrapClass} key={key}>
-          <label className="p-label">{label}</label>
-          <select
-            className="p-select"
-            value={formData[key] || ''}
-            onChange={e => setField(key, e.target.value)}
-            disabled={!editable}
-          >
-            <option value="">-- Selecionar --</option>
-            {(options || []).map(o => <option key={o} value={o}>{o}</option>)}
-          </select>
-        </div>
-      )
-    }
-
-    if (type === 'date') {
-      if (isNewMode) {
-        return (
-          <div className={wrapClass} key={key}>
-            <label className="p-label">{label}</label>
-            <input
-              type="date"
-              className="p-input"
-              value={formData[key] || ''}
-              onChange={e => setField(key, e.target.value)}
-            />
-          </div>
-        )
-      }
-      return (
-        <div className={wrapClass} key={key}>
-          <label className="p-label">{label}</label>
-          <input className="p-input" value={formData[key] || ''} disabled readOnly />
-        </div>
-      )
-    }
-
-    if (type === 'textarea') {
-      return (
-        <div className={wrapClass} key={key}>
-          <label className="p-label">{label}</label>
-          <textarea
-            className="p-textarea"
-            value={formData[key] || ''}
-            onChange={e => setField(key, e.target.value)}
-            disabled={!editable}
-            placeholder={placeholder || ''}
-          />
-        </div>
-      )
-    }
-
-    return (
-      <div className={wrapClass} key={key}>
-        <label className="p-label">{label}</label>
-        <input
-          className="p-input"
-          value={formData[key] || ''}
-          onChange={e => setField(key, e.target.value)}
-          disabled={!editable}
-          placeholder={placeholder || ''}
-        />
-      </div>
-    )
   }
 
   // ─── Render ───────────────────────────────────────────────────────────────
@@ -318,7 +164,6 @@ export function ExPlantelModule() {
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
-              <button className="p-btn p-btn--primary p-btn--sm" onClick={handleNew} title="Novo registro">+</button>
             </div>
             <div className="text-muted" style={{ fontSize: 11 }}>
               {filtered.length} {filtered.length === 1 ? 'registro' : 'registros'}
@@ -349,74 +194,77 @@ export function ExPlantelModule() {
 
         {/* ── RIGHT: Form ─────────────────────────────────────────────────── */}
         <div className="plantel-detail">
-          {/* Toolbar */}
           <div className="p-panel-header">
             <div className="p-panel-header__title">
-              {formMode === 'new' ? 'Novo Registro' : formMode === 'edit' ? `Editando: ${formData.Nome}` : selected ? selected.Nome : 'Detalhes'}
+              {selected ? selected.Nome : 'Detalhes'}
             </div>
-            <div className="flex gap-2">
-              {(formMode === 'new' || formMode === 'edit') && (
-                <>
-                  <button className="p-btn p-btn--primary p-btn--sm" onClick={handleSubmit} title="Salvar">💾</button>
-                  <button className="p-btn p-btn--secondary p-btn--sm" onClick={handleCancel} title="Cancelar">✕</button>
-                </>
-              )}
-              {formMode === 'view' && selected && (
-                <>
-                  <button className="p-btn p-btn--secondary p-btn--sm" onClick={handleEdit} title="Editar">✏️</button>
-                  <button className="p-btn p-btn--danger p-btn--sm" onClick={() => setDelTarget(selected)} title="Excluir">🗑️</button>
-                </>
-              )}
-            </div>
+            {selected && (
+              <div className="flex gap-2">
+                <button className="p-btn p-btn--danger p-btn--sm" onClick={() => setDelTarget(selected)} title="Excluir">🗑️</button>
+              </div>
+            )}
           </div>
 
-          {/* Form Content */}
-          {!formMode ? (
+          {!selected ? (
             <div className="module-empty">
               <div style={{ fontSize: 36, opacity: 0.4 }}>📋</div>
-              <div>Selecione um registro ou clique + para cadastrar</div>
+              <div>Selecione uma ave para visualizar os detalhes</div>
             </div>
           ) : (
             <div className="p-panel-body">
               <div className="p-form-grid">
-                {/* 1. Nome */}
-                {renderInput('Nome', 'Nome', { placeholder: 'Nome da ave' })}
-
-                {/* 2. Status */}
-                {renderInput('Status', 'Status', { type: 'dropdown', options: STATUS_OPTIONS })}
-
-                {/* 3. NomeMae */}
-                {renderInput('NomeMae', 'Nome da Mãe', { placeholder: 'Mãe' })}
-
-                {/* 4. NomePai */}
-                {renderInput('NomePai', 'Nome do Pai', { placeholder: 'Pai' })}
-
-                {/* 5. Gaiola */}
-                {renderInput('Gaiola', 'Gaiola', { type: 'dropdown', options: catalogs.gaiolas })}
-
-                {/* 6. DataNascimento */}
-                {renderInput('DataNascimento', 'Data de Nascimento', { type: 'date' })}
-
-                {/* 7. CategoriaAve / Espécie */}
-                {renderInput('CategoriaAve', 'Espécie', { type: 'dropdown', options: catalogs.especies })}
-
-                {/* 8. Genero */}
-                {renderInput('Genero', 'Gênero', { type: 'dropdown', options: GENERO_OPTIONS })}
-
-                {/* 9. Origem / Criatório */}
-                {renderInput('Origem', 'Criatório / Origem', { type: 'dropdown', options: catalogs.criatorios })}
-
-                {/* 10. RegistroFOB */}
-                {renderInput('RegistroFOB', 'Registro FOB', { placeholder: 'FOB-XXX' })}
-
-                {/* 11. AnelEsquerdo */}
-                {renderInput('AnelEsquerdo', 'Anel Esquerdo', { type: 'dropdown', options: catalogs.aneis })}
-
-                {/* 12. Mutacao */}
-                {renderInput('Mutacao', 'Mutação', { type: 'dropdown', options: catalogs.mutacoes })}
-
-                {/* 13. observacao */}
-                {renderInput('observacao', 'Observações', { type: 'textarea', fullWidth: true, placeholder: 'Notas adicionais...' })}
+                <div className="p-field">
+                  <label className="p-label">Nome</label>
+                  <input className="p-input" value={selected.Nome || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Status</label>
+                  <input className="p-input" value={selected.Status || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Nome da Mãe</label>
+                  <input className="p-input" value={selected.NomeMae || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Nome do Pai</label>
+                  <input className="p-input" value={selected.NomePai || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Gaiola</label>
+                  <input className="p-input" value={selected.Gaiola || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Data de Nascimento</label>
+                  <input className="p-input" value={selected.DataNascimento || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Espécie</label>
+                  <input className="p-input" value={selected.CategoriaAve || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Gênero</label>
+                  <input className="p-input" value={selected.Genero || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Criatório / Origem</label>
+                  <input className="p-input" value={selected.Origem || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Registro FOB</label>
+                  <input className="p-input" value={selected.RegistroFOB || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Anel Esquerdo</label>
+                  <input className="p-input" value={selected.AnelEsquerdo || ''} disabled readOnly />
+                </div>
+                <div className="p-field">
+                  <label className="p-label">Mutação</label>
+                  <input className="p-input" value={selected.Mutacao || ''} disabled readOnly />
+                </div>
+                <div className="p-field p-form-grid--full">
+                  <label className="p-label">Observações</label>
+                  <textarea className="p-textarea" value={selected.observacao || ''} disabled readOnly />
+                </div>
               </div>
             </div>
           )}

@@ -3,6 +3,7 @@ import { StatCard } from '../../shared/StatCard'
 import { StatusBadge } from '../../shared/StatusBadge'
 import { ConfirmModal } from '../../shared/ConfirmModal'
 import { accessService } from '../../../services/access.service'
+import { aneisService } from '../../../services/aneis.service'
 
 // ─── MOCK — remover quando backend estiver conectado ─────────────────────────
 const USE_MOCK = !import.meta.env.VITE_API_URL
@@ -13,7 +14,16 @@ const MOCK_ANEIS = [
   { ID: 3, NumeroAnel: 'JI783', Status: 'Ativo', Cor: 'Preto', Ano: '2023', OrgaoRegulador: '' },
 ]
 
-const EMPTY_FORM = { NumeroAnel: '', Status: '', Cor: '', Ano: '', OrgaoRegulador: '' }
+const EMPTY_FORM = {
+  modoCadastro: 'unico',
+  NumeroAnel: '',
+  NumeroInicial: '',
+  NumeroFinal: '',
+  Status: '',
+  Cor: '',
+  Ano: '',
+  OrgaoRegulador: '',
+}
 
 export function AneisModule() {
   const [data, setData] = useState([])
@@ -30,12 +40,18 @@ export function AneisModule() {
     if (USE_MOCK) {
       setTimeout(() => { setData(MOCK_ANEIS); setLoading(false) }, 400)
     } else {
-      accessService.getImportedSharePointData()
-        .then((snapshot) => {
-          setData(snapshot.aneis || [])
+      aneisService.listar()
+        .then((response) => {
+          setData(response.items || [])
         })
         .catch(() => {
-          setError('Não foi possível carregar os anéis importados.')
+          accessService.getImportedSharePointData()
+            .then((snapshot) => {
+              setData(snapshot.aneis || [])
+            })
+            .catch(() => {
+              setError('Não foi possível carregar os anéis.')
+            })
         })
         .finally(() => {
           setLoading(false)
@@ -59,24 +75,76 @@ export function AneisModule() {
   // ─── CRUD ─────────────────────────────────────────────────────────────────
   const handleSaveEdit = () => {
     if (!editForm.NumeroAnel.trim()) { setError('Número do anel é obrigatório.'); return }
-    setData(prev => prev.map(r => r.ID === selected.ID ? { ...r, ...editForm } : r))
-    setSelected({ ...selected, ...editForm })
-    setError('')
+    if (USE_MOCK) {
+      setData(prev => prev.map(r => r.ID === selected.ID ? { ...r, ...editForm } : r))
+      setSelected({ ...selected, ...editForm })
+      setError('')
+      return
+    }
+
+    aneisService.atualizar(selected.ID, editForm)
+      .then((response) => {
+        setData(response.items || [])
+        setSelected(response.item || null)
+        setError('')
+      })
+      .catch((requestError) => {
+        setError(requestError.response?.data?.message || 'Não foi possível salvar o anel.')
+      })
   }
 
   const handleAddNew = () => {
-    if (!newForm.NumeroAnel.trim()) { setError('Número do anel é obrigatório.'); return }
-    const novo = { ID: Date.now(), ...newForm }
-    setData(prev => [...prev, novo])
-    setNewForm({ ...EMPTY_FORM })
-    setIsAdding(false)
-    setError('')
+    if (newForm.modoCadastro === 'varios') {
+      if (!newForm.NumeroInicial.trim() || !newForm.NumeroFinal.trim()) {
+        setError('Informe o primeiro e o último anel da sequência.')
+        return
+      }
+    } else if (!newForm.NumeroAnel.trim()) {
+      setError('Número do anel é obrigatório.')
+      return
+    }
+
+    if (USE_MOCK) {
+      const novo = { ID: Date.now(), ...newForm, NumeroAnel: newForm.modoCadastro === 'varios' ? newForm.NumeroInicial : newForm.NumeroAnel }
+      setData(prev => [...prev, novo])
+      setNewForm({ ...EMPTY_FORM })
+      setIsAdding(false)
+      setError('')
+      return
+    }
+
+    aneisService.criar(newForm)
+      .then((response) => {
+        setData(response.items || [])
+        setNewForm({ ...EMPTY_FORM })
+        setIsAdding(false)
+        setSelected(response.createdItems?.[0] || response.item || null)
+        setError('')
+      })
+      .catch((requestError) => {
+        setError(requestError.response?.data?.message || 'Não foi possível cadastrar o anel.')
+      })
   }
 
   const handleDelete = () => {
-    setData(prev => prev.filter(r => r.ID !== delTarget.ID))
-    if (selected?.ID === delTarget.ID) { setSelected(null); setEditForm(null) }
-    setDelTarget(null)
+    if (USE_MOCK) {
+      setData(prev => prev.filter(r => r.ID !== delTarget.ID))
+      if (selected?.ID === delTarget.ID) { setSelected(null); setEditForm(null) }
+      setDelTarget(null)
+      return
+    }
+
+    aneisService.remover(delTarget.ID)
+      .then((response) => {
+        setData(response.items || [])
+        if (selected?.ID === delTarget.ID) { setSelected(null); setEditForm(null) }
+        setDelTarget(null)
+        setError('')
+      })
+      .catch((requestError) => {
+        setError(requestError.response?.data?.message || 'Não foi possível remover o anel.')
+        setDelTarget(null)
+      })
   }
 
   // ─── Filtro: Cor, Status, Ano, NumeroAnel ─────────────────────────────────
@@ -99,12 +167,34 @@ export function AneisModule() {
   )
 
   // ─── Formulário reutilizável ──────────────────────────────────────────────
-  const renderForm = (form, setForm) => (
+  const renderForm = (form, setForm, allowBulk = false) => (
     <div className="p-form-grid--full">
-      <div className="p-field">
-        <label className="p-label">Número do Anel</label>
-        <input className="p-input" value={form.NumeroAnel} onChange={e => setForm(f => ({ ...f, NumeroAnel: e.target.value }))} placeholder="Ex: AZ-2025-004" />
-      </div>
+      {allowBulk && (
+        <div className="p-field">
+          <label className="p-label">Tipo de cadastro</label>
+          <select className="p-select" value={form.modoCadastro || 'unico'} onChange={e => setForm(f => ({ ...f, modoCadastro: e.target.value, NumeroAnel: '', NumeroInicial: '', NumeroFinal: '' }))}>
+            <option value="unico">Único</option>
+            <option value="varios">Vários anéis</option>
+          </select>
+        </div>
+      )}
+      {(form.modoCadastro || 'unico') === 'varios' && allowBulk ? (
+        <div className="p-form-grid">
+          <div className="p-field">
+            <label className="p-label">Primeiro anel</label>
+            <input className="p-input" value={form.NumeroInicial || ''} onChange={e => setForm(f => ({ ...f, NumeroInicial: e.target.value }))} placeholder="Ex: AZ-2025-001" />
+          </div>
+          <div className="p-field">
+            <label className="p-label">Último anel</label>
+            <input className="p-input" value={form.NumeroFinal || ''} onChange={e => setForm(f => ({ ...f, NumeroFinal: e.target.value }))} placeholder="Ex: AZ-2025-050" />
+          </div>
+        </div>
+      ) : (
+        <div className="p-field">
+          <label className="p-label">Número do Anel</label>
+          <input className="p-input" value={form.NumeroAnel} onChange={e => setForm(f => ({ ...f, NumeroAnel: e.target.value }))} placeholder="Ex: AZ-2025-004" />
+        </div>
+      )}
       <div className="p-field">
         <label className="p-label">Status</label>
         <input className="p-input" value={form.Status} onChange={e => setForm(f => ({ ...f, Status: e.target.value }))} placeholder="Ex: Disponível, Utilizado" />
@@ -229,7 +319,7 @@ export function AneisModule() {
               <div className="font-serif" style={{ fontSize: 22, fontWeight: 700, marginBottom: 20 }}>
                 Novo Anel
               </div>
-              {renderForm(newForm, setNewForm)}
+              {renderForm(newForm, setNewForm, true)}
               <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                 <button onClick={handleAddNew} className="p-btn p-btn--primary">Salvar</button>
                 <button onClick={() => setIsAdding(false)} className="p-btn p-btn--secondary">Cancelar</button>
@@ -249,7 +339,7 @@ export function AneisModule() {
               <div className="p-label" style={{ color: '#C95025', fontWeight: 700, marginBottom: 14 }}>
                 Editar Anel
               </div>
-              {renderForm(editForm, setEditForm)}
+              {renderForm(editForm, setEditForm, false)}
               <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
                 <button onClick={handleSaveEdit} className="p-btn p-btn--primary">Salvar Alterações</button>
               </div>
