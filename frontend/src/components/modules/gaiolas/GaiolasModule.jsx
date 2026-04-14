@@ -43,38 +43,6 @@ function isAliveBird(record = {}) {
     .toLowerCase() === 'vivo'
 }
 
-// ─── Estilos reutilizáveis ──────────────────────────────────────────────────
-const s = {
-  input: {
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
-    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
-  },
-  select: {
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
-    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
-    appearance: 'none', cursor: 'pointer',
-  },
-  label: {
-    fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit',
-    letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4, display: 'block',
-  },
-  btnPrimary: {
-    background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none',
-    borderRadius: 14, padding: '12px 20px', color: 'var(--text-main)', fontSize: 12,
-    fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
-  },
-  btnSecondary: {
-    background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 14, padding: '12px 20px', color: 'var(--text-soft)', fontSize: 12,
-    fontFamily: 'inherit', cursor: 'pointer',
-  },
-  card: {
-    overflow: 'hidden',
-  },
-}
-
 export function GaiolasModule() {
   const [gaiolas, setGaiolas] = useState([])
   const [plantel, setPlantel] = useState([])
@@ -205,7 +173,7 @@ export function GaiolasModule() {
   }
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
+    <div className="flex items-center justify-center text-muted" style={{ height: '50vh', fontSize: 13 }}>
       Carregando gaiolas...
     </div>
   )
@@ -224,14 +192,14 @@ export function GaiolasModule() {
       </div>
 
       {error && (
-        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: 'inherit' }}>
+        <div className="p-alert--error">
           {error}
           <span onClick={() => setError('')} style={{ float: 'right', cursor: 'pointer', opacity: 0.7 }}>x</span>
         </div>
       )}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
+      <div className="p-stats mb-3">
         <StatCard label="Total Gaiolas" value={stats.total} desc="gaiolas cadastradas" color="#C95025" />
         <StatCard label="Chocando" value={stats.chocando} desc="em período de choco" color="#F5A623" />
         <StatCard label="Vazias" value={stats.vazias} desc="sem aves" color="#8A9E8C" />
@@ -239,26 +207,26 @@ export function GaiolasModule() {
       </div>
 
       {/* Master-Detail Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+      <div className="p-split">
 
         {/* ═══ LEFT PANEL: Gallery ═══ */}
-        <div className="module-panel" style={s.card}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="module-panel">
+          <div className="p-panel-header">
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>Controle de Gaiolas</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 2 }}>
+              <div className="p-panel-header__title">Controle de Gaiolas</div>
+              <div className="p-panel-header__subtitle">
                 {filtered.length} de {gaiolas.length} registros
               </div>
             </div>
-            <button onClick={() => { setIsAdding(true); setSelected(null); setEditForm(null) }} style={s.btnPrimary}>
+            <button className="p-btn p-btn--primary" onClick={() => { setIsAdding(true); setSelected(null); setEditForm(null) }}>
               + Nova Gaiola
             </button>
           </div>
 
           {/* Search */}
-          <div style={{ padding: '12px 22px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+          <div className="p-panel-search">
             <input
-              style={s.input}
+              className="p-search"
               placeholder="Buscar por número ou status..."
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -266,39 +234,31 @@ export function GaiolasModule() {
           </div>
 
           {/* Gallery Items */}
-          <div style={{ maxHeight: 480, overflowY: 'auto' }}>
+          <div className="p-panel-list">
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-faint)' }}>
-                <div style={{ fontSize: 14, fontFamily: 'inherit', color: 'var(--text-muted)' }}>Nenhuma gaiola encontrada</div>
+              <div className="module-empty">
+                <div className="text-muted" style={{ fontSize: 14 }}>Nenhuma gaiola encontrada</div>
               </div>
             ) : filtered.map(g => (
               <div
                 key={g.ID}
+                className={`p-list-item ${selected?.ID === g.ID ? 'is-active' : ''}`}
                 onClick={() => { setSelected(g); setIsAdding(false) }}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '14px 22px', cursor: 'pointer',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  background: selected?.ID === g.ID ? 'rgba(201,80,37,0.08)' : 'transparent',
-                  borderLeft: selected?.ID === g.ID ? '3px solid #C95025' : '3px solid transparent',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={e => { if (selected?.ID !== g.ID) e.currentTarget.style.background = 'rgba(201,80,37,0.04)' }}
-                onMouseLeave={e => { if (selected?.ID !== g.ID) e.currentTarget.style.background = 'transparent' }}
               >
                 <div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
-                      {g.NumeroGaiola}
-                    </div>
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 2 }}>
+                  <div className="font-serif" style={{ fontSize: 16, fontWeight: 700 }}>
+                    {g.NumeroGaiola}
+                  </div>
+                  <div className="text-muted" style={{ fontSize: 11, marginTop: 2 }}>
                     {plantel.filter(p => p.Gaiola === g.NumeroGaiola && isAliveBird(p)).length} ave(s)
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div className="flex items-center gap-1">
                   <StatusBadge status={g.Status} />
                   <button
                     onClick={e => { e.stopPropagation(); setDelTarget(g) }}
-                    style={{ background: 'none', border: 'none', color: '#E05C4B', cursor: 'pointer', fontSize: 14, opacity: 0.5, padding: 4 }}
+                    className="p-btn p-btn--ghost p-btn--sm"
+                    style={{ color: '#E05C4B', opacity: 0.5 }}
                     title="Remover"
                   >x</button>
                 </div>
@@ -308,99 +268,98 @@ export function GaiolasModule() {
         </div>
 
         {/* ═══ RIGHT PANEL: Detail / Form ═══ */}
-        <div className="module-panel" style={s.card}>
+        <div className="module-panel">
           {isAdding ? (
             /* ── New Cage Form ── */
-            <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
+            <div className="p-panel-body">
+              <div className="p-panel-header__title mb-2" style={{ fontSize: 22 }}>
                 Nova Gaiola
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                <div>
-                  <label style={s.label}>Número da Gaiola</label>
-                  <input style={s.input} value={newForm.NumeroGaiola} onChange={e => setNewForm(f => ({ ...f, NumeroGaiola: e.target.value }))} placeholder="Ex: G-07" />
+              <div className="flex-col gap-2">
+                <div className="p-field">
+                  <label className="p-label">Número da Gaiola</label>
+                  <input className="p-input" value={newForm.NumeroGaiola} onChange={e => setNewForm(f => ({ ...f, NumeroGaiola: e.target.value }))} placeholder="Ex: G-07" />
                 </div>
-                <div>
-                  <label style={s.label}>Status</label>
-                  <select style={s.select} value={newForm.Status} onChange={e => setNewForm(f => ({ ...f, Status: e.target.value }))}>
+                <div className="p-field">
+                  <label className="p-label">Status</label>
+                  <select className="p-select" value={newForm.Status} onChange={e => setNewForm(f => ({ ...f, Status: e.target.value }))}>
                     {STATUS_OPTIONS.map(st => <option key={st} value={st}>{st}</option>)}
                   </select>
                 </div>
-                <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap' }}>
-                  <button onClick={handleAddNew} style={s.btnPrimary}>Salvar</button>
-                  <button onClick={() => setIsAdding(false)} style={s.btnSecondary}>Cancelar</button>
+                <div className="flex gap-1 mt-1" style={{ flexWrap: 'wrap' }}>
+                  <button className="p-btn p-btn--primary" onClick={handleAddNew}>Salvar</button>
+                  <button className="p-btn p-btn--secondary" onClick={() => setIsAdding(false)}>Cancelar</button>
                 </div>
               </div>
             </div>
           ) : selected && editForm ? (
             /* ── Selected Cage Detail + Edit ── */
             <div>
-              <div style={{ padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ fontSize: 24, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
-                  {selected.NumeroGaiola}
-                </div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4 }}>
-                  <StatusBadge status={selected.Status} />
+              <div className="p-panel-header">
+                <div>
+                  <div className="p-panel-header__title" style={{ fontSize: 24 }}>
+                    {selected.NumeroGaiola}
+                  </div>
+                  <div className="text-muted mt-1">
+                    <StatusBadge status={selected.Status} />
+                  </div>
                 </div>
               </div>
 
               {/* Edit Form */}
-              <div style={{ padding: '16px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div className="p-panel-body" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                <div className="pill pill--accent mb-2" style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                   Editar Gaiola
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <div>
-                    <label style={s.label}>Número da Gaiola</label>
-                    <input style={s.input} value={editForm.NumeroGaiola} onChange={e => setEditForm(f => ({ ...f, NumeroGaiola: e.target.value }))} />
+                <div className="flex-col gap-2">
+                  <div className="p-field">
+                    <label className="p-label">Número da Gaiola</label>
+                    <input className="p-input" value={editForm.NumeroGaiola} onChange={e => setEditForm(f => ({ ...f, NumeroGaiola: e.target.value }))} />
                   </div>
-                  <div>
-                    <label style={s.label}>Status</label>
-                    <select style={s.select} value={editForm.Status} onChange={e => setEditForm(f => ({ ...f, Status: e.target.value }))}>
+                  <div className="p-field">
+                    <label className="p-label">Status</label>
+                    <select className="p-select" value={editForm.Status} onChange={e => setEditForm(f => ({ ...f, Status: e.target.value }))}>
                       {STATUS_OPTIONS.map(st => <option key={st} value={st}>{st}</option>)}
                     </select>
                   </div>
-                  <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                    <button onClick={handleSaveEdit} style={s.btnPrimary}>Salvar Alterações</button>
+                  <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
+                    <button className="p-btn p-btn--primary" onClick={handleSaveEdit}>Salvar Alterações</button>
                   </div>
                 </div>
               </div>
 
               {/* Birds in Cage */}
-              <div style={{ padding: '16px 22px' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div className="p-panel-body">
+                <div className="pill pill--accent mb-2" style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                   Aves na Gaiola ({birdsInCage.length})
                 </div>
 
                 {selected.Status !== 'Chocando' && (
-                  <div style={{ background: 'rgba(201,80,37,0.08)', border: '1px solid rgba(201,80,37,0.2)', borderRadius: 8, padding: '10px 14px', marginBottom: 14, color: '#C95025', fontSize: 12, fontFamily: 'inherit', lineHeight: 1.5 }}>
+                  <div className="p-alert--error mb-2" style={{ background: 'rgba(201,80,37,0.08)', borderColor: 'rgba(201,80,37,0.2)', color: '#C95025', fontSize: 12, lineHeight: 1.5 }}>
                     Selecione a Gaiola ao lado para realizar a gestão ou para movimentar as aves de gaiola, faça a movimentação pela gestão do plantel.
                   </div>
                 )}
 
                 {birdsInCage.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '24px 0', color: 'var(--text-muted)', fontSize: 13, fontFamily: 'inherit' }}>
+                  <div className="module-empty text-muted" style={{ padding: '24px 0', fontSize: 13 }}>
                     Nenhuma ave nesta gaiola
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div className="flex-col gap-1">
                     {birdsInCage.map(bird => (
-                      <div key={bird.ID} style={{
-                        background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-                        borderRadius: 16, padding: '14px 16px',
-                      }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+                      <div key={bird.ID} className="module-panel" style={{ padding: '14px 16px' }}>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-serif" style={{ fontSize: 14, fontWeight: 700 }}>
                             {bird.Nome}
                           </span>
                           <StatusBadge status={bird.Status} />
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 4 }}>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
-                            Nascimento: <span style={{ color: 'var(--text-soft)' }}>{bird.DataNascimento}</span>
+                        <div className="p-form-grid">
+                          <div className="text-muted" style={{ fontSize: 11 }}>
+                            Nascimento: <span className="text-faint">{bird.DataNascimento}</span>
                           </div>
-                          <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
-                            Mutação: <span style={{ color: 'var(--text-soft)' }}>{bird.Mutacao}</span>
+                          <div className="text-muted" style={{ fontSize: 11 }}>
+                            Mutação: <span className="text-faint">{bird.Mutacao}</span>
                           </div>
                         </div>
                       </div>
@@ -411,10 +370,10 @@ export function GaiolasModule() {
             </div>
           ) : (
             /* ── No Selection ── */
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 300, padding: 40 }}>
+            <div className="module-empty">
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>&#9675;</div>
-                <div style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', lineHeight: 1.6 }}>
+                <div className="text-muted" style={{ fontSize: 14, lineHeight: 1.6 }}>
                   Selecione uma gaiola ao lado para<br />visualizar detalhes e aves
                 </div>
               </div>

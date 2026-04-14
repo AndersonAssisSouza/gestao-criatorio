@@ -91,30 +91,6 @@ function toIsoDate(value = '') {
   return `${match[3]}-${match[2]}-${match[1]}`
 }
 
-// ─── Styles ─────────────────────────────────────────────────────────────────
-const S = {
-  container:    { display: 'grid', gap: 16, minHeight: 'calc(100vh - 260px)', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' },
-  panel:        { padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  panelHeader:  { padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  panelTitle:   { fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
-  panelSub:     { fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4, letterSpacing: '0.08em', textTransform: 'uppercase' },
-  panelBody:    { padding: '12px 16px', flex: 1, overflowY: 'auto' },
-  card:         { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 18, padding: '16px 16px', marginBottom: 10, cursor: 'pointer', transition: 'all 0.15s' },
-  cardSelected: { background: 'linear-gradient(135deg, rgba(201,80,37,0.12), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.3)' },
-  label:        { fontSize: 10, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 },
-  value:        { fontSize: 13, color: 'var(--text-main)', fontFamily: 'inherit' },
-  valueMuted:   { fontSize: 12, color: 'var(--text-soft)', fontFamily: 'inherit' },
-  valueReadonly:{ fontSize: 13, color: 'var(--text-soft)', fontFamily: 'inherit', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 14, padding: '12px 14px' },
-  row:          { display: 'flex', gap: 12, marginBottom: 8, flexWrap: 'wrap' },
-  col:          { flex: '1 1 140px', minWidth: 0 },
-  btn:          { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 14, padding: '12px 16px', color: 'var(--text-main)', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 },
-  btnSecondary: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 14, padding: '12px 16px', color: 'var(--text-main)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' },
-  select:       { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', width: '100%', appearance: 'none' },
-  input:        { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box' },
-  divider:      { height: 1, background: 'rgba(255,255,255,0.06)', margin: '12px 0' },
-  resultCard:   { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '12px 14px', marginBottom: 8 },
-}
-
 const fmtDate = (d) => {
   if (!d) return '---'
   const normalized = toIsoDate(d) || d
@@ -364,7 +340,7 @@ export function FilhotesModule() {
 
   // ─── Loading ──────────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
+    <div className="flex items-center justify-center text-muted" style={{ height: '50vh', fontSize: 13 }}>
       Carregando filhotes...
     </div>
   )
@@ -372,7 +348,7 @@ export function FilhotesModule() {
   return (
     <div>
       {error ? (
-        <div style={{ background: 'rgba(224,92,75,0.12)', border: '1px solid rgba(224,92,75,0.24)', borderRadius: 12, padding: '12px 14px', color: '#ffc9c1', marginBottom: 14, fontSize: 12, fontFamily: 'inherit' }}>
+        <div className="p-alert--error mb-2">
           {error}
         </div>
       ) : null}
@@ -389,7 +365,7 @@ export function FilhotesModule() {
       </div>
 
       {/* Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div className="p-stats mb-3">
         <StatCard label="Total Filhotes"  value={stats.total}   desc="filhotes registrados" color="#5BC0EB" />
         <StatCard label="Vivos"           value={stats.vivos}   desc="filhotes vivos"       color="#4CAF7D" />
         <StatCard label="Plantel"         value={stats.plantel} desc="fora da lista ativa"   color="#C95025" />
@@ -397,62 +373,59 @@ export function FilhotesModule() {
       </div>
 
       {/* 3-Panel Layout */}
-      <div style={S.container}>
+      <div className="p-split" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
 
         {/* ─── LEFT PANEL: Chicks Gallery ────────────────────────────────── */}
-        <div className="module-panel" style={S.panel}>
-          <div style={S.panelHeader}>
+        <div className="module-panel flex flex-col" style={{ overflow: 'hidden' }}>
+          <div className="p-panel-header">
             <div>
-              <div style={S.panelTitle}>Filhotes</div>
-              <div style={S.panelSub}>{filhotes.length} registros</div>
+              <div className="p-panel-header__title">Filhotes</div>
+              <div className="p-panel-header__subtitle">{filhotes.length} registros</div>
             </div>
           </div>
-          <div style={S.panelBody}>
+          <div className="p-panel-body">
             {filhotes.map(f => (
               <div
                 key={f.ID}
-                style={{
-                  ...S.card,
-                  ...(selectedFilhote?.ID === f.ID ? S.cardSelected : {}),
-                }}
+                className={`p-list-item${selectedFilhote?.ID === f.ID ? ' is-active' : ''}`}
                 onClick={() => { setSelectedFilhote(f); setEditMode(false); setTransferMode(false) }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="font-serif" style={{ fontSize: 14, fontWeight: 700 }}>
                     {f.NomeAve || `Filhote (Ovo #${f.NumeroOvo})`}
                   </div>
                   <StatusBadge status={f.Status} />
                 </div>
-                <div style={S.row}>
-                  <div style={S.col}>
-                    <div style={S.label}>Nascimento</div>
-                    <div style={S.valueMuted}>{fmtDate(f.DataNascimento)}</div>
+                <div className="p-form-grid">
+                  <div className="p-field">
+                    <div className="p-label">Nascimento</div>
+                    <div className="text-muted">{fmtDate(f.DataNascimento)}</div>
                   </div>
-                  <div style={S.col}>
-                    <div style={S.label}>Gaiola</div>
-                    <div style={S.valueMuted}>{f.Gaiola}</div>
+                  <div className="p-field">
+                    <div className="p-label">Gaiola</div>
+                    <div className="text-muted">{f.Gaiola}</div>
                   </div>
                 </div>
-                <div style={S.row}>
-                  <div style={S.col}>
-                    <div style={S.label}>Mae</div>
-                    <div style={S.valueMuted}>{f.NomeMae}</div>
+                <div className="p-form-grid">
+                  <div className="p-field">
+                    <div className="p-label">Mae</div>
+                    <div className="text-muted">{f.NomeMae}</div>
                   </div>
-                  <div style={S.col}>
-                    <div style={S.label}>Pai</div>
-                    <div style={S.valueMuted}>{f.NomePai}</div>
+                  <div className="p-field">
+                    <div className="p-label">Pai</div>
+                    <div className="text-muted">{f.NomePai}</div>
                   </div>
                 </div>
                 {f.DataPrevistaAnilhamento && (
-                  <div style={{ marginTop: 4 }}>
-                    <div style={S.label}>Prev. Anilhamento</div>
-                    <div style={S.valueMuted}>{fmtDate(f.DataPrevistaAnilhamento)}</div>
+                  <div className="p-field mt-1">
+                    <div className="p-label">Prev. Anilhamento</div>
+                    <div className="text-muted">{fmtDate(f.DataPrevistaAnilhamento)}</div>
                   </div>
                 )}
               </div>
             ))}
             {filhotes.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+              <div className="module-empty">
                 Nenhum filhote ativo no momento. Os registros que já foram enviados ao plantel ou marcados como falecidos saem desta lista.
               </div>
             )}
@@ -460,69 +433,69 @@ export function FilhotesModule() {
         </div>
 
         {/* ─── MIDDLE PANEL: Chick Detail Form ──────────────────────────── */}
-        <div className="module-panel" style={S.panel}>
-          <div style={S.panelHeader}>
+        <div className="module-panel flex flex-col" style={{ overflow: 'hidden' }}>
+          <div className="p-panel-header">
             <div>
-              <div style={S.panelTitle}>
+              <div className="p-panel-header__title">
                 {selectedFilhote
                   ? (selectedFilhote.NomeAve || `Filhote (Ovo #${selectedFilhote.NumeroOvo})`)
                   : 'Detalhes do Filhote'}
               </div>
               {selectedFilhote && (
-                <div style={S.panelSub}>
+                <div className="p-panel-header__subtitle">
                   Nascimento: {fmtDate(selectedFilhote.DataNascimento)}
                 </div>
               )}
             </div>
             {selectedFilhote && !editMode && (
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
                 {selectedFilhote.Status !== 'Faleceu' && selectedFilhote.Status !== 'Plantel' ? (
                   <>
-                    <button style={S.btn} onClick={startEdit}>Editar</button>
-                    <button style={S.btnSecondary} onClick={startTransfer}>Cadastrar no plantel</button>
-                    <button style={{ ...S.btnSecondary, borderColor: 'rgba(224,92,75,0.24)', color: '#ffc9c1' }} onClick={() => setDeathTarget(selectedFilhote)}>Sinalizar morte</button>
+                    <button className="p-btn p-btn--primary" onClick={startEdit}>Editar</button>
+                    <button className="p-btn p-btn--secondary" onClick={startTransfer}>Cadastrar no plantel</button>
+                    <button className="p-btn p-btn--danger" onClick={() => setDeathTarget(selectedFilhote)}>Sinalizar morte</button>
                   </>
                 ) : null}
               </div>
             )}
             {editMode && (
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button style={S.btn} onClick={saveEdit}>Salvar</button>
-                <button style={S.btnSecondary} onClick={cancelEdit}>Cancelar</button>
+              <div className="flex gap-1">
+                <button className="p-btn p-btn--primary" onClick={saveEdit}>Salvar</button>
+                <button className="p-btn p-btn--secondary" onClick={cancelEdit}>Cancelar</button>
               </div>
             )}
           </div>
-          <div style={S.panelBody}>
+          <div className="p-panel-body">
             {!selectedFilhote ? (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+              <div className="module-empty">
                 Selecione um filhote para ver os detalhes
               </div>
             ) : transferMode ? (
               <>
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <div className="mb-2">
+                  <div className="text-accent" style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Transferir para o plantel
                   </div>
-                  <div style={{ color: 'var(--text-soft)', fontSize: 12, lineHeight: 1.7, marginBottom: 14, fontFamily: 'inherit' }}>
+                  <div className="text-muted" style={{ fontSize: 12, lineHeight: 1.7, marginBottom: 14 }}>
                     Escolha a gaiola final, selecione um anel cadastrado e use a previsão genética do casal para definir a mutação do filhote.
                   </div>
 
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={S.label}>Nome final</div>
-                    <input style={S.input} value={transferForm.Nome} onChange={(e) => setTransferField('Nome', e.target.value)} />
+                  <div className="p-field mb-2">
+                    <div className="p-label">Nome final</div>
+                    <input className="p-input" value={transferForm.Nome} onChange={(e) => setTransferField('Nome', e.target.value)} />
                   </div>
 
-                  <div style={S.row}>
-                    <div style={S.col}>
-                      <div style={S.label}>Espécie</div>
-                      <select style={S.select} value={transferForm.CategoriaAve} onChange={(e) => setTransferField('CategoriaAve', e.target.value)}>
+                  <div className="p-form-grid">
+                    <div className="p-field">
+                      <div className="p-label">Espécie</div>
+                      <select className="p-select" value={transferForm.CategoriaAve} onChange={(e) => setTransferField('CategoriaAve', e.target.value)}>
                         <option value="">Selecionar</option>
                         {catalogs.especies.map((item) => <option key={item} value={item}>{item}</option>)}
                       </select>
                     </div>
-                    <div style={S.col}>
-                      <div style={S.label}>Gênero</div>
-                      <select style={S.select} value={transferForm.Genero} onChange={(e) => setTransferField('Genero', e.target.value)}>
+                    <div className="p-field">
+                      <div className="p-label">Gênero</div>
+                      <select className="p-select" value={transferForm.Genero} onChange={(e) => setTransferField('Genero', e.target.value)}>
                         <option value="">Selecionar</option>
                         <option value="Macho">Macho</option>
                         <option value="Femea">Fêmea</option>
@@ -530,18 +503,18 @@ export function FilhotesModule() {
                     </div>
                   </div>
 
-                  <div style={S.row}>
-                    <div style={S.col}>
-                        <div style={S.label}>Gaiola de destino</div>
-                        <select style={S.select} value={transferForm.Gaiola} onChange={(e) => setTransferField('Gaiola', e.target.value)}>
+                  <div className="p-form-grid">
+                    <div className="p-field">
+                        <div className="p-label">Gaiola de destino</div>
+                        <select className="p-select" value={transferForm.Gaiola} onChange={(e) => setTransferField('Gaiola', e.target.value)}>
                           <option value="">Selecionar</option>
                           {catalogs.gaiolas.map((item) => <option key={item} value={item}>{item}</option>)}
                         </select>
                       </div>
                       {mutationOptionsForTransfer.length > 0 ? (
-                        <div style={S.col}>
-                          <div style={S.label}>Mutação prevista</div>
-                          <select style={S.select} value={transferForm.Mutacao} onChange={(e) => setTransferField('Mutacao', e.target.value)}>
+                        <div className="p-field">
+                          <div className="p-label">Mutação prevista</div>
+                          <select className="p-select" value={transferForm.Mutacao} onChange={(e) => setTransferField('Mutacao', e.target.value)}>
                             <option value="">Selecionar</option>
                             {mutationOptionsForTransfer.map((item) => <option key={item} value={item}>{item}</option>)}
                           </select>
@@ -549,18 +522,19 @@ export function FilhotesModule() {
                     ) : null}
                   </div>
 
-                  <div style={S.row}>
-                    <div style={S.col}>
-                      <div style={S.label}>Anel cadastrado</div>
-                      <select style={S.select} value={transferForm.AnelEsquerdo} onChange={(e) => setTransferField('AnelEsquerdo', e.target.value)}>
+                  <div className="p-form-grid">
+                    <div className="p-field">
+                      <div className="p-label">Anel cadastrado</div>
+                      <select className="p-select" value={transferForm.AnelEsquerdo} onChange={(e) => setTransferField('AnelEsquerdo', e.target.value)}>
                         <option value="">Selecionar</option>
                         {catalogs.aneis.map((item) => <option key={item} value={item}>{item}</option>)}
                       </select>
                     </div>
-                    <div style={S.col}>
-                      <div style={S.label}>Registro FOB do criatório</div>
+                    <div className="p-field">
+                      <div className="p-label">Registro FOB do criatório</div>
                       <input
-                        style={{ ...S.input, color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)' }}
+                        className="p-input"
+                        style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)' }}
                         value={transferForm.RegistroFOB}
                         readOnly
                       />
@@ -568,9 +542,9 @@ export function FilhotesModule() {
                   </div>
 
                   {predictedMutationResults ? (
-                    <div style={{ background: 'rgba(91,192,235,0.08)', border: '1px solid rgba(91,192,235,0.18)', borderRadius: 14, padding: '12px 14px', marginBottom: 14 }}>
-                      <div style={{ ...S.label, marginBottom: 8 }}>Previsão automática aplicada</div>
-                      <div style={{ color: '#DCEFF8', fontSize: 12, lineHeight: 1.7, fontFamily: 'inherit' }}>
+                    <div className="p-alert--success mb-2" style={{ background: 'rgba(91,192,235,0.08)', borderColor: 'rgba(91,192,235,0.18)' }}>
+                      <div className="p-label mb-1">Previsão automática aplicada</div>
+                      <div style={{ color: '#DCEFF8', fontSize: 12, lineHeight: 1.7 }}>
                         Pai: {predictedMutationResults.pai || selectedFilhote.MutacaoPai || '---'}
                         <br />
                         Mãe: {predictedMutationResults.mae || selectedFilhote.MutacaoMae || '---'}
@@ -580,76 +554,76 @@ export function FilhotesModule() {
                     </div>
                   ) : null}
 
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={S.label}>Observações finais</div>
-                    <textarea style={{ ...S.input, minHeight: 96, resize: 'vertical' }} value={transferForm.observacao} onChange={(e) => setTransferField('observacao', e.target.value)} />
+                  <div className="p-field mb-2">
+                    <div className="p-label">Observações finais</div>
+                    <textarea className="p-textarea" style={{ minHeight: 96, resize: 'vertical' }} value={transferForm.observacao} onChange={(e) => setTransferField('observacao', e.target.value)} />
                   </div>
 
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <button style={S.btn} onClick={handleTransferToPlantel}>Enviar ao plantel</button>
-                    <button style={S.btnSecondary} onClick={cancelTransfer}>Cancelar</button>
+                  <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
+                    <button className="p-btn p-btn--primary" onClick={handleTransferToPlantel}>Enviar ao plantel</button>
+                    <button className="p-btn p-btn--secondary" onClick={cancelTransfer}>Cancelar</button>
                   </div>
                 </div>
               </>
             ) : (
               <>
                 {/* Parent Info (read-only) */}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <div className="mb-2">
+                  <div className="text-accent" style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Informacoes dos Pais
                   </div>
-                  <div style={S.row}>
-                    <div style={S.col}>
-                      <div style={S.label}>Nome Mae</div>
-                      <div style={S.valueReadonly}>{selectedFilhote.NomeMae}</div>
+                  <div className="p-form-grid">
+                    <div className="p-field">
+                      <div className="p-label">Nome Mae</div>
+                      <div className="p-input" style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>{selectedFilhote.NomeMae}</div>
                     </div>
-                    <div style={S.col}>
-                      <div style={S.label}>Mutacao Mae</div>
-                      <div style={S.valueReadonly}>{selectedFilhote.MutacaoMae}</div>
+                    <div className="p-field">
+                      <div className="p-label">Mutacao Mae</div>
+                      <div className="p-input" style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>{selectedFilhote.MutacaoMae}</div>
                     </div>
                   </div>
-                  <div style={S.row}>
-                    <div style={S.col}>
-                      <div style={S.label}>Nome Pai</div>
-                      <div style={S.valueReadonly}>{selectedFilhote.NomePai}</div>
+                  <div className="p-form-grid">
+                    <div className="p-field">
+                      <div className="p-label">Nome Pai</div>
+                      <div className="p-input" style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>{selectedFilhote.NomePai}</div>
                     </div>
-                    <div style={S.col}>
-                      <div style={S.label}>Mutacao Pai</div>
-                      <div style={S.valueReadonly}>{selectedFilhote.MutacaoPai}</div>
+                    <div className="p-field">
+                      <div className="p-label">Mutacao Pai</div>
+                      <div className="p-input" style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>{selectedFilhote.MutacaoPai}</div>
                     </div>
                   </div>
                 </div>
 
-                <div style={S.divider} />
+                <hr className="p-divider" />
 
                 {/* Chick Info */}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <div className="mb-2">
+                  <div className="text-accent" style={{ fontSize: 13, fontWeight: 700, marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Dados do Filhote
                   </div>
 
                   {/* NomeAve (editable) */}
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={S.label}>Nome da Ave</div>
+                  <div className="p-field mb-2">
+                    <div className="p-label">Nome da Ave</div>
                     {editMode ? (
                       <input
                         type="text"
-                        style={S.input}
+                        className="p-input"
                         value={editForm.NomeAve}
                         onChange={e => setEditForm(f => ({ ...f, NomeAve: e.target.value }))}
                         placeholder="Digite o nome do filhote"
                       />
                     ) : (
-                      <div style={S.value}>{selectedFilhote.NomeAve || '(sem nome)'}</div>
+                      <div className="text-main">{selectedFilhote.NomeAve || '(sem nome)'}</div>
                     )}
                   </div>
 
                   {/* Status (dropdown in edit) */}
-                  <div style={{ marginBottom: 12 }}>
-                    <div style={S.label}>Status</div>
+                  <div className="p-field mb-2">
+                    <div className="p-label">Status</div>
                     {editMode ? (
                       <select
-                        style={S.select}
+                        className="p-select"
                         value={editForm.Status}
                         onChange={e => setEditForm(f => ({ ...f, Status: e.target.value }))}
                       >
@@ -663,25 +637,25 @@ export function FilhotesModule() {
                   </div>
 
                   {/* Gaiola (read-only) */}
-                  <div style={S.row}>
-                    <div style={S.col}>
-                      <div style={S.label}>Gaiola</div>
-                      <div style={S.valueReadonly}>{selectedFilhote.Gaiola}</div>
+                  <div className="p-form-grid">
+                    <div className="p-field">
+                      <div className="p-label">Gaiola</div>
+                      <div className="p-input" style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>{selectedFilhote.Gaiola}</div>
                     </div>
-                    <div style={S.col}>
-                      <div style={S.label}>Numero Ovo</div>
-                      <div style={S.valueReadonly}>#{selectedFilhote.NumeroOvo}</div>
+                    <div className="p-field">
+                      <div className="p-label">Numero Ovo</div>
+                      <div className="p-input" style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>#{selectedFilhote.NumeroOvo}</div>
                     </div>
                   </div>
 
-                  <div style={S.row}>
-                    <div style={S.col}>
-                      <div style={S.label}>Data Nascimento</div>
-                      <div style={S.valueReadonly}>{fmtDate(toIsoDate(selectedFilhote.DataNascimento) || selectedFilhote.DataNascimento)}</div>
+                  <div className="p-form-grid">
+                    <div className="p-field">
+                      <div className="p-label">Data Nascimento</div>
+                      <div className="p-input" style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>{fmtDate(toIsoDate(selectedFilhote.DataNascimento) || selectedFilhote.DataNascimento)}</div>
                     </div>
-                    <div style={S.col}>
-                      <div style={S.label}>Prev. Anilhamento</div>
-                      <div style={S.valueReadonly}>{fmtDate(toIsoDate(selectedFilhote.DataPrevistaAnilhamento) || selectedFilhote.DataPrevistaAnilhamento)}</div>
+                    <div className="p-field">
+                      <div className="p-label">Prev. Anilhamento</div>
+                      <div className="p-input" style={{ color: 'var(--text-soft)', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>{fmtDate(toIsoDate(selectedFilhote.DataPrevistaAnilhamento) || selectedFilhote.DataPrevistaAnilhamento)}</div>
                     </div>
                   </div>
                 </div>
@@ -691,24 +665,24 @@ export function FilhotesModule() {
         </div>
 
         {/* ─── RIGHT PANEL: Mutation Prediction ──────────────────────────── */}
-        <div className="module-panel" style={S.panel}>
-          <div style={S.panelHeader}>
+        <div className="module-panel flex flex-col" style={{ overflow: 'hidden' }}>
+          <div className="p-panel-header">
             <div>
-              <div style={S.panelTitle}>Previsao de Mutacao</div>
-              <div style={S.panelSub}>Analise automática do casal</div>
+              <div className="p-panel-header__title">Previsao de Mutacao</div>
+              <div className="p-panel-header__subtitle">Analise automática do casal</div>
             </div>
           </div>
-          <div style={S.panelBody}>
+          <div className="p-panel-body">
             {!selectedFilhote ? (
-              <div style={{ textAlign: 'center', padding: '30px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+              <div className="module-empty">
                 Selecione um filhote para analisar a previsão genética.
               </div>
             ) : !transferForm.CategoriaAve ? (
-              <div style={{ textAlign: 'center', padding: '30px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+              <div className="module-empty">
                 Selecione a espécie do filhote para cruzar as mutações do pai e da mãe.
               </div>
             ) : !predictedMutationResults ? (
-              <div style={{ textAlign: 'center', padding: '30px 12px', color: 'var(--text-muted)', fontSize: 12, fontFamily: 'inherit' }}>
+              <div className="module-empty">
                 <div style={{ fontSize: 28, marginBottom: 8 }}>&#x1F9EC;</div>
                 Cruzamento não encontrado na tabela de mutações da espécie selecionada.
                 <br />
@@ -716,9 +690,9 @@ export function FilhotesModule() {
               </div>
             ) : (
               <>
-                <div style={{ ...S.resultCard, marginBottom: 16 }}>
-                  <div style={S.label}>Base do cálculo</div>
-                  <div style={{ color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', lineHeight: 1.8 }}>
+                <div className="p-list-item mb-2">
+                  <div className="p-label">Base do cálculo</div>
+                  <div className="text-main" style={{ fontSize: 13, lineHeight: 1.8 }}>
                     Espécie: {transferForm.CategoriaAve}
                     <br />
                     Pai: {predictedMutationResults.pai || selectedFilhote.MutacaoPai || '---'}
@@ -727,19 +701,19 @@ export function FilhotesModule() {
                   </div>
                 </div>
 
-                <div style={{ marginBottom: 16 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#5BC0EB', fontFamily: 'inherit', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <div className="mb-2">
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#5BC0EB', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Filhotes Machos
                   </div>
                   {predictedMutationResults.machos.length === 0 ? (
-                    <div style={S.resultCard}>
-                      <span style={{ fontSize: 13, color: 'var(--text-soft)', fontFamily: 'inherit' }}>Sem previsão masculina cadastrada.</span>
+                    <div className="p-list-item">
+                      <span className="text-muted" style={{ fontSize: 13 }}>Sem previsão masculina cadastrada.</span>
                     </div>
                   ) : predictedMutationResults.machos.map((mut) => (
-                    <div key={mut} style={S.resultCard}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div key={mut} className="p-list-item">
+                      <div className="flex items-center gap-1">
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#5BC0EB', flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, color: 'var(--text-main)', fontFamily: 'inherit' }}>{mut}</span>
+                        <span className="text-main" style={{ fontSize: 13 }}>{mut}</span>
                       </div>
                     </div>
                   ))}
@@ -747,18 +721,18 @@ export function FilhotesModule() {
 
                 {/* Filhotes Femeas */}
                 <div>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: '#E88DB4', fontFamily: 'inherit', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: '#E88DB4', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Filhotes Femeas
                   </div>
                   {predictedMutationResults.femeas.length === 0 ? (
-                    <div style={S.resultCard}>
-                      <span style={{ fontSize: 13, color: 'var(--text-soft)', fontFamily: 'inherit' }}>Sem previsão feminina cadastrada.</span>
+                    <div className="p-list-item">
+                      <span className="text-muted" style={{ fontSize: 13 }}>Sem previsão feminina cadastrada.</span>
                     </div>
                   ) : predictedMutationResults.femeas.map((mut) => (
-                    <div key={mut} style={S.resultCard}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div key={mut} className="p-list-item">
+                      <div className="flex items-center gap-1">
                         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#E88DB4', flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, color: 'var(--text-main)', fontFamily: 'inherit' }}>{mut}</span>
+                        <span className="text-main" style={{ fontSize: 13 }}>{mut}</span>
                       </div>
                     </div>
                   ))}

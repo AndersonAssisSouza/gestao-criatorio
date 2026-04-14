@@ -4,13 +4,6 @@ import { useAuth } from '../../../context/AuthContext'
 import { accessService } from '../../../services/access.service'
 import { SUBSCRIPTION_PRICING, formatSubscriptionPrice } from '../../../config/subscription'
 
-const CARD_STYLE = {
-  border: '1px solid rgba(255,255,255,0.06)',
-  borderRadius: 18,
-  background: 'rgba(255,255,255,0.03)',
-  boxShadow: 'var(--shadow-md)',
-}
-
 const PLAN_OPTIONS = [
   { key: 'monthly', title: 'Plano mensal', text: 'Ideal para começar rápido, com renovação simplificada e menor compromisso inicial.' },
   { key: 'annual', title: 'Plano anual', text: 'Melhor custo para continuidade do criatório, com 12 meses de acesso liberado.' },
@@ -41,10 +34,10 @@ function formatStatus(status) {
   return 'Registrado'
 }
 
-function getStatusTone(status) {
-  if (status === 'paid') return { color: '#b6f1cf', borderColor: 'rgba(76,175,125,0.24)' }
-  if (status === 'rejected') return { color: '#ffb9aa', borderColor: 'rgba(224,92,75,0.24)' }
-  return { color: '#f4d5a7', borderColor: 'rgba(245,166,35,0.24)' }
+function getStatusClass(status) {
+  if (status === 'paid') return 'p-alert--success'
+  if (status === 'rejected') return 'p-alert--error'
+  return ''
 }
 
 export function AssinaturaModule() {
@@ -214,11 +207,11 @@ export function AssinaturaModule() {
   }
 
   if (loading) {
-    return <div style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Carregando assinatura...</div>
+    return <div className="module-empty">Carregando assinatura...</div>
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+    <div className="flex flex-col gap-3">
       <div className="module-hero">
         <div>
           <div className="module-hero__eyebrow">Assinatura, cobrança e acesso</div>
@@ -230,8 +223,8 @@ export function AssinaturaModule() {
         <div className="pill">{user?.role === 'owner' ? 'Conta master • acesso vitalício' : usesExternalGateway ? 'Checkout seguro via gateway' : 'Checkout integrado ao acesso'}</div>
       </div>
 
-      {error && <div style={{ ...CARD_STYLE, padding: 16, color: '#ffb9aa', borderColor: 'rgba(224,92,75,0.24)' }}>{error}</div>}
-      {success && <div style={{ ...CARD_STYLE, padding: 16, color: '#b6f1cf', borderColor: 'rgba(76,175,125,0.24)' }}>{success}</div>}
+      {error && <div className="p-alert--error">{error}</div>}
+      {success && <div className="p-alert--success">{success}</div>}
 
       <div className="stat-grid">
         {summaryCards.map((card) => (
@@ -240,16 +233,16 @@ export function AssinaturaModule() {
       </div>
 
       <div className="billing-studio">
-        <section className="module-panel" style={{ ...CARD_STYLE, padding: 22 }}>
-          <div style={{ fontSize: 24, fontFamily: "'DM Serif Display', serif", marginBottom: 8 }}>Escolha seu plano</div>
-          <div style={{ color: 'var(--text-muted)', lineHeight: 1.8, marginBottom: 18 }}>
+        <section className="billing-card">
+          <div className="p-panel-header__title font-serif">Escolha seu plano</div>
+          <div className="text-muted mb-2">
             {usesExternalGateway
               ? 'Selecione o plano e a forma preferida de pagamento. Você será redirecionado ao checkout seguro para concluir PIX ou cartão.'
               : 'Selecione o plano e a forma de pagamento. O checkout gera a cobrança e sua assinatura segue para conferência e liberação.'}
           </div>
 
           {canCheckout ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div className="flex flex-col gap-2">
               <div className="billing-plan-grid">
                 {PLAN_OPTIONS.map((plan) => {
                   const isActive = selectedPlan === plan.key
@@ -258,26 +251,19 @@ export function AssinaturaModule() {
                       key={plan.key}
                       type="button"
                       onClick={() => setSelectedPlan(plan.key)}
-                      style={{
-                        ...CARD_STYLE,
-                        padding: 18,
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        borderColor: isActive ? 'rgba(201,80,37,0.24)' : 'rgba(255,255,255,0.06)',
-                        background: isActive ? 'rgba(201,80,37,0.08)' : 'rgba(255,255,255,0.03)',
-                      }}
+                      className={`billing-card p-list-item${isActive ? ' is-active' : ''}`}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+                      <div className="flex justify-between gap-1 mb-1">
                         <strong>{plan.title}</strong>
-                        <span style={{ color: 'var(--accent-light)' }}>{formatSubscriptionPrice(SUBSCRIPTION_PRICING[plan.key])}</span>
+                        <span className="text-accent">{formatSubscriptionPrice(SUBSCRIPTION_PRICING[plan.key])}</span>
                       </div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.7 }}>{plan.text}</div>
+                      <div className="text-muted" style={{ fontSize: 13 }}>{plan.text}</div>
                     </button>
                   )
                 })}
               </div>
 
-              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
                 {[
                   { key: 'pix', label: 'PIX' },
                   { key: 'card', label: 'Cartão de crédito' },
@@ -286,15 +272,7 @@ export function AssinaturaModule() {
                     key={option.key}
                     type="button"
                     onClick={() => setPaymentMethod(option.key)}
-                    style={{
-                      minHeight: 44,
-                      padding: '0 16px',
-                      borderRadius: 14,
-                      border: paymentMethod === option.key ? '1px solid rgba(201,80,37,0.26)' : '1px solid rgba(255,255,255,0.08)',
-                      background: paymentMethod === option.key ? 'rgba(201,80,37,0.12)' : 'rgba(255,255,255,0.03)',
-                      color: paymentMethod === option.key ? 'var(--accent-contrast)' : 'var(--text-soft)',
-                      cursor: 'pointer',
-                    }}
+                    className={`p-btn${paymentMethod === option.key ? ' p-btn--primary' : ' p-btn--ghost'}`}
                   >
                     {option.label}
                   </button>
@@ -314,7 +292,7 @@ export function AssinaturaModule() {
 
                 {paymentMethod === 'pix' ? (
                   <div className="payment-checkout-card__body">
-                    <div style={{ color: 'var(--text-muted)', lineHeight: 1.8 }}>
+                    <div className="text-muted">
                       {usesExternalGateway
                         ? 'O checkout seguro abrirá com foco em PIX. Depois da confirmação, o sistema reconcilia o pagamento e libera o acesso.'
                         : 'Gere um PIX de cobrança para o plano escolhido. O sistema registra a referência financeira e a sua área administrativa pode confirmar a quitação para liberar o acesso.'}
@@ -347,7 +325,7 @@ export function AssinaturaModule() {
                         }
                       }}
                       disabled={submitting}
-                      className="theme-action-btn"
+                      className="p-btn p-btn--primary"
                     >
                       {submitting ? (usesExternalGateway ? 'Abrindo checkout...' : 'Gerando PIX...') : usesExternalGateway ? `Ir para o checkout PIX` : `Gerar PIX de ${formatSubscriptionPrice(selectedPrice)}`}
                     </button>
@@ -360,16 +338,16 @@ export function AssinaturaModule() {
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                          <div style={{ color: 'var(--text-soft)', fontWeight: 700 }}>Código copia e cola</div>
+                        <div className="flex flex-col gap-1">
+                          <div className="text-muted" style={{ fontWeight: 700 }}>Código copia e cola</div>
                           <div className="payment-code-box">{activeCheckout.pixCode}</div>
-                          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                            <button type="button" onClick={handleCopyPix} className="theme-action-btn">
+                          <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
+                            <button type="button" onClick={handleCopyPix} className="p-btn p-btn--primary">
                               Copiar código PIX
                             </button>
                             <div className="pill">Expira em {formatDateTime(activeCheckout.pixExpiresAt)}</div>
                           </div>
-                          {copyFeedback && <div style={{ color: 'var(--support-light)', fontSize: 12 }}>{copyFeedback}</div>}
+                          {copyFeedback && <div className="text-success" style={{ fontSize: 12 }}>{copyFeedback}</div>}
                         </div>
                       </div>
                     )}
@@ -378,30 +356,30 @@ export function AssinaturaModule() {
                   <div className="payment-checkout-card__body">
                     {!usesExternalGateway && (
                       <div className="payment-form-grid">
-                        <label>
-                          <div className="payment-field__label">Nome no cartão</div>
-                          <input value={cardForm.cardHolderName} onChange={(event) => setCardForm((current) => ({ ...current, cardHolderName: event.target.value }))} placeholder="Nome completo" className="payment-field" />
+                        <label className="p-field">
+                          <div className="p-label">Nome no cartão</div>
+                          <input value={cardForm.cardHolderName} onChange={(event) => setCardForm((current) => ({ ...current, cardHolderName: event.target.value }))} placeholder="Nome completo" className="p-input" />
                         </label>
-                        <label>
-                          <div className="payment-field__label">Número do cartão</div>
-                          <input value={cardForm.cardNumber} onChange={(event) => setCardForm((current) => ({ ...current, cardNumber: event.target.value }))} placeholder="0000 0000 0000 0000" className="payment-field" />
+                        <label className="p-field">
+                          <div className="p-label">Número do cartão</div>
+                          <input value={cardForm.cardNumber} onChange={(event) => setCardForm((current) => ({ ...current, cardNumber: event.target.value }))} placeholder="0000 0000 0000 0000" className="p-input" />
                         </label>
-                        <label>
-                          <div className="payment-field__label">Mês</div>
-                          <input value={cardForm.expiryMonth} onChange={(event) => setCardForm((current) => ({ ...current, expiryMonth: event.target.value }))} placeholder="MM" className="payment-field" />
+                        <label className="p-field">
+                          <div className="p-label">Mês</div>
+                          <input value={cardForm.expiryMonth} onChange={(event) => setCardForm((current) => ({ ...current, expiryMonth: event.target.value }))} placeholder="MM" className="p-input" />
                         </label>
-                        <label>
-                          <div className="payment-field__label">Ano</div>
-                          <input value={cardForm.expiryYear} onChange={(event) => setCardForm((current) => ({ ...current, expiryYear: event.target.value }))} placeholder="AAAA" className="payment-field" />
+                        <label className="p-field">
+                          <div className="p-label">Ano</div>
+                          <input value={cardForm.expiryYear} onChange={(event) => setCardForm((current) => ({ ...current, expiryYear: event.target.value }))} placeholder="AAAA" className="p-input" />
                         </label>
-                        <label>
-                          <div className="payment-field__label">CVC</div>
-                          <input value={cardForm.cvc} onChange={(event) => setCardForm((current) => ({ ...current, cvc: event.target.value }))} placeholder="123" className="payment-field" />
+                        <label className="p-field">
+                          <div className="p-label">CVC</div>
+                          <input value={cardForm.cvc} onChange={(event) => setCardForm((current) => ({ ...current, cvc: event.target.value }))} placeholder="123" className="p-input" />
                         </label>
                       </div>
                     )}
 
-                    <div style={{ color: 'var(--text-faint)', fontSize: 12, lineHeight: 1.8 }}>
+                    <div className="text-faint" style={{ fontSize: 12 }}>
                       {usesExternalGateway
                         ? 'Você será redirecionado ao ambiente seguro do gateway para concluir o pagamento com cartão.'
                         : 'Por segurança, o sistema não armazena o número completo nem o CVC do cartão. Apenas bandeira e final são registrados para conferência.'}
@@ -435,7 +413,7 @@ export function AssinaturaModule() {
                         }
                       }}
                       disabled={submitting}
-                      className="theme-action-btn"
+                      className="p-btn p-btn--primary"
                     >
                       {submitting ? (usesExternalGateway ? 'Abrindo checkout...' : 'Registrando cobrança...') : usesExternalGateway ? `Ir para o checkout de cartão` : `Pagar ${formatSubscriptionPrice(selectedPrice)} no cartão`}
                     </button>
@@ -444,48 +422,48 @@ export function AssinaturaModule() {
               </div>
             </div>
           ) : (
-            <div style={{ color: 'var(--text-muted)', lineHeight: 1.8 }}>
+            <div className="text-muted">
               Sua conta é a conta proprietária master do sistema. O acesso é vitalício, total e a área administrativa permanece liberada sem necessidade de cobrança.
             </div>
           )}
         </section>
 
-        <section className="module-panel" style={{ ...CARD_STYLE, padding: 22 }}>
-          <div style={{ fontSize: 24, fontFamily: "'DM Serif Display', serif", marginBottom: 8 }}>Situação financeira</div>
-          <div style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 16 }}>
+        <section className="billing-card">
+          <div className="p-panel-header__title font-serif">Situação financeira</div>
+          <div className="text-muted mb-2">
             Acompanhe a última cobrança iniciada, o status da aprovação e todo o histórico desta conta.
           </div>
 
           {activeCheckout ? (
-            <div style={{ ...CARD_STYLE, padding: 16, marginBottom: 16, ...getStatusTone(activeCheckout.status) }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+            <div className={`billing-card mb-2 ${getStatusClass(activeCheckout.status)}`}>
+              <div className="flex justify-between gap-1 mb-1">
                 <strong>{formatMethod(activeCheckout.method)} • {activeCheckout.plan === 'annual' ? 'Plano anual' : 'Plano mensal'}</strong>
                 <span>{formatStatus(activeCheckout.status)}</span>
               </div>
-              <div style={{ color: 'inherit', fontSize: 13, lineHeight: 1.8 }}>
+              <div className="text-muted" style={{ fontSize: 13 }}>
                 Referência: {activeCheckout.paymentReference || activeCheckout.id}<br />
                 Valor: {formatSubscriptionPrice(activeCheckout.amount)}<br />
                 Iniciado em: {formatDateTime(activeCheckout.createdAt)}
               </div>
             </div>
           ) : (
-            <div style={{ color: 'var(--text-faint)', lineHeight: 1.8, marginBottom: 16 }}>
+            <div className="text-faint mb-2">
               Nenhuma cobrança aberta no momento.
             </div>
           )}
 
-          <div style={{ color: 'var(--text-soft)', fontWeight: 700, marginBottom: 12 }}>Histórico financeiro</div>
+          <div className="mb-1" style={{ fontWeight: 700 }}>Histórico financeiro</div>
           {sortedPayments.length === 0 ? (
-            <div style={{ color: 'var(--text-faint)', lineHeight: 1.8 }}>Ainda não há pagamentos registrados para este usuário.</div>
+            <div className="text-faint">Ainda não há pagamentos registrados para este usuário.</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="flex flex-col gap-1">
               {sortedPayments.map((payment) => (
-                <div key={payment.id} style={{ ...CARD_STYLE, padding: 14 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 6 }}>
+                <div key={payment.id} className="billing-card">
+                  <div className="flex justify-between gap-1 mb-1">
                     <strong>{payment.plan === 'annual' ? 'Anual' : 'Mensal'} • {formatMethod(payment.method)}</strong>
-                    <span style={{ color: 'var(--accent-light)' }}>{formatSubscriptionPrice(payment.amount)}</span>
+                    <span className="text-accent">{formatSubscriptionPrice(payment.amount)}</span>
                   </div>
-                  <div style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.8 }}>
+                  <div className="text-muted" style={{ fontSize: 13 }}>
                     Status: {formatStatus(payment.status)}<br />
                     Criado em {formatDateTime(payment.createdAt)}
                     {payment.paidAt ? ` • pago em ${formatDateTime(payment.paidAt)}` : ''}

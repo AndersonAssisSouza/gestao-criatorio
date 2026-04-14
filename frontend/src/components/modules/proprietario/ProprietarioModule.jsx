@@ -3,13 +3,6 @@ import { StatCard } from '../../shared/StatCard'
 import { accessService } from '../../../services/access.service'
 import { SUBSCRIPTION_PRICING, formatSubscriptionPrice } from '../../../config/subscription'
 
-const CARD_STYLE = {
-  border: '1px solid rgba(255,255,255,0.06)',
-  borderRadius: 18,
-  background: 'rgba(255,255,255,0.03)',
-  boxShadow: 'var(--shadow-md)',
-}
-
 function formatDate(value) {
   if (!value) return 'Sem vencimento'
   return new Date(value).toLocaleDateString('pt-BR')
@@ -163,11 +156,11 @@ export function ProprietarioModule() {
   }
 
   if (loading) {
-    return <div style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Carregando controle do proprietário...</div>
+    return <div className="module-empty">Carregando controle do proprietário...</div>
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
+    <div className="flex flex-col gap-3">
       <div className="module-hero">
         <div>
           <div className="module-hero__eyebrow">Área exclusiva do proprietário</div>
@@ -179,8 +172,8 @@ export function ProprietarioModule() {
         <div className="pill">Somente Anderson</div>
       </div>
 
-      {error && <div style={{ ...CARD_STYLE, padding: 16, color: '#ffb9aa', borderColor: 'rgba(224,92,75,0.24)' }}>{error}</div>}
-      {success && <div style={{ ...CARD_STYLE, padding: 16, color: '#b6f1cf', borderColor: 'rgba(76,175,125,0.24)' }}>{success}</div>}
+      {error && <div className="p-alert--error">{error}</div>}
+      {success && <div className="p-alert--success">{success}</div>}
 
       <div className="stat-grid">
         <StatCard label="Clientes" value={stats.total} desc="usuarios cadastrados" color="#C95025" />
@@ -190,29 +183,22 @@ export function ProprietarioModule() {
       </div>
 
       <div className="billing-studio">
-        <section className="module-panel" style={{ ...CARD_STYLE, padding: 22 }}>
-          <div style={{ fontSize: 24, fontFamily: "'DM Serif Display', serif", marginBottom: 16 }}>Base de assinantes</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <section className="billing-card">
+          <div className="p-panel-header__title font-serif mb-2">Base de assinantes</div>
+          <div className="p-panel-list">
             {users.filter((user) => user.role !== 'owner').map((user) => (
               <button
                 key={user.id}
                 type="button"
                 onClick={() => setSelectedUserId(user.id)}
-                style={{
-                  ...CARD_STYLE,
-                  padding: 14,
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  borderColor: selectedUserId === user.id ? 'rgba(201,80,37,0.24)' : 'rgba(255,255,255,0.06)',
-                  background: selectedUserId === user.id ? 'rgba(201,80,37,0.08)' : 'rgba(255,255,255,0.03)',
-                }}
+                className={`p-list-item${selectedUserId === user.id ? ' is-active' : ''}`}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 6 }}>
+                <div className="flex justify-between gap-1 mb-1">
                   <strong>{user.name}</strong>
-                  <span style={{ color: user.access?.accessGranted ? '#8fe0b1' : '#f3b08e' }}>{user.access?.label || 'Sem status'}</span>
+                  <span className={user.access?.accessGranted ? 'text-success' : 'text-danger'}>{user.access?.label || 'Sem status'}</span>
                 </div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 13 }}>{user.email}</div>
-                <div style={{ color: 'var(--text-faint)', fontSize: 12, marginTop: 6 }}>
+                <div className="text-muted" style={{ fontSize: 13 }}>{user.email}</div>
+                <div className="text-faint mt-1" style={{ fontSize: 12 }}>
                   Plano {user.access?.plan || 'trial'} • expira em {formatDate(user.access?.expiresAt)}
                 </div>
               </button>
@@ -220,40 +206,40 @@ export function ProprietarioModule() {
           </div>
         </section>
 
-        <section className="module-panel" style={{ ...CARD_STYLE, padding: 22 }}>
-          <div style={{ fontSize: 24, fontFamily: "'DM Serif Display', serif", marginBottom: 8 }}>Aprovação financeira</div>
+        <section className="billing-card">
+          <div className="p-panel-header__title font-serif mb-1">Aprovação financeira</div>
           {!selectedUser ? (
-            <div style={{ color: 'var(--text-muted)' }}>Nenhum assinante disponível ainda.</div>
+            <div className="text-muted">Nenhum assinante disponível ainda.</div>
           ) : (
             <>
-              <div style={{ color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 16 }}>
-                <strong style={{ color: 'var(--text-main)' }}>{selectedUser.name}</strong><br />
+              <div className="text-muted mb-2">
+                <strong>{selectedUser.name}</strong><br />
                 {selectedUser.email}<br />
                 Status atual: {selectedUser.access?.label || 'Sem status'}<br />
                 Solicitação aberta: {selectedUser.subscriptionRequestedPlan || 'nenhuma'}
               </div>
 
               {pendingPayments.length > 0 ? (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div className="flex flex-col gap-1">
                   {pendingPayments.map((payment) => (
-                    <div key={payment.id} style={{ ...CARD_STYLE, padding: 14 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+                    <div key={payment.id} className="billing-card">
+                      <div className="flex justify-between gap-1 mb-1">
                         <strong>{payment.plan === 'annual' ? 'Plano anual' : 'Plano mensal'} • {formatMethod(payment.method)}</strong>
-                        <span style={{ color: 'var(--accent-light)' }}>{formatSubscriptionPrice(payment.amount)}</span>
+                        <span className="text-accent">{formatSubscriptionPrice(payment.amount)}</span>
                       </div>
-                      <div style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.8, marginBottom: 12 }}>
+                      <div className="text-muted mb-1" style={{ fontSize: 13 }}>
                         Status: {formatStatus(payment.status)}<br />
                         Referência: {payment.paymentReference || payment.id}<br />
                         Criado em: {formatDateTime(payment.createdAt)}
                         {payment.cardMasked ? <><br />Cartão: {payment.cardBrand} {payment.cardMasked}</> : null}
                         {payment.pixCode ? <><br />PIX: {payment.pixCode}</> : null}
                       </div>
-                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                      <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
                         <button
                           type="button"
                           onClick={() => handleApprovePayment(payment.id)}
                           disabled={processingPaymentId === payment.id}
-                          className="theme-action-btn"
+                          className="p-btn p-btn--primary"
                         >
                           {processingPaymentId === payment.id ? 'Confirmando...' : 'Confirmar pagamento'}
                         </button>
@@ -261,7 +247,7 @@ export function ProprietarioModule() {
                           type="button"
                           onClick={() => handleRejectPayment(payment.id)}
                           disabled={processingPaymentId === payment.id}
-                          className="theme-action-btn theme-action-btn--ghost"
+                          className="p-btn p-btn--ghost"
                         >
                           Recusar
                         </button>
@@ -270,19 +256,19 @@ export function ProprietarioModule() {
                   ))}
                 </div>
               ) : (
-                <div style={{ color: 'var(--text-faint)', lineHeight: 1.8, marginBottom: 18 }}>
+                <div className="text-faint mb-2">
                   Este usuário não tem cobrança aberta no momento.
                 </div>
               )}
 
-              <div style={{ marginTop: 20, paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                <div style={{ color: 'var(--text-soft)', fontWeight: 700, marginBottom: 12 }}>Liberação manual</div>
-                <div style={{ display: 'grid', gap: 10 }}>
+              <div className="mt-2" style={{ paddingTop: 18, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                <div className="mb-1" style={{ fontWeight: 700 }}>Liberação manual</div>
+                <div className="flex flex-col gap-1">
                   <button
                     type="button"
                     onClick={() => handleGrant('monthly')}
                     disabled={granting === 'monthly'}
-                    style={{ border: 'none', borderRadius: 14, padding: '13px 14px', background: 'linear-gradient(135deg, var(--accent), var(--accent-strong))', color: 'var(--accent-contrast)', cursor: 'pointer' }}
+                    className="p-btn p-btn--primary"
                   >
                     {granting === 'monthly' ? 'Liberando mensal...' : `Liberar mensal (${formatSubscriptionPrice(SUBSCRIPTION_PRICING.monthly)})`}
                   </button>
@@ -290,7 +276,7 @@ export function ProprietarioModule() {
                     type="button"
                     onClick={() => handleGrant('annual')}
                     disabled={granting === 'annual'}
-                    style={{ border: '1px solid rgba(76,175,125,0.28)', borderRadius: 14, padding: '13px 14px', background: 'rgba(76,175,125,0.12)', color: '#d6f5e6', cursor: 'pointer' }}
+                    className="p-btn p-btn--secondary"
                   >
                     {granting === 'annual' ? 'Liberando anual...' : `Liberar anual (${formatSubscriptionPrice(SUBSCRIPTION_PRICING.annual)})`}
                   </button>
@@ -301,19 +287,19 @@ export function ProprietarioModule() {
         </section>
       </div>
 
-      <section className="module-panel" style={{ ...CARD_STYLE, padding: 22 }}>
-        <div style={{ fontSize: 24, fontFamily: "'DM Serif Display', serif", marginBottom: 14 }}>Lançamentos financeiros</div>
+      <section className="billing-card">
+        <div className="p-panel-header__title font-serif mb-2">Lançamentos financeiros</div>
         {payments.length === 0 ? (
-          <div style={{ color: 'var(--text-muted)' }}>Ainda não há pagamentos registrados.</div>
+          <div className="text-muted">Ainda não há pagamentos registrados.</div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
+          <div className="p-form-grid">
             {payments.slice().sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0)).map((payment) => (
-              <div key={payment.id} style={{ ...CARD_STYLE, padding: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, marginBottom: 6 }}>
+              <div key={payment.id} className="billing-card">
+                <div className="flex justify-between gap-1 mb-1">
                   <strong>{payment.plan === 'annual' ? 'Anual' : payment.plan === 'monthly' ? 'Mensal' : 'Vitalício'} • {formatMethod(payment.method)}</strong>
-                  <span style={{ color: 'var(--accent-light)' }}>{formatSubscriptionPrice(payment.amount || 0)}</span>
+                  <span className="text-accent">{formatSubscriptionPrice(payment.amount || 0)}</span>
                 </div>
-                <div style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.7 }}>
+                <div className="text-muted" style={{ fontSize: 13 }}>
                   Usuário: {users.find((user) => user.id === payment.userId)?.email || payment.userId}<br />
                   Status: {formatStatus(payment.status)}<br />
                   Criado em: {formatDateTime(payment.createdAt)}<br />
@@ -327,18 +313,18 @@ export function ProprietarioModule() {
         )}
       </section>
 
-      <section className="module-panel" style={{ ...CARD_STYLE, padding: 22 }}>
-        <div style={{ fontSize: 24, fontFamily: "'DM Serif Display', serif", marginBottom: 10 }}>Cadastros vindos do Power Apps</div>
-        <div style={{ color: 'var(--text-muted)', lineHeight: 1.8 }}>
+      <section className="billing-card">
+        <div className="p-panel-header__title font-serif mb-1">Cadastros vindos do Power Apps</div>
+        <div className="text-muted">
           Esta importação puxa diretamente as listas reais do seu SharePoint e grava uma cópia local no sistema para uso diário sem depender da conexão externa.
           Além do criatório e do plantel, ela também traz anéis, gaiolas, ovos, filhotes, espécies, financeiro, mutações e itens auxiliares.
         </div>
-        <div style={{ marginTop: 16 }}>
+        <div className="mt-2">
           <button
             type="button"
             onClick={handleImportSharePoint}
             disabled={importingSharePoint}
-            style={{ border: 'none', borderRadius: 14, padding: '13px 16px', background: 'linear-gradient(135deg, var(--accent), var(--accent-strong))', color: 'var(--accent-contrast)', cursor: importingSharePoint ? 'not-allowed' : 'pointer', opacity: importingSharePoint ? 0.7 : 1 }}
+            className="p-btn p-btn--primary"
           >
             {importingSharePoint ? 'Importando listas...' : 'Importar todas as listas do SharePoint'}
           </button>

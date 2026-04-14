@@ -131,7 +131,6 @@ function Dashboard() {
           title={meta.title}
           description={meta.description}
           onOpenMenu={() => setSidebarOpen(true)}
-          onNavigate={navigateTo}
         />
         <div className="app-content">
           {resolvedPage === 'plantel'    && <PlantelModule />}

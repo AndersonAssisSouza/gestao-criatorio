@@ -54,34 +54,6 @@ function matchesGender(record = {}, expected) {
   return normalizeText(record.Genero) === normalizeText(expected)
 }
 
-// ─── Styles ─────────────────────────────────────────────────────────────────
-const S = {
-  container:    { display: 'grid', gap: 16, minHeight: 'calc(100vh - 260px)', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' },
-  panel:        { padding: 0, flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' },
-  panelHeader:  { padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  panelTitle:   { fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
-  panelSub:     { fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4, letterSpacing: '0.08em', textTransform: 'uppercase' },
-  panelBody:    { padding: '12px 16px', flex: 1, overflowY: 'auto' },
-  card:         { background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 18, padding: '16px 16px', marginBottom: 10, cursor: 'pointer', transition: 'all 0.15s' },
-  cardSelected: { background: 'linear-gradient(135deg, rgba(201,80,37,0.12), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.3)' },
-  label:        { fontSize: 10, color: 'var(--text-muted)', fontFamily: 'inherit', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 3 },
-  value:        { fontSize: 13, color: 'var(--text-main)', fontFamily: 'inherit' },
-  valueMuted:   { fontSize: 12, color: 'var(--text-soft)', fontFamily: 'inherit' },
-  row:          { display: 'flex', gap: 12, marginBottom: 8, flexWrap: 'wrap' },
-  col:          { flex: '1 1 140px', minWidth: 0 },
-  btn:          { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 8, padding: '8px 16px', color: 'var(--text-main)', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 },
-  btnSecondary: { background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 16px', color: 'var(--text-main)', fontSize: 12, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer' },
-  select:       { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', width: '100%', appearance: 'none' },
-  input:        { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 12px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', width: '100%' },
-  overlay:      { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 },
-  popup:        { background: 'var(--bg-deep)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 24, padding: '28px 32px', width: 'min(420px, calc(100vw - 24px))', maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.35)' },
-  popupTitle:   { fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 20 },
-  divider:      { height: 1, background: 'rgba(255,255,255,0.06)', margin: '12px 0' },
-  eggCircle:    { width: 52, height: 52, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer', transition: 'all 0.15s', border: '2px solid transparent' },
-  historyButton: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 999, padding: '8px 12px', color: 'var(--text-main)', fontSize: 11, fontFamily: 'inherit', cursor: 'pointer' },
-  historyButtonActive: { background: 'rgba(201,80,37,0.16)', borderColor: 'rgba(201,80,37,0.3)' },
-}
-
 // ─── Helper: format date ────────────────────────────────────────────────────
 const fmtDate = (d) => {
   if (!d) return '---'
@@ -120,67 +92,67 @@ function EggPopup({ egg, onSave, onDiscard, onClose }) {
   const action = getNextAction()
 
   return (
-    <div style={S.overlay} onClick={onClose}>
-      <div style={S.popup} onClick={e => e.stopPropagation()}>
-        <div style={S.popupTitle}>Ovo #{egg.NumeroOvo}</div>
+    <div className="p-overlay" onClick={onClose}>
+      <div className="p-popup" onClick={e => e.stopPropagation()}>
+        <div className="p-panel-header__title mb-2">Ovo #{egg.NumeroOvo}</div>
 
         {/* Egg Info */}
-        <div style={S.row}>
-          <div style={S.col}>
-            <div style={S.label}>Status</div>
+        <div className="p-form-grid">
+          <div className="p-field">
+            <div className="p-label">Status</div>
             <StatusBadge status={egg.Status} />
           </div>
-          <div style={S.col}>
-            <div style={S.label}>Data Postura</div>
-            <div style={S.value}>{fmtDate(egg.DataPostura)}</div>
+          <div className="p-field">
+            <div className="p-label">Data Postura</div>
+            <div className="text-main">{fmtDate(egg.DataPostura)}</div>
           </div>
         </div>
 
-        <div style={S.row}>
-          <div style={S.col}>
-            <div style={S.label}>Data Inicio Choco</div>
-            <div style={S.value}>{fmtDate(egg.DataInicioChoco)}</div>
+        <div className="p-form-grid">
+          <div className="p-field">
+            <div className="p-label">Data Inicio Choco</div>
+            <div className="text-main">{fmtDate(egg.DataInicioChoco)}</div>
           </div>
-          <div style={S.col}>
-            <div style={S.label}>Previsao Nascimento</div>
-            <div style={S.value}>{fmtDate(egg.DataPrevistaNascimento)}</div>
+          <div className="p-field">
+            <div className="p-label">Previsao Nascimento</div>
+            <div className="text-main">{fmtDate(egg.DataPrevistaNascimento)}</div>
           </div>
         </div>
 
         {egg.DataConfirmacaoFetilizacao && (
-          <div style={S.row}>
-            <div style={S.col}>
-              <div style={S.label}>Confirmacao Fertilizacao</div>
-              <div style={S.value}>{fmtDate(egg.DataConfirmacaoFetilizacao)}</div>
+          <div className="p-form-grid">
+            <div className="p-field">
+              <div className="p-label">Confirmacao Fertilizacao</div>
+              <div className="text-main">{fmtDate(egg.DataConfirmacaoFetilizacao)}</div>
             </div>
-            <div style={S.col} />
+            <div className="p-field" />
           </div>
         )}
 
-        <div style={S.divider} />
+        <hr className="p-divider" />
 
         {/* Action Section */}
         {action && !['Nasceu', 'Descartado'].includes(egg.Status) && (
           <>
-            <div style={{ marginBottom: 12 }}>
-              <div style={S.label}>Data da Acao</div>
+            <div className="p-field mb-2">
+              <div className="p-label">Data da Acao</div>
               <input
                 type="date"
                 value={actionDate}
                 onChange={e => setActionDate(e.target.value)}
-                style={S.input}
+                className="p-input"
               />
             </div>
 
-            <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+            <div className="flex gap-2 mb-2">
               <button
-                style={S.btn}
+                className="p-btn p-btn--primary"
                 onClick={() => onSave(egg, action.nextStatus, actionDate)}
               >
                 {action.label}
               </button>
               <button
-                style={{ ...S.btnSecondary, color: '#E05C4B', borderColor: 'rgba(224,92,75,0.3)' }}
+                className="p-btn p-btn--danger"
                 onClick={() => onDiscard(egg, actionDate)}
               >
                 Descartar
@@ -190,12 +162,12 @@ function EggPopup({ egg, onSave, onDiscard, onClose }) {
         )}
 
         {['Nasceu', 'Descartado'].includes(egg.Status) && (
-          <div style={{ fontSize: 12, color: 'var(--text-soft)', fontFamily: 'inherit', padding: '8px 0' }}>
+          <div className="text-muted" style={{ padding: '8px 0', fontSize: 12 }}>
             Este ovo ja foi finalizado ({egg.Status}).
           </div>
         )}
 
-        <button style={S.btnSecondary} onClick={onClose}>Fechar</button>
+        <button className="p-btn p-btn--secondary" onClick={onClose}>Fechar</button>
       </div>
     </div>
   )
@@ -204,32 +176,32 @@ function EggPopup({ egg, onSave, onDiscard, onClose }) {
 // ─── Parent Detail Card ─────────────────────────────────────────────────────
 function ParentCard({ bird, role }) {
   if (!bird) return (
-    <div style={{ ...S.card, opacity: 0.4, cursor: 'default' }}>
-      <div style={S.label}>{role}</div>
-      <div style={S.valueMuted}>Nenhuma ave selecionada</div>
+    <div className="p-list-item" style={{ opacity: 0.4, cursor: 'default' }}>
+      <div className="p-label">{role}</div>
+      <div className="text-muted">{'\u00A0'}Nenhuma ave selecionada</div>
     </div>
   )
   return (
-    <div style={{ ...S.card, cursor: 'default', borderLeft: `3px solid ${role === 'Femea' ? '#E88DB4' : '#5BC0EB'}` }}>
-      <div style={S.label}>{role}</div>
-      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 8 }}>{bird.Nome}</div>
-      <div style={S.row}>
-        <div style={S.col}>
-          <div style={S.label}>Especie</div>
-          <div style={S.value}>{bird.CategoriaAve}</div>
+    <div className="p-list-item" style={{ cursor: 'default', borderLeft: `3px solid ${role === 'Femea' ? '#E88DB4' : '#5BC0EB'}` }}>
+      <div className="p-label">{role}</div>
+      <div className="font-serif" style={{ fontSize: 15, fontWeight: 700, marginBottom: 8 }}>{bird.Nome}</div>
+      <div className="p-form-grid">
+        <div className="p-field">
+          <div className="p-label">Especie</div>
+          <div className="text-main">{bird.CategoriaAve}</div>
         </div>
-        <div style={S.col}>
-          <div style={S.label}>Mutacao</div>
-          <div style={S.value}>{bird.Mutacao}</div>
+        <div className="p-field">
+          <div className="p-label">Mutacao</div>
+          <div className="text-main">{bird.Mutacao}</div>
         </div>
       </div>
-      <div style={S.row}>
-        <div style={S.col}>
-          <div style={S.label}>Genero</div>
-          <div style={S.value}>{bird.Genero}</div>
+      <div className="p-form-grid">
+        <div className="p-field">
+          <div className="p-label">Genero</div>
+          <div className="text-main">{bird.Genero}</div>
         </div>
-        <div style={S.col}>
-          <div style={S.label}>Status</div>
+        <div className="p-field">
+          <div className="p-label">Status</div>
           <StatusBadge status={bird.Status} />
         </div>
       </div>
@@ -406,7 +378,7 @@ export function ChocandoModule() {
 
   // ─── Loading ──────────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
+    <div className="flex items-center justify-center text-muted" style={{ height: '50vh', fontSize: 13 }}>
       Carregando dados de choco...
     </div>
   )
@@ -425,7 +397,7 @@ export function ChocandoModule() {
       </div>
 
       {/* Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
+      <div className="p-stats mb-3">
         <StatCard label="Gaiolas Chocando" value={stats.gaiolas}      desc="gaiolas ativas"       color="#F5A623" />
         <StatCard label="Total Ovos"       value={stats.totalOvos}    desc="ovos registrados"     color="#5BC0EB" />
         <StatCard label="Em Choco"         value={stats.chocando}     desc="ovos em choco"        color="#C95025" />
@@ -433,37 +405,34 @@ export function ChocandoModule() {
       </div>
 
       {/* 3-Panel Layout */}
-      <div style={S.container}>
+      <div className="p-split" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
 
         {/* ─── LEFT PANEL: Cage Gallery ──────────────────────────────────── */}
-        <div className="module-panel" style={S.panel}>
-          <div style={S.panelHeader}>
+        <div className="module-panel flex flex-col" style={{ overflow: 'hidden' }}>
+          <div className="p-panel-header">
             <div>
-              <div style={S.panelTitle}>Gaiolas</div>
-              <div style={S.panelSub}>{gaiolas.length} chocando</div>
+              <div className="p-panel-header__title">Gaiolas</div>
+              <div className="p-panel-header__subtitle">{gaiolas.length} chocando</div>
             </div>
           </div>
-          <div style={S.panelBody}>
+          <div className="p-panel-body">
             {gaiolas.map(g => (
               <div
                 key={g.ID}
-                style={{
-                  ...S.card,
-                  ...(selectedGaiola?.ID === g.ID ? S.cardSelected : {}),
-                }}
+                className={`p-list-item${selectedGaiola?.ID === g.ID ? ' is-active' : ''}`}
                 onClick={() => setSelectedGaiola(g)}
               >
-                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 6 }}>
+                <div className="font-serif" style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>
                   {g.NumeroGaiola}
                 </div>
                 <StatusBadge status={g.Status} />
-                <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
+                <div className="text-muted mt-1" style={{ fontSize: 11 }}>
                   {ovos.filter(o => o.Gaiola === g.NumeroGaiola).length} ovo(s)
                 </div>
               </div>
             ))}
             {gaiolas.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+              <div className="module-empty">
                 Nenhuma gaiola chocando
               </div>
             )}
@@ -471,23 +440,23 @@ export function ChocandoModule() {
         </div>
 
         {/* ─── MIDDLE PANEL: Parent Selection ────────────────────────────── */}
-        <div className="module-panel" style={S.panel}>
-          <div style={S.panelHeader}>
+        <div className="module-panel flex flex-col" style={{ overflow: 'hidden' }}>
+          <div className="p-panel-header">
             <div>
-              <div style={S.panelTitle}>Casal Reprodutor</div>
-              <div style={S.panelSub}>
+              <div className="p-panel-header__title">Casal Reprodutor</div>
+              <div className="p-panel-header__subtitle">
                 {selectedGaiola ? selectedGaiola.NumeroGaiola : 'Selecione uma gaiola'}
               </div>
             </div>
           </div>
-          <div style={S.panelBody}>
+          <div className="p-panel-body">
             {selectedGaiola ? (
               <>
                 {/* Female ComboBox */}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={S.label}>Femea</div>
+                <div className="p-field mb-2">
+                  <div className="p-label">Femea</div>
                   <select
-                    style={S.select}
+                    className="p-select"
                     value={selectedFemea}
                     onChange={e => setSelectedFemea(e.target.value)}
                   >
@@ -501,13 +470,13 @@ export function ChocandoModule() {
                 </div>
                 <ParentCard bird={selectedFemeaObj} role="Femea" />
 
-                <div style={S.divider} />
+                <hr className="p-divider" />
 
                 {/* Male ComboBox */}
-                <div style={{ marginBottom: 16 }}>
-                  <div style={S.label}>Macho</div>
+                <div className="p-field mb-2">
+                  <div className="p-label">Macho</div>
                   <select
-                    style={S.select}
+                    className="p-select"
                     value={selectedMacho}
                     onChange={e => setSelectedMacho(e.target.value)}
                   >
@@ -521,21 +490,22 @@ export function ChocandoModule() {
                 </div>
                 <ParentCard bird={selectedMachoObj} role="Macho" />
 
-                <div style={S.divider} />
+                <hr className="p-divider" />
 
                 {/* Mutation Simulator Note */}
                 <button
-                  style={{ ...S.btnSecondary, width: '100%', textAlign: 'center', justifyContent: 'center', display: 'flex' }}
+                  className="p-btn p-btn--secondary w-full"
+                  style={{ justifyContent: 'center' }}
                   onClick={() => alert('Navegar para Simulacao de Mutacao dos Filhotes (tela a integrar)')}
                 >
                   Simulacao Mutacao dos Filhotes
                 </button>
-                <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 6, textAlign: 'center' }}>
+                <div className="text-muted mt-1" style={{ fontSize: 10, textAlign: 'center' }}>
                   Abre o simulador de previsao genetica
                 </div>
               </>
             ) : (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+              <div className="module-empty">
                 Selecione uma gaiola para ver o casal
               </div>
             )}
@@ -543,50 +513,51 @@ export function ChocandoModule() {
         </div>
 
         {/* ─── RIGHT PANEL: Eggs Gallery ─────────────────────────────────── */}
-        <div className="module-panel" style={S.panel}>
-          <div style={S.panelHeader}>
+        <div className="module-panel flex flex-col" style={{ overflow: 'hidden' }}>
+          <div className="p-panel-header">
             <div>
-              <div style={S.panelTitle}>Ovos</div>
-              <div style={S.panelSub}>
+              <div className="p-panel-header__title">Ovos</div>
+              <div className="p-panel-header__subtitle">
                 {selectedGaiola
                   ? `${cageEggs.length} ovo(s) — ${selectedGaiola.NumeroGaiola}${selectedNinhada ? ` · ninhada ${selectedNinhada.Numero}` : ''}`
                   : 'Selecione uma gaiola'}
               </div>
             </div>
             {selectedGaiola && (
-              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <button style={S.btnSecondary} onClick={handleRestartClutch}>
+              <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
+                <button className="p-btn p-btn--secondary" onClick={handleRestartClutch}>
                   Reiniciar nova ninhada
                 </button>
-                <button style={S.btn} onClick={handleAddEgg}>
+                <button className="p-btn p-btn--primary" onClick={handleAddEgg}>
                   + Adicionar Ovo
                 </button>
               </div>
             )}
           </div>
-          <div style={S.panelBody}>
+          <div className="p-panel-body">
             {!selectedGaiola ? (
-              <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)', fontSize: 12, fontFamily: 'inherit' }}>
+              <div className="module-empty">
                 Selecione uma gaiola para ver os ovos
               </div>
             ) : cageEggs.length === 0 ? (
               <>
                 {cageClutches.length > 0 ? (
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+                  <div className="flex gap-1 mb-2" style={{ flexWrap: 'wrap' }}>
                     {cageClutches.map((item) => (
                       <button
                         key={item.id}
-                        style={{ ...S.historyButton, ...(selectedNinhadaId === item.id ? S.historyButtonActive : {}) }}
+                        className={`pill${selectedNinhadaId === item.id ? ' pill--accent' : ''}`}
                         onClick={() => setSelectedNinhadaId(item.id)}
+                        style={{ cursor: 'pointer' }}
                       >
                         Ninhada {item.Numero} · {item.Status}
                       </button>
                     ))}
                   </div>
                 ) : null}
-                <div style={{ textAlign: 'center', padding: '40px 12px', color: 'var(--text-faint)' }}>
+                <div className="module-empty">
                   <div style={{ fontSize: 36, marginBottom: 8 }}>&#x1F95A;</div>
-                  <div style={{ fontSize: 12, fontFamily: 'inherit', color: 'var(--text-muted)' }}>
+                  <div className="text-muted" style={{ fontSize: 12 }}>
                     {selectedNinhada
                       ? 'Nenhum ovo registrado nesta ninhada.'
                       : 'Nenhum ovo registrado nesta gaiola.'}
@@ -596,12 +567,13 @@ export function ChocandoModule() {
             ) : (
               <>
                 {cageClutches.length > 0 ? (
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+                  <div className="flex gap-1 mb-2" style={{ flexWrap: 'wrap' }}>
                     {cageClutches.map((item) => (
                       <button
                         key={item.id}
-                        style={{ ...S.historyButton, ...(selectedNinhadaId === item.id ? S.historyButtonActive : {}) }}
+                        className={`pill${selectedNinhadaId === item.id ? ' pill--accent' : ''}`}
                         onClick={() => setSelectedNinhadaId(item.id)}
+                        style={{ cursor: 'pointer' }}
                       >
                         Ninhada {item.Numero} · {item.Status}
                       </button>
@@ -610,16 +582,20 @@ export function ChocandoModule() {
                 ) : null}
 
                 {/* Eggs as circles/cards */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 16, justifyContent: 'center', padding: '8px 0' }}>
+                <div className="flex items-center justify-center" style={{ flexWrap: 'wrap', gap: 14, marginBottom: 16, padding: '8px 0' }}>
                   {cageEggs.map(egg => {
                     const ec = EGG_COLORS[egg.Status] || EGG_COLORS.Postura
                     return (
                       <div
                         key={egg.ID}
+                        className="p-egg-circle"
                         style={{
-                          ...S.eggCircle,
+                          width: 52, height: 52, borderRadius: '50%',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: 11, fontWeight: 700, cursor: 'pointer',
+                          transition: 'all 0.15s',
                           background: ec.bg,
-                          borderColor: ec.border,
+                          border: `2px solid ${ec.border}`,
                           color: ec.text,
                         }}
                         title={`Ovo #${egg.NumeroOvo} — ${egg.Status}`}
@@ -635,41 +611,41 @@ export function ChocandoModule() {
                 {cageEggs.map(egg => (
                   <div
                     key={egg.ID}
-                    style={{ ...S.card, cursor: 'pointer' }}
+                    className="p-list-item"
                     onClick={() => setEggPopup(egg)}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="font-serif" style={{ fontSize: 14, fontWeight: 700 }}>
                         Ovo #{egg.NumeroOvo}
                       </div>
                       <StatusBadge status={egg.Status} />
                     </div>
-                    <div style={S.row}>
-                      <div style={S.col}>
-                        <div style={S.label}>Postura</div>
-                        <div style={S.valueMuted}>{fmtDate(egg.DataPostura)}</div>
+                    <div className="p-form-grid">
+                      <div className="p-field">
+                        <div className="p-label">Postura</div>
+                        <div className="text-muted">{fmtDate(egg.DataPostura)}</div>
                       </div>
-                      <div style={S.col}>
-                        <div style={S.label}>Prev. Nascimento</div>
-                        <div style={S.valueMuted}>{fmtDate(egg.DataPrevistaNascimento)}</div>
+                      <div className="p-field">
+                        <div className="p-label">Prev. Nascimento</div>
+                        <div className="text-muted">{fmtDate(egg.DataPrevistaNascimento)}</div>
                       </div>
                     </div>
                     {egg.DataInicioChoco && (
-                      <div style={S.row}>
-                        <div style={S.col}>
-                          <div style={S.label}>Inicio Choco</div>
-                          <div style={S.valueMuted}>{fmtDate(egg.DataInicioChoco)}</div>
+                      <div className="p-form-grid">
+                        <div className="p-field">
+                          <div className="p-label">Inicio Choco</div>
+                          <div className="text-muted">{fmtDate(egg.DataInicioChoco)}</div>
                         </div>
-                        <div style={S.col}>
-                          <div style={S.label}>Confirmacao</div>
-                          <div style={S.valueMuted}>{egg.ConfirmaInicioChoco || '---'}</div>
+                        <div className="p-field">
+                          <div className="p-label">Confirmacao</div>
+                          <div className="text-muted">{egg.ConfirmaInicioChoco || '---'}</div>
                         </div>
                       </div>
                     )}
                     {egg.DataDescarte && (
-                      <div style={{ marginTop: 4 }}>
-                        <div style={S.label}>Descarte</div>
-                        <div style={{ ...S.valueMuted, color: '#E05C4B' }}>{fmtDate(egg.DataDescarte)}</div>
+                      <div className="p-field mt-1">
+                        <div className="p-label">Descarte</div>
+                        <div className="text-accent" style={{ color: '#E05C4B' }}>{fmtDate(egg.DataDescarte)}</div>
                       </div>
                     )}
                   </div>

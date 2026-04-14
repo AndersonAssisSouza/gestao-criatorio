@@ -13,38 +13,6 @@ const MOCK_ESPECIES = [
   { ID: 2, Especie: 'canário belga', NomeCientifico: 'Serinus canaria domestica', Origem: 'Ave doméstica desenvolvida a partir do canário selvagem das Ilhas Canárias, Madeira e Açores, com seleção consolidada na canaricultura europeia.', Comentarios: 'Canário doméstico amplamente criado em ambiente controlado, com reprodução bem adaptada ao manejo em criatório.', PeriodoReproducao: 'Setembro a fevereiro', TempoChoco: 13 },
 ]
 
-// ─── Estilos reutilizáveis ──────────────────────────────────────────────────
-const s = {
-  input: {
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
-    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
-  },
-  textarea: {
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
-    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
-    resize: 'vertical', minHeight: 88,
-  },
-  label: {
-    fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit',
-    letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4, display: 'block',
-  },
-  btnPrimary: {
-    background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none',
-    borderRadius: 14, padding: '12px 20px', color: 'var(--text-main)', fontSize: 12,
-    fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
-  },
-  btnSecondary: {
-    background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 14, padding: '12px 20px', color: 'var(--text-soft)', fontSize: 12,
-    fontFamily: 'inherit', cursor: 'pointer',
-  },
-  card: {
-    overflow: 'hidden',
-  },
-}
-
 const EMPTY_FORM = { Especie: '', NomeCientifico: '', Origem: '', Comentarios: '', PeriodoReproducao: '', TempoChoco: '' }
 const AUTO_FIELDS = ['NomeCientifico', 'Origem', 'Comentarios', 'PeriodoReproducao', 'TempoChoco']
 
@@ -266,31 +234,31 @@ export function EspeciesModule() {
   }
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
+    <div className="flex items-center justify-center text-muted" style={{ height: '50vh', fontSize: 13 }}>
       Carregando espécies...
     </div>
   )
 
   // ─── Formulário reutilizável ──────────────────────────────────────────────
   const renderForm = (form, setForm, mode) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div>
-        <label style={s.label}>Espécie</label>
-        <input style={s.input} value={form.Especie} onChange={e => handleSpeciesChange(e.target.value, setForm)} placeholder="Nome da espécie" />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
-          <div style={{ fontSize: 11, color: 'var(--text-soft)', fontFamily: 'inherit' }}>
+    <div className="flex-col gap-2">
+      <div className="p-field">
+        <label className="p-label">Espécie</label>
+        <input className="p-input" value={form.Especie} onChange={e => handleSpeciesChange(e.target.value, setForm)} placeholder="Nome da espécie" />
+        <div className="flex items-center justify-between gap-2 mt-1" style={{ flexWrap: 'wrap' }}>
+          <div className="text-faint" style={{ fontSize: 11 }}>
             Ao digitar a espécie, o sistema tenta buscar nome científico e dados biológicos na internet.
           </div>
           <button
             type="button"
             onClick={() => handleLookup(mode, form, setForm, true)}
-            style={s.btnSecondary}
+            className="p-btn p-btn--secondary"
           >
             {lookup.loading && lookup.mode === mode ? 'Buscando...' : 'Complementar ficha'}
           </button>
         </div>
         {lookup.mode === mode && lookup.message && (
-          <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-soft)', fontFamily: 'inherit', lineHeight: 1.6 }}>
+          <div className="text-faint mt-1" style={{ fontSize: 11, lineHeight: 1.6 }}>
             {lookup.message}
             {lookup.sourceUrl ? (
               <>
@@ -300,31 +268,31 @@ export function EspeciesModule() {
           </div>
         )}
         {lookup.mode === mode && lookup.error && (
-          <div style={{ marginTop: 8, fontSize: 11, color: '#E05C4B', fontFamily: 'inherit', lineHeight: 1.6 }}>
+          <div className="mt-1" style={{ fontSize: 11, color: '#E05C4B', lineHeight: 1.6 }}>
             {lookup.error}
           </div>
         )}
       </div>
-      <div>
-        <label style={s.label}>Nome Científico</label>
-        <input style={s.input} value={form.NomeCientifico} onChange={e => setForm(f => ({ ...f, NomeCientifico: e.target.value }))} placeholder="Nome científico" />
+      <div className="p-field">
+        <label className="p-label">Nome Científico</label>
+        <input className="p-input" value={form.NomeCientifico} onChange={e => setForm(f => ({ ...f, NomeCientifico: e.target.value }))} placeholder="Nome científico" />
       </div>
-      <div>
-        <label style={s.label}>Origem</label>
-        <textarea style={s.textarea} value={form.Origem} onChange={e => setForm(f => ({ ...f, Origem: e.target.value }))} placeholder="Região de origem" />
+      <div className="p-field">
+        <label className="p-label">Origem</label>
+        <textarea className="p-textarea" value={form.Origem} onChange={e => setForm(f => ({ ...f, Origem: e.target.value }))} placeholder="Região de origem" />
       </div>
-      <div>
-        <label style={s.label}>Comentários</label>
-        <textarea style={s.textarea} value={form.Comentarios} onChange={e => setForm(f => ({ ...f, Comentarios: e.target.value }))} placeholder="Observações gerais" />
+      <div className="p-field">
+        <label className="p-label">Comentários</label>
+        <textarea className="p-textarea" value={form.Comentarios} onChange={e => setForm(f => ({ ...f, Comentarios: e.target.value }))} placeholder="Observações gerais" />
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-        <div>
-          <label style={s.label}>Período de Reprodução</label>
-          <input style={s.input} value={form.PeriodoReproducao} onChange={e => setForm(f => ({ ...f, PeriodoReproducao: e.target.value }))} placeholder="Ex: Março a Julho" />
+      <div className="p-form-grid">
+        <div className="p-field">
+          <label className="p-label">Período de Reprodução</label>
+          <input className="p-input" value={form.PeriodoReproducao} onChange={e => setForm(f => ({ ...f, PeriodoReproducao: e.target.value }))} placeholder="Ex: Março a Julho" />
         </div>
-        <div>
-          <label style={s.label}>Tempo de Choco (dias)</label>
-          <input style={s.input} type="number" value={form.TempoChoco} onChange={e => setForm(f => ({ ...f, TempoChoco: e.target.value }))} placeholder="14" />
+        <div className="p-field">
+          <label className="p-label">Tempo de Choco (dias)</label>
+          <input className="p-input" type="number" value={form.TempoChoco} onChange={e => setForm(f => ({ ...f, TempoChoco: e.target.value }))} placeholder="14" />
         </div>
       </div>
     </div>
@@ -344,40 +312,40 @@ export function EspeciesModule() {
       </div>
 
       {error && (
-        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: 'inherit' }}>
+        <div className="p-alert--error">
           {error}
           <span onClick={() => setError('')} style={{ float: 'right', cursor: 'pointer', opacity: 0.7 }}>x</span>
         </div>
       )}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
+      <div className="p-stats mb-3">
         <StatCard label="Total Espécies" value={stats.total} desc="espécies catalogadas" color="#C95025" />
         <StatCard label="Tempo Médio Choco" value={`${stats.tempoMedioChoco}d`} desc="dias em média" color="#F5A623" />
         <StatCard label="Catálogo" value={data.length > 0 ? 'Ativo' : 'Vazio'} desc="status do catálogo" color="#4CAF7D" />
       </div>
 
       {/* Master-Detail Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+      <div className="p-split">
 
         {/* ═══ LEFT PANEL: Gallery ═══ */}
-        <div className="module-panel" style={s.card}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="module-panel">
+          <div className="p-panel-header">
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>Detalhe Espécies</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 2 }}>
+              <div className="p-panel-header__title">Detalhe Espécies</div>
+              <div className="p-panel-header__subtitle">
                 {filtered.length} de {data.length} registros
               </div>
             </div>
-            <button onClick={() => { setIsAdding(true); setSelected(null); setEditForm(null) }} style={s.btnPrimary}>
+            <button className="p-btn p-btn--primary" onClick={() => { setIsAdding(true); setSelected(null); setEditForm(null) }}>
               + Nova Espécie
             </button>
           </div>
 
           {/* Search */}
-          <div style={{ padding: '12px 22px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+          <div className="p-panel-search">
             <input
-              style={s.input}
+              className="p-search"
               placeholder="Buscar espécie..."
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -385,40 +353,33 @@ export function EspeciesModule() {
           </div>
 
           {/* Gallery Items */}
-          <div style={{ maxHeight: 480, overflowY: 'auto' }}>
+          <div className="p-panel-list">
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-faint)' }}>
-                <div style={{ fontSize: 14, fontFamily: 'inherit', color: 'var(--text-muted)' }}>Nenhuma espécie encontrada</div>
+              <div className="module-empty">
+                <div className="text-muted" style={{ fontSize: 14 }}>Nenhuma espécie encontrada</div>
               </div>
             ) : filtered.map(r => (
               <div
                 key={r.ID}
+                className={`p-list-item ${selected?.ID === r.ID ? 'is-active' : ''}`}
                 onClick={() => setSelected(r)}
-                style={{
-                  padding: '14px 22px', cursor: 'pointer',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  background: selected?.ID === r.ID ? 'rgba(201,80,37,0.08)' : 'transparent',
-                  borderLeft: selected?.ID === r.ID ? '3px solid #C95025' : '3px solid transparent',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={e => { if (selected?.ID !== r.ID) e.currentTarget.style.background = 'rgba(201,80,37,0.04)' }}
-                onMouseLeave={e => { if (selected?.ID !== r.ID) e.currentTarget.style.background = 'transparent' }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="flex items-center justify-between">
                   <div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+                    <div className="font-serif" style={{ fontSize: 16, fontWeight: 700 }}>
                       {r.Especie}
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-soft)', fontFamily: 'inherit', fontStyle: 'italic', marginTop: 2 }}>
+                    <div className="text-faint" style={{ fontSize: 12, fontStyle: 'italic', marginTop: 2 }}>
                       {r.NomeCientifico}
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 4 }}>
+                    <div className="text-muted" style={{ fontSize: 11, marginTop: 4 }}>
                       Choco: {r.TempoChoco} dias | {r.PeriodoReproducao}
                     </div>
                   </div>
                   <button
                     onClick={e => { e.stopPropagation(); setDelTarget(r) }}
-                    style={{ background: 'none', border: 'none', color: '#E05C4B', cursor: 'pointer', fontSize: 14, opacity: 0.5, padding: 4 }}
+                    className="p-btn p-btn--ghost p-btn--sm"
+                    style={{ color: '#E05C4B', opacity: 0.5 }}
                     title="Remover"
                   >x</button>
                 </div>
@@ -428,36 +389,36 @@ export function EspeciesModule() {
         </div>
 
         {/* ═══ RIGHT PANEL: Detail Form ═══ */}
-        <div className="module-panel" style={s.card}>
+        <div className="module-panel">
           {isAdding ? (
-            <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
+            <div className="p-panel-body">
+              <div className="p-panel-header__title mb-2" style={{ fontSize: 22 }}>
                 Nova Espécie
               </div>
               {renderForm(newForm, setNewForm, 'new')}
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                <button onClick={handleAddNew} style={s.btnPrimary}>Salvar</button>
-                <button onClick={() => setIsAdding(false)} style={s.btnSecondary}>Cancelar</button>
+              <div className="flex gap-1 mt-2">
+                <button className="p-btn p-btn--primary" onClick={handleAddNew}>Salvar</button>
+                <button className="p-btn p-btn--secondary" onClick={() => setIsAdding(false)}>Cancelar</button>
               </div>
             </div>
           ) : selected && editForm ? (
-            <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 4 }}>
+            <div className="p-panel-body">
+              <div className="p-panel-header__title" style={{ fontSize: 22 }}>
                 {selected.Especie} - {selected.NomeCientifico}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', marginBottom: 20 }}>
+              <div className="text-muted mb-2" style={{ fontSize: 12 }}>
                 Editar informações da espécie
               </div>
               {renderForm(editForm, setEditForm, 'edit')}
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                <button onClick={handleSaveEdit} style={s.btnPrimary}>Salvar Alterações</button>
+              <div className="flex gap-1 mt-2">
+                <button className="p-btn p-btn--primary" onClick={handleSaveEdit}>Salvar Alterações</button>
               </div>
             </div>
           ) : (
             <div className="module-empty">
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>&#9675;</div>
-                <div style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', lineHeight: 1.6 }}>
+                <div className="text-muted" style={{ fontSize: 14, lineHeight: 1.6 }}>
                   Selecione uma espécie ao lado para<br />visualizar e editar detalhes
                 </div>
               </div>

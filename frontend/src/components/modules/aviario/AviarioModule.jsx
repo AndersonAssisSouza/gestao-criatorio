@@ -15,31 +15,6 @@ const MOCK_CRIATORIO = {
   Telefone: '31988761694',
 }
 
-const s = {
-  input: {
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
-    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
-  },
-  label: {
-    fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit',
-    letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4, display: 'block',
-  },
-  btnPrimary: {
-    background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none',
-    borderRadius: 14, padding: '12px 20px', color: 'var(--text-main)', fontSize: 12,
-    fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
-  },
-  btnSecondary: {
-    background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 14, padding: '12px 20px', color: 'var(--text-soft)', fontSize: 12,
-    fontFamily: 'inherit', cursor: 'pointer',
-  },
-  card: {
-    overflow: 'hidden',
-  },
-}
-
 const createEmptyForm = (currentUser) => ({
   NomeCriatorio: '',
   Responsavel: currentUser,
@@ -182,37 +157,37 @@ export function AviarioModule() {
   }
 
   const renderForm = (form, setForm) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div>
-        <label style={s.label}>Nome do Criatório</label>
-        <input style={s.input} value={form.NomeCriatorio} onChange={(e) => setForm((value) => ({ ...value, NomeCriatorio: e.target.value }))} placeholder="Nome do criatório" />
+    <div className="flex-col gap-2">
+      <div className="p-field">
+        <label className="p-label">Nome do Criatório</label>
+        <input className="p-input" value={form.NomeCriatorio} onChange={(e) => setForm((value) => ({ ...value, NomeCriatorio: e.target.value }))} placeholder="Nome do criatório" />
       </div>
-      <div>
-        <label style={s.label}>Responsável</label>
-        <input style={s.input} value={form.Responsavel} onChange={(e) => setForm((value) => ({ ...value, Responsavel: e.target.value }))} placeholder="Nome do responsável" />
+      <div className="p-field">
+        <label className="p-label">Responsável</label>
+        <input className="p-input" value={form.Responsavel} onChange={(e) => setForm((value) => ({ ...value, Responsavel: e.target.value }))} placeholder="Nome do responsável" />
       </div>
-      <div>
-        <label style={s.label}>CTF Criador</label>
-        <input style={s.input} value={form.CTFCriador} onChange={(e) => setForm((value) => ({ ...value, CTFCriador: e.target.value }))} placeholder="Ex: CTF-001234" />
+      <div className="p-field">
+        <label className="p-label">CTF Criador</label>
+        <input className="p-input" value={form.CTFCriador} onChange={(e) => setForm((value) => ({ ...value, CTFCriador: e.target.value }))} placeholder="Ex: CTF-001234" />
       </div>
-      <div>
-        <label style={s.label}>Endereço</label>
-        <input style={s.input} value={form.Endereco} onChange={(e) => setForm((value) => ({ ...value, Endereco: e.target.value }))} placeholder="Cidade - UF" />
+      <div className="p-field">
+        <label className="p-label">Endereço</label>
+        <input className="p-input" value={form.Endereco} onChange={(e) => setForm((value) => ({ ...value, Endereco: e.target.value }))} placeholder="Cidade - UF" />
       </div>
-      <div>
-        <label style={s.label}>Usuário vinculado</label>
-        <input style={{ ...s.input, opacity: 0.72, cursor: 'not-allowed' }} value={user?.email || currentUser} disabled readOnly />
+      <div className="p-field">
+        <label className="p-label">Usuário vinculado</label>
+        <input className="p-input" style={{ opacity: 0.72, cursor: 'not-allowed' }} value={user?.email || currentUser} disabled readOnly />
       </div>
-      <div>
-        <label style={s.label}>Telefone</label>
-        <input style={s.input} value={form.Telefone} onChange={(e) => setForm((value) => ({ ...value, Telefone: e.target.value }))} placeholder="(XX) XXXXX-XXXX" />
+      <div className="p-field">
+        <label className="p-label">Telefone</label>
+        <input className="p-input" value={form.Telefone} onChange={(e) => setForm((value) => ({ ...value, Telefone: e.target.value }))} placeholder="(XX) XXXXX-XXXX" />
       </div>
     </div>
   )
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
+      <div className="flex items-center justify-center text-muted" style={{ height: '50vh', fontSize: 13 }}>
         Carregando criatório...
       </div>
     )
@@ -232,32 +207,33 @@ export function AviarioModule() {
       </div>
 
       {error && (
-        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: 'inherit' }}>
+        <div className="p-alert--error">
           {error}
         </div>
       )}
 
       {success && (
-        <div style={{ background: 'rgba(76,175,125,0.12)', border: '1px solid rgba(76,175,125,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#8FE0B1', fontSize: 13, fontFamily: 'inherit' }}>
+        <div className="p-alert--success">
           {success}
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 28 }}>
+      <div className="p-stats mb-3">
         <StatCard label="Meu Criadouro" value={stats.total} desc="registro vinculado à sessão" color="#C95025" />
         <StatCard label="Usuário Atual" value={currentUser} desc={user?.email || 'sessão autenticada'} color="#4CAF7D" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-        <div className="module-panel" style={s.card}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+      <div className="p-split">
+        <div className="module-panel">
+          <div className="p-panel-header">
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>Meu criadouro</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 2 }}>
+              <div className="p-panel-header__title">Meu criadouro</div>
+              <div className="p-panel-header__subtitle">
                 {filtered.length} registro disponível
               </div>
             </div>
             <button
+              className="p-btn p-btn--primary"
               onClick={() => {
                 clearFeedback()
                 if (selected) {
@@ -267,54 +243,48 @@ export function AviarioModule() {
                 setIsAdding(true)
                 setNewForm(createEmptyForm(currentUser))
               }}
-              style={{ ...s.btnPrimary, opacity: selected ? 0.55 : 1, cursor: selected ? 'not-allowed' : 'pointer' }}
+              style={{ opacity: selected ? 0.55 : 1, cursor: selected ? 'not-allowed' : 'pointer' }}
               disabled={!!selected}
             >
               + Novo Criatório
             </button>
           </div>
 
-          <div style={{ padding: '12px 22px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+          <div className="p-panel-search">
             <input
-              style={s.input}
+              className="p-search"
               placeholder="Buscar criatório..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
 
-          <div style={{ maxHeight: 480, overflowY: 'auto' }}>
+          <div className="p-panel-list">
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-faint)' }}>
-                <div style={{ fontSize: 14, fontFamily: 'inherit', color: 'var(--text-muted)' }}>
+              <div className="module-empty">
+                <div className="text-muted" style={{ fontSize: 14 }}>
                   {selected ? 'Nenhum criatório encontrado com esse filtro.' : 'Nenhum criatório cadastrado para esta conta.'}
                 </div>
               </div>
             ) : filtered.map((record) => (
               <div
                 key={record.id}
+                className={`p-list-item ${selected?.id === record.id ? 'is-active' : ''}`}
                 onClick={() => {
                   clearFeedback()
                   setIsAdding(false)
                   setSelected(record)
                 }}
-                style={{
-                  padding: '14px 22px', cursor: 'pointer',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  background: selected?.id === record.id ? 'rgba(201,80,37,0.08)' : 'transparent',
-                  borderLeft: selected?.id === record.id ? '3px solid #C95025' : '3px solid transparent',
-                  transition: 'all 0.15s ease',
-                }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div className="flex items-center justify-between">
                   <div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+                    <div className="font-serif" style={{ fontSize: 16, fontWeight: 700 }}>
                       {record.NomeCriatorio}
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-soft)', fontFamily: 'inherit', marginTop: 2 }}>
+                    <div className="text-faint" style={{ fontSize: 12, marginTop: 2 }}>
                       {record.Responsavel}
                     </div>
-                    <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 2 }}>
+                    <div className="text-muted" style={{ fontSize: 11, marginTop: 2 }}>
                       {record.Endereco} | CTF: {record.CTFCriador || 'não informado'}
                     </div>
                   </div>
@@ -323,7 +293,8 @@ export function AviarioModule() {
                       event.stopPropagation()
                       setDelTarget(record)
                     }}
-                    style={{ background: 'none', border: 'none', color: '#E05C4B', cursor: 'pointer', fontSize: 14, opacity: 0.5, padding: 4 }}
+                    className="p-btn p-btn--ghost p-btn--sm"
+                    style={{ color: '#E05C4B', opacity: 0.5 }}
                     title="Remover"
                   >
                     x
@@ -334,36 +305,36 @@ export function AviarioModule() {
           </div>
         </div>
 
-        <div className="module-panel" style={s.card}>
+        <div className="module-panel">
           {isAdding ? (
-            <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
+            <div className="p-panel-body">
+              <div className="p-panel-header__title mb-2" style={{ fontSize: 22 }}>
                 Novo Criatório
               </div>
               {renderForm(newForm, setNewForm)}
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                <button onClick={handleCreate} style={s.btnPrimary} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</button>
-                <button onClick={() => setIsAdding(false)} style={s.btnSecondary}>Cancelar</button>
+              <div className="flex gap-1 mt-2">
+                <button className="p-btn p-btn--primary" onClick={handleCreate} disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</button>
+                <button className="p-btn p-btn--secondary" onClick={() => setIsAdding(false)}>Cancelar</button>
               </div>
             </div>
           ) : selected && editForm ? (
-            <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 4 }}>
+            <div className="p-panel-body">
+              <div className="p-panel-header__title" style={{ fontSize: 22 }}>
                 {selected.NomeCriatorio} - {selected.Responsavel}
               </div>
-              <div style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'inherit', marginBottom: 20 }}>
+              <div className="text-muted mb-2" style={{ fontSize: 12 }}>
                 Edite o único criatório vinculado à sua conta
               </div>
               {renderForm(editForm, setEditForm)}
-              <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-                <button onClick={handleSaveEdit} style={s.btnPrimary} disabled={saving}>{saving ? 'Salvando...' : 'Salvar Alterações'}</button>
+              <div className="flex gap-1 mt-2">
+                <button className="p-btn p-btn--primary" onClick={handleSaveEdit} disabled={saving}>{saving ? 'Salvando...' : 'Salvar Alterações'}</button>
               </div>
             </div>
           ) : (
             <div className="module-empty">
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>&#9675;</div>
-                <div style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', lineHeight: 1.6 }}>
+                <div className="text-muted" style={{ fontSize: 14, lineHeight: 1.6 }}>
                   Cadastre seu criatório para liberar o<br />escopo seguro do plantel e dos demais módulos
                 </div>
               </div>

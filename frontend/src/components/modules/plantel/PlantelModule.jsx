@@ -29,48 +29,6 @@ const STATUS_OPTIONS = ['Vivo', 'Filhote', 'Falecimento', 'Vendido', 'Doado']
 const GENERO_OPTIONS = ['Macho', 'Femea']
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
-const S = {
-  page: { display: 'flex', flexDirection: 'column', gap: 22 },
-  error: { background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 16, padding: '12px 16px', color: '#E05C4B', fontSize: 13 },
-  eyebrow: { fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 8 },
-  title: { fontSize: 24, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", lineHeight: 1.1, marginBottom: 8 },
-  text: { fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7 },
-  searchRow: { display: 'flex', gap: 10, alignItems: 'center', marginTop: 18, flexWrap: 'wrap' },
-  searchInput: { flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-main)', fontSize: 13, outline: 'none' },
-  addBtn: { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 14, padding: '0 16px', minWidth: 116, height: 46, color: '#fff7f2', fontSize: 12, letterSpacing: '0.12em', textTransform: 'uppercase', cursor: 'pointer', boxShadow: '0 12px 24px rgba(201,80,37,0.24)', flexShrink: 0 },
-  quickGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 10, marginTop: 16 },
-  quickCard: { padding: '12px 14px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' },
-  quickLabel: { fontSize: 10, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 },
-  quickValue: { fontSize: 16, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
-  itemTop: { display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 12 },
-  avatar: { width: 42, height: 42, borderRadius: 14, background: 'linear-gradient(135deg, rgba(201,80,37,0.25), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffd8cb', fontSize: 15, fontWeight: 700, flexShrink: 0 },
-  itemName: { fontSize: 18, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 4 },
-  itemMeta: { fontSize: 12, color: 'var(--text-muted)', lineHeight: 1.6 },
-  itemFooter: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 14, flexWrap: 'wrap' },
-  subtleText: { fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.08em', textTransform: 'uppercase' },
-  toolbarRow: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' },
-  toolbarTitle: { fontSize: 28, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", lineHeight: 1.05 },
-  toolbarSubtitle: { marginTop: 8, fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 },
-  toolbarBtns: { display: 'flex', gap: 10, flexWrap: 'wrap' },
-  primaryBtn: { borderRadius: 14, border: '1px solid rgba(76,175,125,0.28)', background: 'rgba(76,175,125,0.12)', color: '#d6f5e6', padding: '12px 16px', cursor: 'pointer', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' },
-  neutralBtn: { borderRadius: 14, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.04)', color: 'var(--text-soft)', padding: '12px 16px', cursor: 'pointer', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' },
-  accentBtn: { borderRadius: 14, border: '1px solid rgba(201,80,37,0.22)', background: 'rgba(201,80,37,0.12)', color: '#ffd4c7', padding: '12px 16px', cursor: 'pointer', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' },
-  dangerBtn: { borderRadius: 14, border: '1px solid rgba(224,92,75,0.2)', background: 'rgba(224,92,75,0.12)', color: '#ffc9c1', padding: '12px 16px', cursor: 'pointer', fontSize: 12, letterSpacing: '0.08em', textTransform: 'uppercase' },
-  summaryCard: { padding: '15px 16px', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.03)' },
-  summaryLabel: { fontSize: 10, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 7 },
-  summaryValue: { fontSize: 15, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
-  fieldWrap: { display: 'flex', flexDirection: 'column', gap: 7 },
-  fieldWrapFull: { display: 'flex', flexDirection: 'column', gap: 7, gridColumn: '1 / -1' },
-  label: { fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.12em', textTransform: 'uppercase' },
-  input: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-main)', fontSize: 13, outline: 'none' },
-  inputDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-faint)', fontSize: 13, outline: 'none', cursor: 'not-allowed' },
-  textarea: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-main)', fontSize: 13, minHeight: 100, resize: 'vertical', outline: 'none' },
-  textareaDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-faint)', fontSize: 13, minHeight: 100, resize: 'vertical', outline: 'none', cursor: 'not-allowed' },
-  select: { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-main)', fontSize: 13, outline: 'none', appearance: 'none', WebkitAppearance: 'none' },
-  selectDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '13px 14px', color: 'var(--text-faint)', fontSize: 13, outline: 'none', cursor: 'not-allowed', appearance: 'none', WebkitAppearance: 'none' },
-  emptyState: { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 360, textAlign: 'center', color: 'var(--text-muted)', padding: '24px 16px' },
-}
-
 const emptyForm = () => ({
   Nome: '',
   Status: 'Vivo',
@@ -290,7 +248,7 @@ export function PlantelModule() {
   const renderInput = (key, label, opts = {}) => {
     const editable = canEditField(key)
     const { type = 'text', options, fullWidth, placeholder } = opts
-    const wrapStyle = fullWidth ? S.fieldWrapFull : S.fieldWrap
+    const wrapClass = fullWidth ? 'p-field p-form-grid--full' : 'p-field'
 
     if (type === 'dropdown') {
       const onChange = key === 'CategoriaAve'
@@ -298,9 +256,9 @@ export function PlantelModule() {
         : (event) => setField(key, event.target.value)
 
       return (
-        <div style={wrapStyle} key={key}>
-          <label style={S.label}>{label}</label>
-          <select style={editable ? S.select : S.selectDisabled} value={formData[key] || ''} onChange={onChange} disabled={!editable}>
+        <div className={wrapClass} key={key}>
+          <label className="p-label">{label}</label>
+          <select className="p-select" value={formData[key] || ''} onChange={onChange} disabled={!editable}>
             <option value="">Selecionar</option>
             {(options || []).map((option) => <option key={option} value={option}>{option}</option>)}
           </select>
@@ -311,47 +269,47 @@ export function PlantelModule() {
     if (type === 'date') {
       if (isNewMode) {
         return (
-          <div style={wrapStyle} key={key}>
-            <label style={S.label}>{label}</label>
-            <input type="date" style={S.input} value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} />
+          <div className={wrapClass} key={key}>
+            <label className="p-label">{label}</label>
+            <input type="date" className="p-input" value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} />
           </div>
         )
       }
 
       return (
-        <div style={wrapStyle} key={key}>
-          <label style={S.label}>{label}</label>
-          <input style={S.inputDisabled} value={formData[key] || ''} disabled readOnly />
+        <div className={wrapClass} key={key}>
+          <label className="p-label">{label}</label>
+          <input className="p-input" value={formData[key] || ''} disabled readOnly />
         </div>
       )
     }
 
     if (type === 'textarea') {
       return (
-        <div style={wrapStyle} key={key}>
-          <label style={S.label}>{label}</label>
-          <textarea style={editable ? S.textarea : S.textareaDisabled} value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} disabled={!editable} placeholder={placeholder || ''} />
+        <div className={wrapClass} key={key}>
+          <label className="p-label">{label}</label>
+          <textarea className="p-textarea" value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} disabled={!editable} placeholder={placeholder || ''} />
         </div>
       )
     }
 
     return (
-      <div style={wrapStyle} key={key}>
-        <label style={S.label}>{label}</label>
-        <input style={editable ? S.input : S.inputDisabled} value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} disabled={!editable} placeholder={placeholder || ''} />
+      <div className={wrapClass} key={key}>
+        <label className="p-label">{label}</label>
+        <input className="p-input" value={formData[key] || ''} onChange={(e) => setField(key, e.target.value)} disabled={!editable} placeholder={placeholder || ''} />
       </div>
     )
   }
 
   if (loading) {
-    return <div style={{ minHeight: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>Carregando plantel...</div>
+    return <div className="module-empty">Carregando plantel...</div>
   }
 
   return (
-    <div className="page-block" style={S.page}>
-      {error && <div style={S.error}>{error}</div>}
+    <div className="page-block flex flex-col gap-3">
+      {error && <div className="p-alert--error">{error}</div>}
 
-      <div className="stat-grid">
+      <div className="p-stats">
         <StatCard label="Total vivos" value={stats.total} desc="aves ativas no plantel" color="#C95025" />
         <StatCard label="Machos" value={stats.machos} desc="reprodutores disponíveis" color="#4CAF7D" />
         <StatCard label="Fêmeas" value={stats.femeas} desc="matrizes em acompanhamento" color="#F5A623" />
@@ -359,43 +317,43 @@ export function PlantelModule() {
       </div>
 
       <div className="plantel-master">
-        <section className="plantel-column plantel-gallery">
-          <div className="plantel-gallery__header">
-            <div style={S.eyebrow}>Painel vivo</div>
-            <div style={S.title}>Consulta rápida do plantel</div>
-            <div style={S.text}>Busque uma ave, abra a ficha e faça ajustes sem perder o contexto do restante do plantel.</div>
-
-            <div style={S.searchRow}>
-              <input
-                style={S.searchInput}
-                placeholder="Buscar por nome da ave..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                onFocus={(e) => { e.target.style.borderColor = 'rgba(201,80,37,0.4)' }}
-                onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.08)' }}
-              />
-              <button style={S.addBtn} onClick={handleNew}>Nova ave</button>
-            </div>
-
-            <div style={S.quickGrid}>
-              <div style={S.quickCard}>
-                <div style={S.quickLabel}>Filtradas</div>
-                <div style={S.quickValue}>{filtered.length}</div>
-              </div>
-              <div style={S.quickCard}>
-                <div style={S.quickLabel}>Origens</div>
-                <div style={S.quickValue}>{new Set(vivosOnly.map((item) => item.Origem)).size}</div>
-              </div>
-              <div style={S.quickCard}>
-                <div style={S.quickLabel}>Mutações</div>
-                <div style={S.quickValue}>{new Set(vivosOnly.map((item) => item.Mutacao)).size}</div>
-              </div>
+        <section className="plantel-gallery">
+          <div className="p-panel-header">
+            <div>
+              <div className="module-hero__eyebrow">Painel vivo</div>
+              <div className="p-panel-header__title">Consulta rápida do plantel</div>
+              <p className="p-panel-header__subtitle">Busque uma ave, abra a ficha e faça ajustes sem perder o contexto do restante do plantel.</p>
             </div>
           </div>
 
-          <div className="plantel-gallery__list">
+          <div className="p-panel-search">
+            <input
+              className="p-search"
+              placeholder="Buscar por nome da ave..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <button className="p-btn p-btn--primary" onClick={handleNew}>Nova ave</button>
+          </div>
+
+          <div className="p-stats" style={{ padding: '0 16px' }}>
+            <div className="module-panel" style={{ padding: '12px 14px' }}>
+              <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>Filtradas</div>
+              <div className="font-serif" style={{ fontSize: 16 }}>{filtered.length}</div>
+            </div>
+            <div className="module-panel" style={{ padding: '12px 14px' }}>
+              <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>Origens</div>
+              <div className="font-serif" style={{ fontSize: 16 }}>{new Set(vivosOnly.map((item) => item.Origem)).size}</div>
+            </div>
+            <div className="module-panel" style={{ padding: '12px 14px' }}>
+              <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>Mutações</div>
+              <div className="font-serif" style={{ fontSize: 16 }}>{new Set(vivosOnly.map((item) => item.Mutacao)).size}</div>
+            </div>
+          </div>
+
+          <div className="p-panel-list">
             {filtered.length === 0 ? (
-              <div style={S.emptyState}>
+              <div className="module-empty">
                 <div>
                   <div style={{ fontSize: 38, marginBottom: 12 }}>Sem resultados</div>
                   <div style={{ lineHeight: 1.7 }}>Ajuste a busca ou crie uma nova ave para alimentar o plantel.</div>
@@ -403,20 +361,20 @@ export function PlantelModule() {
               </div>
             ) : (
               filtered.map((ave) => (
-                <button key={ave.ID} type="button" className={`plantel-item${selected?.ID === ave.ID ? ' plantel-item--active' : ''}`} onClick={() => handleSelect(ave)} style={{ textAlign: 'left' }}>
-                  <div style={S.itemTop}>
-                    <div style={{ display: 'flex', gap: 12 }}>
-                      <div style={S.avatar}>{ave.Nome.slice(0, 1).toUpperCase()}</div>
-                      <div>
-                        <div style={S.itemName}>{ave.Nome}</div>
-                        <div style={S.itemMeta}>{ave.CategoriaAve} · {ave.Genero} · {ave.Gaiola || 'Sem gaiola'}</div>
-                      </div>
+                <button key={ave.ID} type="button" className={`p-list-item${selected?.ID === ave.ID ? ' is-active' : ''}`} onClick={() => handleSelect(ave)} style={{ textAlign: 'left' }}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="p-badge" style={{ width: 42, height: 42, borderRadius: 14, background: 'linear-gradient(135deg, rgba(201,80,37,0.25), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffd8cb', fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
+                      {ave.Nome.slice(0, 1).toUpperCase()}
+                    </div>
+                    <div>
+                      <div className="font-serif" style={{ fontSize: 18 }}>{ave.Nome}</div>
+                      <div className="text-muted" style={{ fontSize: 12, lineHeight: 1.6 }}>{ave.CategoriaAve} · {ave.Genero} · {ave.Gaiola || 'Sem gaiola'}</div>
                     </div>
                   </div>
 
-                  <div style={S.itemFooter}>
+                  <div className="flex items-center justify-between gap-2 mt-2" style={{ flexWrap: 'wrap' }}>
                     <StatusBadge status={ave.Status} />
-                    <span style={S.subtleText}>{ave.Mutacao || 'Sem mutação'} · {ave.AnelEsquerdo || 'Sem anel'}</span>
+                    <span className="text-faint" style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{ave.Mutacao || 'Sem mutação'} · {ave.AnelEsquerdo || 'Sem anel'}</span>
                   </div>
                 </button>
               ))
@@ -424,69 +382,67 @@ export function PlantelModule() {
           </div>
         </section>
 
-        <section className="plantel-column plantel-form">
-          <div className="plantel-form__header">
-            <div style={S.toolbarRow}>
-              <div>
-                <div style={S.eyebrow}>Ficha operacional</div>
-                <div style={S.toolbarTitle}>
-                  {formMode === 'new'
-                    ? 'Cadastrar nova ave'
-                    : formMode === 'edit'
-                      ? `Editando ${formData.Nome}`
-                      : selected
-                        ? selected.Nome
-                        : 'Detalhes da ave'}
-                </div>
-                <div style={S.toolbarSubtitle}>
-                  {formMode
-                    ? 'Revise os dados com foco no manejo diário e mantenha o cadastro legível para toda a operação.'
-                    : 'Selecione uma ave ao lado ou inicie um novo cadastro para visualizar a ficha completa.'}
-                </div>
+        <section className="plantel-detail">
+          <div className="p-panel-header">
+            <div>
+              <div className="module-hero__eyebrow">Ficha operacional</div>
+              <div className="p-panel-header__title">
+                {formMode === 'new'
+                  ? 'Cadastrar nova ave'
+                  : formMode === 'edit'
+                    ? `Editando ${formData.Nome}`
+                    : selected
+                      ? selected.Nome
+                      : 'Detalhes da ave'}
               </div>
+              <p className="p-panel-header__subtitle">
+                {formMode
+                  ? 'Revise os dados com foco no manejo diário e mantenha o cadastro legível para toda a operação.'
+                  : 'Selecione uma ave ao lado ou inicie um novo cadastro para visualizar a ficha completa.'}
+              </p>
+            </div>
 
-              <div style={S.toolbarBtns}>
-                {(formMode === 'new' || formMode === 'edit') && (
-                  <>
-                    <button style={S.primaryBtn} onClick={handleSubmit}>Salvar</button>
-                    <button style={S.neutralBtn} onClick={handleCancel}>Cancelar</button>
-                  </>
-                )}
-                {formMode === 'view' && selected && (
-                  <>
-                    <button style={S.accentBtn} onClick={handleEdit}>Editar</button>
-                    <button style={S.dangerBtn} onClick={() => setDelTarget(selected)}>Excluir</button>
-                  </>
-                )}
-              </div>
+            <div className="flex gap-2" style={{ flexWrap: 'wrap' }}>
+              {(formMode === 'new' || formMode === 'edit') && (
+                <>
+                  <button className="p-btn p-btn--primary" onClick={handleSubmit}>Salvar</button>
+                  <button className="p-btn p-btn--secondary" onClick={handleCancel}>Cancelar</button>
+                </>
+              )}
+              {formMode === 'view' && selected && (
+                <>
+                  <button className="p-btn p-btn--secondary" onClick={handleEdit}>Editar</button>
+                  <button className="p-btn p-btn--danger" onClick={() => setDelTarget(selected)}>Excluir</button>
+                </>
+              )}
             </div>
           </div>
 
           {!formMode ? (
-            <div className="plantel-form__body" style={S.emptyState}>
+            <div className="p-panel-body module-empty">
               <div>
                 <div style={{ fontSize: 42, marginBottom: 12 }}>Selecione uma ficha</div>
                 <div style={{ lineHeight: 1.8, maxWidth: 520 }}>A visualização detalhada aparece aqui com status, origem, anel, mutação e observações para facilitar decisões rápidas no manejo.</div>
               </div>
             </div>
           ) : (
-            <div className="plantel-form__body">
-              <div className="plantel-summary">
-                <div style={S.summaryCard}>
-                  <div style={S.summaryLabel}>Status atual</div>
+            <div className="p-panel-body">
+              <div className="p-stats mb-3">
+                <div className="module-panel" style={{ padding: '15px 16px' }}>
+                  <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 7 }}>Status atual</div>
                   <StatusBadge status={formData.Status || 'Vivo'} />
                 </div>
-                <div style={S.summaryCard}>
-                  <div style={S.summaryLabel}>Localização</div>
-                  <div style={S.summaryValue}>{formData.Gaiola || 'Sem gaiola definida'}</div>
+                <div className="module-panel" style={{ padding: '15px 16px' }}>
+                  <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 7 }}>Localização</div>
+                  <div className="font-serif" style={{ fontSize: 15 }}>{formData.Gaiola || 'Sem gaiola definida'}</div>
                 </div>
-                <div style={S.summaryCard}>
-                  <div style={S.summaryLabel}>Origem</div>
-                  <div style={S.summaryValue}>{formData.Origem || 'Não informada'}</div>
+                <div className="module-panel" style={{ padding: '15px 16px' }}>
+                  <div className="text-faint" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 7 }}>Origem</div>
+                  <div className="font-serif" style={{ fontSize: 15 }}>{formData.Origem || 'Não informada'}</div>
                 </div>
               </div>
 
-              <div className="plantel-form-grid">
+              <div className="p-form-grid">
                 {renderInput('Nome', 'Nome', { placeholder: 'Nome da ave' })}
                 {renderInput('Status', 'Status', { type: 'dropdown', options: STATUS_OPTIONS })}
                 {renderInput('NomeMae', 'Nome da mãe', { placeholder: 'Mãe' })}

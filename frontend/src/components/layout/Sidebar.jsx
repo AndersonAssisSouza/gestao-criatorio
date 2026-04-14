@@ -2,147 +2,134 @@ import { useAuth } from '../../context/AuthContext'
 import { BRAND } from '../../brand'
 import { BrandMark } from '../shared/BrandMark'
 
-export const NAV_ITEMS = [
-  { key: 'plantel', label: 'Plantel', available: true },
-  { key: 'chocando', label: 'Aves em Choco', available: true },
-  { key: 'gaiolas', label: 'Gaiolas', available: true },
-  { key: 'filhotes', label: 'Filhotes', available: true },
-  { key: 'especies', label: 'Espécies', available: true },
-  { key: 'aviario', label: 'Criatórios', available: true },
-  { key: 'aneis', label: 'Anéis', available: true },
-  { key: 'financeiro', label: 'Financeiro', available: true },
-  { key: 'explantel', label: 'Ex-Plantel', available: true },
-  { key: 'mutacoes', label: 'Mutações', available: true },
-  { key: 'assinatura', label: 'Minha assinatura', available: true },
-  { key: 'proprietario', label: 'Área do proprietário', available: true },
-  { key: 'configuracoes', label: 'Configurações', available: true },
+const NAV_GROUPS = [
+  {
+    label: 'Manejo',
+    items: [
+      { key: 'plantel', label: 'Plantel' },
+      { key: 'chocando', label: 'Aves em Choco' },
+      { key: 'gaiolas', label: 'Gaiolas' },
+      { key: 'filhotes', label: 'Filhotes' },
+    ],
+  },
+  {
+    label: 'Cadastros',
+    items: [
+      { key: 'especies', label: 'Espécies' },
+      { key: 'aviario', label: 'Criatórios' },
+      { key: 'aneis', label: 'Anéis' },
+    ],
+  },
+  {
+    label: 'Análise',
+    items: [
+      { key: 'financeiro', label: 'Financeiro' },
+      { key: 'explantel', label: 'Ex-Plantel' },
+      { key: 'mutacoes', label: 'Mutações', ownerOnly: true },
+    ],
+  },
+  {
+    label: 'Sistema',
+    items: [
+      { key: 'assinatura', label: 'Assinatura' },
+      { key: 'proprietario', label: 'Proprietário', ownerOnly: true },
+      { key: 'configuracoes', label: 'Configurações' },
+    ],
+  },
 ]
+
+export const NAV_ITEMS = NAV_GROUPS.flatMap((group) => group.items)
 
 export function Sidebar({ activePage, onNavigate, isOpen = true, onClose }) {
   const { user, logout } = useAuth()
   const userName = user?.name || user?.email?.split('@')[0] || 'Usuário'
   const initials = userName.slice(0, 2).toUpperCase()
-  const hasOperationalAccess = user?.access?.accessGranted || user?.role === 'owner'
-  const visibleItems = NAV_ITEMS.filter((item) => {
-    if (item.key === 'proprietario') return user?.role === 'owner'
-    if (item.key === 'mutacoes') return user?.role === 'owner'
-    if (item.key === 'assinatura' || item.key === 'configuracoes') return true
-    return hasOperationalAccess
-  })
+  const hasAccess = user?.access?.accessGranted || user?.role === 'owner'
+  const isOwner = user?.role === 'owner'
+
+  const isVisible = (item) => {
+    if (item.ownerOnly) return isOwner
+    if (['assinatura', 'configuracoes'].includes(item.key)) return true
+    return hasAccess
+  }
 
   return (
     <aside className={`app-sidebar ${isOpen ? 'is-open' : ''}`}>
       <div className="app-sidebar__brand">
         <div className="app-sidebar__brand-top">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-            <BrandMark />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <BrandMark size={36} compact />
             <div>
-              <div style={{ fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 4 }}>
-                {BRAND.descriptor}
-              </div>
-              <div style={{ fontSize: 22, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", lineHeight: 1 }}>
+              <div style={{ fontSize: 18, fontFamily: "'DM Serif Display', serif", color: '#f0e8dc', lineHeight: 1 }}>
                 {BRAND.name}
+              </div>
+              <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase', marginTop: 3 }}>
+                {BRAND.descriptor}
               </div>
             </div>
           </div>
           <button type="button" className="app-sidebar__close" onClick={onClose} aria-label="Fechar menu">
-            Fechar
+            ✕
           </button>
-        </div>
-        <div className="app-sidebar__brand-halo" />
-        <div style={{
-          padding: '14px 16px',
-          borderRadius: 16,
-          border: '1px solid var(--accent-border)',
-          background: 'linear-gradient(135deg, var(--accent-soft), rgba(255,255,255,0.03))',
-          color: 'var(--text-soft)',
-          fontSize: 12,
-          lineHeight: 1.6,
-        }}>
-          {BRAND.promise}
-        </div>
-        <div style={{
-          marginTop: 12,
-          fontSize: 10,
-          color: 'var(--accent-copy)',
-          letterSpacing: '0.16em',
-          textTransform: 'uppercase',
-        }}>
-          {BRAND.tagline}
         </div>
       </div>
 
       <div className="app-sidebar__section">
-        <div style={{ fontSize: 10, color: 'var(--text-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', padding: '0 10px 10px' }}>
-          {hasOperationalAccess ? 'Navegação principal' : 'Regularize seu acesso'}
-        </div>
-        <div className="app-sidebar__grid">
-          {visibleItems.map((item) => {
-            const active = activePage === item.key
+        {NAV_GROUPS.map((group) => {
+          const visibleItems = group.items.filter(isVisible)
+          if (visibleItems.length === 0) return null
 
-            return (
-              <button
-                key={item.key}
-                type="button"
-                onClick={() => {
-                  onNavigate(item.key)
-                  onClose?.()
-                }}
-                className={`app-sidebar__nav-item ${active ? 'is-active' : ''}`}
-              >
-                <div className="app-sidebar__nav-main">
-                  <div className="app-sidebar__nav-dot" />
-                  <span>{item.label}</span>
-                </div>
-                <span className="app-sidebar__nav-badge">ativo</span>
-              </button>
-            )
-          })}
-        </div>
+          return (
+            <div key={group.label}>
+              <div className="app-sidebar__nav-group-label">{group.label}</div>
+              <div className="app-sidebar__grid">
+                {visibleItems.map((item) => (
+                  <button
+                    key={item.key}
+                    type="button"
+                    onClick={() => { onNavigate(item.key); onClose?.() }}
+                    className={`app-sidebar__nav-item ${activePage === item.key ? 'is-active' : ''}`}
+                  >
+                    <div className="app-sidebar__nav-main">
+                      <div className="app-sidebar__nav-dot" />
+                      <span>{item.label}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        })}
       </div>
 
       <div className="app-sidebar__footer">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            width: 38,
-            height: 38,
-            borderRadius: '50%',
-            flexShrink: 0,
-            background: 'linear-gradient(135deg, var(--support), var(--bg-deep))',
-            border: '1px solid var(--accent-soft-strong)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 12,
-            color: 'var(--accent)',
-            fontWeight: 700,
+            width: 34, height: 34, borderRadius: '50%', flexShrink: 0,
+            background: 'linear-gradient(135deg, rgba(201,122,80,0.3), rgba(90,146,127,0.3))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 11, color: '#f0c8a8', fontWeight: 700,
           }}>
             {initials}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 4 }}>
-              Sessão
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {userName}
             </div>
-            <div style={{ fontSize: 11, color: 'var(--text-faint)', marginTop: 4 }}>
-              {user?.access?.label || (user?.role === 'owner' ? 'Vitalício' : 'Sem assinatura')}
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>
+              {user?.access?.label || (isOwner ? 'Vitalício' : 'Sem assinatura')}
             </div>
-            <button onClick={logout} style={{
-              marginTop: 8,
-              padding: 0,
-              fontSize: 11,
-              color: 'var(--accent-copy)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              textTransform: 'uppercase',
-              letterSpacing: '0.12em',
-            }}>
-              Encerrar sessão
-            </button>
           </div>
+          <button onClick={logout} style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            fontSize: 11, color: 'rgba(255,255,255,0.3)', padding: '4px 8px',
+            borderRadius: 6, transition: 'all 0.2s',
+          }}
+          onMouseEnter={(e) => { e.target.style.color = '#f0c8a8'; e.target.style.background = 'rgba(255,255,255,0.06)' }}
+          onMouseLeave={(e) => { e.target.style.color = 'rgba(255,255,255,0.3)'; e.target.style.background = 'none' }}
+          >
+            Sair
+          </button>
         </div>
       </div>
     </aside>

@@ -667,33 +667,17 @@ const EMPTY_MUTATION_FORM = {
 
 function CustomSelect({ label, value, onChange, options, placeholder, disabled }) {
   return (
-    <div style={{ marginBottom: 18 }}>
-      <label style={{
-        display: 'block', fontSize: 11, fontFamily: 'inherit',
-        color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase',
-        marginBottom: 6,
-      }}>
-        {label}
-      </label>
+    <div className="p-field mb-2">
+      <label className="p-label">{label}</label>
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
         disabled={disabled}
-        style={{
-          width: '100%', padding: '10px 14px', fontSize: 14,
-          fontFamily: 'inherit', color: value ? '#F2EDE4' : '#5A7A5C',
-          background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)',
-          borderRadius: 8, outline: 'none', cursor: disabled ? 'not-allowed' : 'pointer',
-          opacity: disabled ? 0.5 : 1, appearance: 'none',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23C95025' d='M2 4l4 4 4-4'/%3E%3C/svg%3E")`,
-          backgroundRepeat: 'no-repeat', backgroundPosition: 'right 12px center',
-        }}
+        className="p-select"
       >
-        <option value="" style={{ color: 'var(--text-muted)' }}>{placeholder}</option>
+        <option value="">{placeholder}</option>
         {options.map(opt => (
-          <option key={opt} value={opt} style={{ color: 'var(--text-main)', background: '#152818' }}>
-            {opt}
-          </option>
+          <option key={opt} value={opt}>{opt}</option>
         ))}
       </select>
     </div>
@@ -703,29 +687,15 @@ function CustomSelect({ label, value, onChange, options, placeholder, disabled }
 function MutationBadge({ name, percentual }) {
   const color = getMutationColor(name)
   return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 10,
+    <div className="flex items-center gap-1" style={{
       padding: '8px 14px', borderRadius: 8,
       background: `${color}18`, border: `1px solid ${color}40`,
       marginBottom: 6,
     }}>
-      <div style={{
-        width: 10, height: 10, borderRadius: '50%',
-        background: color, flexShrink: 0,
-      }} />
-      <span style={{
-        fontFamily: 'inherit', fontSize: 13,
-        color: 'var(--text-main)', flex: 1,
-      }}>
-        {name}
-      </span>
+      <div style={{ width: 10, height: 10, borderRadius: '50%', background: color, flexShrink: 0 }} />
+      <span className="text-main" style={{ fontSize: 13, flex: 1 }}>{name}</span>
       {percentual && (
-        <span style={{
-          fontFamily: 'inherit', fontSize: 12,
-          color: color, fontWeight: 600, flexShrink: 0,
-        }}>
-          {percentual}
-        </span>
+        <span style={{ fontSize: 12, color, fontWeight: 600, flexShrink: 0 }}>{percentual}</span>
       )}
     </div>
   )
@@ -735,11 +705,7 @@ function LegendText({ name }) {
   const legend = getMutationLegend(name)
   if (!legend) return null
   return (
-    <div style={{
-      fontSize: 11, fontFamily: 'inherit',
-      color: 'var(--text-muted)', fontStyle: 'italic', marginTop: -10,
-      marginBottom: 14, paddingLeft: 4, lineHeight: 1.5,
-    }}>
+    <div className="text-muted" style={{ fontSize: 11, fontStyle: 'italic', marginTop: -10, marginBottom: 14, paddingLeft: 4, lineHeight: 1.5 }}>
       {legend}
     </div>
   )
@@ -747,26 +713,15 @@ function LegendText({ name }) {
 
 function ResultSection({ title, icon, results }) {
   return (
-    <div style={{
-      background: 'var(--bg-card)', border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: 12, padding: '18px 20px', flex: 1, minWidth: 260,
-    }}>
-      <div style={{
-        fontSize: 13, fontFamily: "'DM Serif Display', serif",
-        color: '#C95025', marginBottom: 14, display: 'flex',
-        alignItems: 'center', gap: 8,
-      }}>
+    <div className="module-panel" style={{ flex: 1, minWidth: 260, padding: '18px 20px' }}>
+      <div className="font-serif flex items-center gap-1" style={{ fontSize: 13, color: '#C95025', marginBottom: 14 }}>
         <span style={{ fontSize: 18 }}>{icon}</span>
         {title}
       </div>
       {results.map((r, i) => (
         <div key={i}>
           <MutationBadge name={r.mutacao} percentual={r.percentual} />
-          <div style={{
-            fontSize: 10, fontFamily: 'inherit',
-            color: 'var(--text-muted)', marginBottom: 8, paddingLeft: 24,
-            lineHeight: 1.4,
-          }}>
+          <div className="text-muted" style={{ fontSize: 10, marginBottom: 8, paddingLeft: 24, lineHeight: 1.4 }}>
             {getMutationLegend(r.mutacao)}
           </div>
         </div>
@@ -778,47 +733,29 @@ function ResultSection({ title, icon, results }) {
 function CrossingOverResult({ crossing }) {
   return (
     <div>
-      {/* Note about crossing-over */}
-      <div style={{
-        background: 'rgba(179,157,219,0.1)', border: '1px solid rgba(179,157,219,0.3)',
-        borderRadius: 10, padding: '12px 16px', marginBottom: 18,
-      }}>
-        <div style={{
-          fontSize: 12, fontFamily: 'inherit',
-          color: '#B39DDB', fontWeight: 600, marginBottom: 4,
-        }}>
+      <div style={{ background: 'rgba(179,157,219,0.1)', border: '1px solid rgba(179,157,219,0.3)', borderRadius: 10, padding: '12px 16px', marginBottom: 18 }}>
+        <div style={{ fontSize: 12, color: '#B39DDB', fontWeight: 600, marginBottom: 4 }}>
           Cruzamento com Passepartout (sem % definido)
         </div>
-        <div style={{
-          fontSize: 11, fontFamily: 'inherit',
-          color: '#8A7AB0', lineHeight: 1.5,
-        }}>
+        <div className="text-muted" style={{ fontSize: 11, lineHeight: 1.5 }}>
           O fenômeno de crossing-over pode alterar os resultados.
           Abaixo estão listados os resultados normais e os possíveis
           resultados por crossing-over.
         </div>
       </div>
 
-      {/* Normal results */}
-      <div style={{
-        fontSize: 12, fontFamily: "'DM Serif Display', serif",
-        color: '#8BC34A', marginBottom: 10, letterSpacing: '0.05em',
-      }}>
+      <div className="font-serif mb-1" style={{ fontSize: 12, color: '#8BC34A', letterSpacing: '0.05em' }}>
         Resultado Normal
       </div>
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 20 }}>
+      <div className="flex gap-2 mb-3" style={{ flexWrap: 'wrap' }}>
         <ResultSection title="Filhotes Machos" icon="♂" results={crossing.resultadoNormal.machos} />
         <ResultSection title="Filhotes Fêmeas" icon="♀" results={crossing.resultadoNormal.femeas} />
       </div>
 
-      {/* Crossing-over results */}
-      <div style={{
-        fontSize: 12, fontFamily: "'DM Serif Display', serif",
-        color: '#FF9800', marginBottom: 10, letterSpacing: '0.05em',
-      }}>
+      <div className="font-serif mb-1" style={{ fontSize: 12, color: '#FF9800', letterSpacing: '0.05em' }}>
         Resultado por Crossing-Over
       </div>
-      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+      <div className="flex gap-2" style={{ flexWrap: 'wrap' }}>
         <ResultSection title="Filhotes Machos" icon="♂" results={crossing.resultadoCrossOver.machos} />
         <ResultSection title="Filhotes Fêmeas" icon="♀" results={crossing.resultadoCrossOver.femeas} />
       </div>
@@ -945,7 +882,7 @@ export function MutacoesModule() {
   const allSelected = especie && mutacaoMacho && mutacaoFemea && crossing
 
   return (
-    <div className="page-block" style={{ color: 'var(--text-main)' }}>
+    <div>
       <div className="module-hero">
         <div>
           <div className="module-hero__eyebrow">Genética aplicada</div>
@@ -959,363 +896,142 @@ export function MutacoesModule() {
         </div>
       </div>
 
-      {/* ── Main layout: left selectors + right results ── */}
-      <div style={{
-        display: 'flex', gap: 30, flexWrap: 'wrap', alignItems: 'flex-start',
-      }}>
-        {/* ── LEFT: Selectors ── */}
-        <div className="module-panel" style={{
-          width: 360, flexShrink: 0,
-          padding: '24px 22px',
-        }}>
-          <div style={{
-            fontSize: 14, fontFamily: "'DM Serif Display', serif",
-            color: '#C95025', marginBottom: 20,
-          }}>
-            Parâmetros do Cruzamento
-          </div>
+      {/* Main layout: left selectors + right results */}
+      <div className="p-split" style={{ alignItems: 'flex-start' }}>
 
-          {/* Espécie */}
-          <CustomSelect
-            label="Espécie"
-            value={especie}
-            onChange={handleEspecieChange}
-            options={SPECIES}
-            placeholder="Selecione a espécie..."
-          />
-
-          {/* Mutação do Macho */}
-          <CustomSelect
-            label="Mutação do Macho"
-            value={mutacaoMacho}
-            onChange={handleMachoChange}
-            options={machoOptions}
-            placeholder="Selecione a mutação do macho..."
-            disabled={!especie}
-          />
-          {mutacaoMacho && <LegendText name={mutacaoMacho} />}
-
-          {/* Mutação da Fêmea */}
-          <CustomSelect
-            label="Mutação da Fêmea"
-            value={mutacaoFemea}
-            onChange={setMutacaoFemea}
-            options={femeaOptions}
-            placeholder="Selecione a mutação da fêmea..."
-            disabled={!mutacaoMacho}
-          />
-          {mutacaoFemea && <LegendText name={mutacaoFemea} />}
-
-          {/* Summary cards */}
-          {allSelected && (
-            <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <StatCard
-                label="Cruzamento"
-                value={`${mutacaoMacho.length > 14 ? mutacaoMacho.slice(0, 12) + '...' : mutacaoMacho}`}
-                desc={`× ${mutacaoFemea}`}
-                color="#C95025"
-              />
-              {crossing && crossing.isCrossingOver && (
-                <StatCard
-                  label="Tipo"
-                  value="Crossing-Over"
-                  desc="Sem percentuais definidos"
-                  color="#B39DDB"
-                />
-              )}
-              {crossing && crossing.sexIndependent && (
-                <StatCard
-                  label="Herança"
-                  value="Autossômica"
-                  desc="Dominante — independe do sexo"
-                  color="#EF9A9A"
-                />
-              )}
+        {/* LEFT: Selectors */}
+        <div className="module-panel" style={{ maxWidth: 380, flexShrink: 0 }}>
+          <div className="p-panel-body">
+            <div className="font-serif" style={{ fontSize: 14, color: '#C95025', marginBottom: 20 }}>
+              Parâmetros do Cruzamento
             </div>
-          )}
+
+            <CustomSelect label="Espécie" value={especie} onChange={handleEspecieChange} options={SPECIES} placeholder="Selecione a espécie..." />
+            <CustomSelect label="Mutação do Macho" value={mutacaoMacho} onChange={handleMachoChange} options={machoOptions} placeholder="Selecione a mutação do macho..." disabled={!especie} />
+            {mutacaoMacho && <LegendText name={mutacaoMacho} />}
+            <CustomSelect label="Mutação da Fêmea" value={mutacaoFemea} onChange={setMutacaoFemea} options={femeaOptions} placeholder="Selecione a mutação da fêmea..." disabled={!mutacaoMacho} />
+            {mutacaoFemea && <LegendText name={mutacaoFemea} />}
+
+            {allSelected && (
+              <div className="flex flex-col gap-1 mt-2">
+                <StatCard label="Cruzamento" value={`${mutacaoMacho.length > 14 ? mutacaoMacho.slice(0, 12) + '...' : mutacaoMacho}`} desc={`× ${mutacaoFemea}`} color="#C95025" />
+                {crossing && crossing.isCrossingOver && (
+                  <StatCard label="Tipo" value="Crossing-Over" desc="Sem percentuais definidos" color="#B39DDB" />
+                )}
+                {crossing && crossing.sexIndependent && (
+                  <StatCard label="Herança" value="Autossômica" desc="Dominante — independe do sexo" color="#EF9A9A" />
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* ── RIGHT: Results ── */}
+        {/* RIGHT: Results */}
         <div style={{ flex: 1, minWidth: 300 }}>
           {!allSelected ? (
-            /* Instruction text when nothing selected */
-            <div className="module-panel" style={{
-              borderStyle: 'dashed', padding: '60px 40px', textAlign: 'center',
-            }}>
-              <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.5 }}>🧬</div>
-              <div style={{
-                fontSize: 15, fontFamily: "'DM Serif Display', serif",
-                color: 'var(--text-muted)', lineHeight: 1.7, maxWidth: 420, margin: '0 auto',
-              }}>
-                Selecione a espécie e mutações do macho e fêmea para o resultado
-                das possibilidades das mutações no nascimento dos filhotes
-              </div>
-              <div style={{
-                fontSize: 11, fontFamily: 'inherit',
-                color: '#3A5A3C', marginTop: 16,
-              }}>
-                Fonte: TARIM - Acasalamentos entre mutações (Décio Junior)
+            <div className="module-empty" style={{ borderStyle: 'dashed', padding: '60px 40px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.5 }}>&#129516;</div>
+                <div className="font-serif text-muted" style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 420, margin: '0 auto' }}>
+                  Selecione a espécie e mutações do macho e fêmea para o resultado
+                  das possibilidades das mutações no nascimento dos filhotes
+                </div>
+                <div className="text-faint" style={{ fontSize: 11, marginTop: 16 }}>
+                  Fonte: TARIM - Acasalamentos entre mutações (Décio Junior)
+                </div>
               </div>
             </div>
           ) : crossing.isCrossingOver ? (
-            /* Crossing-over results */
-            <div className="module-panel" style={{ padding: '22px 24px' }}>
-              <div style={{
-                fontSize: 18, fontFamily: "'DM Serif Display', serif",
-                color: 'var(--text-main)', marginBottom: 4,
-              }}>
-                Resultado do Cruzamento
+            <div className="module-panel">
+              <div className="p-panel-body">
+                <div className="font-serif" style={{ fontSize: 18, marginBottom: 4 }}>Resultado do Cruzamento</div>
+                <div className="text-muted mb-2" style={{ fontSize: 12 }}>{mutacaoMacho} × {mutacaoFemea}</div>
+                <CrossingOverResult crossing={crossing} />
               </div>
-              <div style={{
-                fontSize: 12, fontFamily: 'inherit',
-                color: 'var(--text-muted)', marginBottom: 18,
-              }}>
-                {mutacaoMacho} × {mutacaoFemea}
-              </div>
-              <CrossingOverResult crossing={crossing} />
             </div>
           ) : (
-            /* Normal results */
-            <div className="module-panel" style={{ padding: '22px 24px' }}>
-              <div style={{
-                fontSize: 18, fontFamily: "'DM Serif Display', serif",
-                color: 'var(--text-main)', marginBottom: 4,
-              }}>
-                Resultado do Cruzamento
-              </div>
-              <div style={{
-                fontSize: 12, fontFamily: 'inherit',
-                color: 'var(--text-muted)', marginBottom: 18,
-              }}>
-                {mutacaoMacho} × {mutacaoFemea}
-              </div>
-              <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                <ResultSection
-                  title="Filhotes Machos"
-                  icon="♂"
-                  results={crossing.resultadoMachos}
-                />
-                <ResultSection
-                  title="Filhotes Fêmeas"
-                  icon="♀"
-                  results={crossing.resultadoFemeas}
-                />
-              </div>
-
-              {/* Sex-independent note for Diluição */}
-              {crossing.sexIndependent && (
-                <div style={{
-                  background: 'rgba(239,154,154,0.08)', border: '1px solid rgba(239,154,154,0.2)',
-                  borderRadius: 10, padding: '12px 16px', marginTop: 16,
-                }}>
-                  <div style={{
-                    fontSize: 11, fontFamily: 'inherit',
-                    color: '#EF9A9A', lineHeight: 1.5,
-                  }}>
-                    Herança autossômica dominante — os resultados são idênticos
-                    para filhotes machos e fêmeas.
-                  </div>
+            <div className="module-panel">
+              <div className="p-panel-body">
+                <div className="font-serif" style={{ fontSize: 18, marginBottom: 4 }}>Resultado do Cruzamento</div>
+                <div className="text-muted mb-2" style={{ fontSize: 12 }}>{mutacaoMacho} × {mutacaoFemea}</div>
+                <div className="flex gap-2" style={{ flexWrap: 'wrap' }}>
+                  <ResultSection title="Filhotes Machos" icon="♂" results={crossing.resultadoMachos} />
+                  <ResultSection title="Filhotes Fêmeas" icon="♀" results={crossing.resultadoFemeas} />
                 </div>
-              )}
+                {crossing.sexIndependent && (
+                  <div className="mt-2" style={{ background: 'rgba(239,154,154,0.08)', border: '1px solid rgba(239,154,154,0.2)', borderRadius: 10, padding: '12px 16px' }}>
+                    <div style={{ fontSize: 11, color: '#EF9A9A', lineHeight: 1.5 }}>
+                      Herança autossômica dominante — os resultados são idênticos para filhotes machos e fêmeas.
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
       </div>
 
-      <div className="module-panel" style={{ marginTop: 26, padding: '22px 24px' }}>
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', gap: 20, flexWrap: 'wrap', marginBottom: 20,
-        }}>
+      {/* Mutation Registry */}
+      <div className="module-panel mt-3">
+        <div className="p-panel-header">
           <div>
-            <div style={{
-              fontSize: 11, fontFamily: 'inherit', color: '#C95025',
-              letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8,
-            }}>
-              Cadastro de mutações
-            </div>
-            <div style={{
-              fontSize: 22, fontFamily: "'DM Serif Display', serif", color: 'var(--text-main)', marginBottom: 6,
-            }}>
-              Nova mutação
-            </div>
-            <div style={{
-              fontSize: 13, color: 'var(--text-soft)', lineHeight: 1.7, maxWidth: 720,
-            }}>
+            <div className="module-hero__eyebrow">Cadastro de mutações</div>
+            <div className="font-serif" style={{ fontSize: 22, marginBottom: 6 }}>Nova mutação</div>
+            <div className="text-muted" style={{ fontSize: 13, lineHeight: 1.7, maxWidth: 720 }}>
               Cadastre mutações por espécie para alimentar o restante do sistema. Essas mutações passam a ficar disponíveis no cadastro da ave quando a espécie correspondente for selecionada.
             </div>
-            {!canManageMutations ? (
-              <div style={{
-                marginTop: 10,
-                fontSize: 12,
-                color: '#d8b7a8',
-                lineHeight: 1.7,
-              }}>
+            {!canManageMutations && (
+              <div className="text-faint mt-1" style={{ fontSize: 12, lineHeight: 1.7 }}>
                 O cadastro de mutação fica disponível apenas na sua conta master.
               </div>
-            ) : null}
+            )}
           </div>
-
           <div style={{ minWidth: 160 }}>
-            <StatCard
-              label="Cadastradas"
-              value={mutationRecords.length}
-              desc="regras registradas"
-              color="#C95025"
-            />
+            <StatCard label="Cadastradas" value={mutationRecords.length} desc="regras registradas" color="#C95025" />
           </div>
         </div>
 
-        {mutationError ? (
-          <div style={{
-            background: 'rgba(224,92,75,0.12)', border: '1px solid rgba(224,92,75,0.28)', borderRadius: 10,
-            padding: '12px 14px', color: '#ffc9c1', fontSize: 12, marginBottom: 14,
-          }}>
-            {mutationError}
-          </div>
-        ) : null}
+        <div className="p-panel-body">
+          {mutationError && <div className="p-alert p-alert--error mb-2">{mutationError}</div>}
+          {mutationMessage && <div className="p-alert p-alert--success mb-2">{mutationMessage}</div>}
 
-        {mutationMessage ? (
-          <div style={{
-            background: 'rgba(76,175,125,0.12)', border: '1px solid rgba(76,175,125,0.28)', borderRadius: 10,
-            padding: '12px 14px', color: '#d6f5e6', fontSize: 12, marginBottom: 14,
-          }}>
-            {mutationMessage}
-          </div>
-        ) : null}
-
-        {canManageMutations ? (
-          <>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
-              <CustomSelect
-                label="Espécie"
-                value={mutationForm.Especie}
-                onChange={(value) => setMutationField('Especie', value)}
-                options={mutationSpeciesOptions}
-                placeholder="Selecione a espécie..."
-              />
-
-              <div>
-                <label style={{
-                  display: 'block', fontSize: 11, fontFamily: 'inherit',
-                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
-                }}>
-                  Mutação macho
-                </label>
-                <input value={mutationForm.MutacaoMacho} onChange={(e) => setMutationField('MutacaoMacho', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+          {canManageMutations && (
+            <>
+              <div className="p-form-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+                <CustomSelect label="Espécie" value={mutationForm.Especie} onChange={(value) => setMutationField('Especie', value)} options={mutationSpeciesOptions} placeholder="Selecione a espécie..." />
+                <div className="p-field"><label className="p-label">Mutação macho</label><input className="p-input" value={mutationForm.MutacaoMacho} onChange={(e) => setMutationField('MutacaoMacho', e.target.value)} /></div>
+                <div className="p-field"><label className="p-label">Legenda macho</label><input className="p-input" value={mutationForm.LegendaMutacaoMacho} onChange={(e) => setMutationField('LegendaMutacaoMacho', e.target.value)} /></div>
+                <div className="p-field"><label className="p-label">Mutação fêmea</label><input className="p-input" value={mutationForm.MutacaoFemea} onChange={(e) => setMutationField('MutacaoFemea', e.target.value)} /></div>
+                <div className="p-field"><label className="p-label">Legenda fêmea</label><input className="p-input" value={mutationForm.LegendaMutacaoFemea} onChange={(e) => setMutationField('LegendaMutacaoFemea', e.target.value)} /></div>
+                <div className="p-field"><label className="p-label">Filhote macho</label><input className="p-input" value={mutationForm.MutacaoFilhoteMacho} onChange={(e) => setMutationField('MutacaoFilhoteMacho', e.target.value)} /></div>
+                <div className="p-field"><label className="p-label">Legenda filhote macho</label><input className="p-input" value={mutationForm.LegendaFilhoteMacho} onChange={(e) => setMutationField('LegendaFilhoteMacho', e.target.value)} /></div>
+                <div className="p-field"><label className="p-label">Filhote fêmea</label><input className="p-input" value={mutationForm.MutacaoFilhoteFemea} onChange={(e) => setMutationField('MutacaoFilhoteFemea', e.target.value)} /></div>
+                <div className="p-field"><label className="p-label">Legenda filhote fêmea</label><input className="p-input" value={mutationForm.LegendaFilhoteFemea} onChange={(e) => setMutationField('LegendaFilhoteFemea', e.target.value)} /></div>
               </div>
 
-              <div>
-                <label style={{
-                  display: 'block', fontSize: 11, fontFamily: 'inherit',
-                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
-                }}>
-                  Legenda macho
-                </label>
-                <input value={mutationForm.LegendaMutacaoMacho} onChange={(e) => setMutationField('LegendaMutacaoMacho', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
+              <div className="flex justify-end mt-2">
+                <button type="button" onClick={handleCreateMutation} disabled={mutationSaving} className="p-btn p-btn--primary">
+                  {mutationSaving ? 'Salvando...' : 'Cadastrar mutação'}
+                </button>
               </div>
+            </>
+          )}
 
-              <div>
-                <label style={{
-                  display: 'block', fontSize: 11, fontFamily: 'inherit',
-                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
-                }}>
-                  Mutação fêmea
-                </label>
-                <input value={mutationForm.MutacaoFemea} onChange={(e) => setMutationField('MutacaoFemea', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block', fontSize: 11, fontFamily: 'inherit',
-                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
-                }}>
-                  Legenda fêmea
-                </label>
-                <input value={mutationForm.LegendaMutacaoFemea} onChange={(e) => setMutationField('LegendaMutacaoFemea', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block', fontSize: 11, fontFamily: 'inherit',
-                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
-                }}>
-                  Filhote macho
-                </label>
-                <input value={mutationForm.MutacaoFilhoteMacho} onChange={(e) => setMutationField('MutacaoFilhoteMacho', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block', fontSize: 11, fontFamily: 'inherit',
-                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
-                }}>
-                  Legenda filhote macho
-                </label>
-                <input value={mutationForm.LegendaFilhoteMacho} onChange={(e) => setMutationField('LegendaFilhoteMacho', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block', fontSize: 11, fontFamily: 'inherit',
-                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
-                }}>
-                  Filhote fêmea
-                </label>
-                <input value={mutationForm.MutacaoFilhoteFemea} onChange={(e) => setMutationField('MutacaoFilhoteFemea', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
-              </div>
-
-              <div>
-                <label style={{
-                  display: 'block', fontSize: 11, fontFamily: 'inherit',
-                  color: '#C95025', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6,
-                }}>
-                  Legenda filhote fêmea
-                </label>
-                <input value={mutationForm.LegendaFilhoteFemea} onChange={(e) => setMutationField('LegendaFilhoteFemea', e.target.value)} style={{ width: '100%', padding: '10px 14px', fontSize: 14, fontFamily: 'inherit', color: 'var(--text-main)', background: 'var(--bg-card)', border: '1px solid rgba(201,80,37,0.3)', borderRadius: 8, outline: 'none' }} />
-              </div>
-            </div>
-
-            <div style={{ marginTop: 16, display: 'flex', justifyContent: 'flex-end' }}>
-              <button
-                type="button"
-                onClick={handleCreateMutation}
-                disabled={mutationSaving}
-                style={{
-                  border: 'none', borderRadius: 10, padding: '12px 18px',
-                  background: 'linear-gradient(135deg, #C95025, #A0401D)', color: '#fff7f2',
-                  fontFamily: 'inherit', cursor: mutationSaving ? 'not-allowed' : 'pointer',
-                  opacity: mutationSaving ? 0.7 : 1,
-                }}
-              >
-                {mutationSaving ? 'Salvando...' : 'Cadastrar mutação'}
-              </button>
-            </div>
-          </>
-        ) : null}
-
-        <div style={{ marginTop: 24 }}>
-          <div style={{
-            fontSize: 13, fontFamily: "'DM Serif Display', serif", color: 'var(--text-main)', marginBottom: 12,
-          }}>
-            Últimas mutações cadastradas
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 10 }}>
-            {recentMutations.map((item) => (
-              <div key={item.ID} style={{
-                borderRadius: 10, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)',
-                padding: '12px 14px',
-              }}>
-                <div style={{ fontSize: 11, fontFamily: 'inherit', color: '#C95025', marginBottom: 8 }}>
-                  {item.Especie}
+          <div className="mt-3">
+            <div className="font-serif mb-1" style={{ fontSize: 13 }}>Últimas mutações cadastradas</div>
+            <div className="p-form-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+              {recentMutations.map((item) => (
+                <div key={item.ID} className="module-panel" style={{ padding: '12px 14px' }}>
+                  <div style={{ fontSize: 11, color: '#C95025', marginBottom: 8 }}>{item.Especie}</div>
+                  <div className="text-main" style={{ fontSize: 13, lineHeight: 1.7 }}>
+                    Macho: {item.MutacaoMacho || '-'}<br />
+                    Fêmea: {item.MutacaoFemea || '-'}<br />
+                    Filhote macho: {item.MutacaoFilhoteMacho || '-'}<br />
+                    Filhote fêmea: {item.MutacaoFilhoteFemea || '-'}
+                  </div>
                 </div>
-                <div style={{ fontSize: 13, color: 'var(--text-main)', lineHeight: 1.7 }}>
-                  Macho: {item.MutacaoMacho || '-'}<br />
-                  Fêmea: {item.MutacaoFemea || '-'}<br />
-                  Filhote macho: {item.MutacaoFilhoteMacho || '-'}<br />
-                  Filhote fêmea: {item.MutacaoFilhoteFemea || '-'}
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>

@@ -31,37 +31,6 @@ const MOCK_LISTA_ITENS = [
 
 const TIPO_OPTIONS = ['Compra', 'Venda']
 const CURRENT_USER = 'Anderson Assis'
-// ─── Estilos reutilizáveis ──────────────────────────────────────────────────
-const s = {
-  input: {
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
-    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
-  },
-  select: {
-    background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13,
-    fontFamily: 'inherit', outline: 'none', width: '100%', boxSizing: 'border-box',
-    appearance: 'none', cursor: 'pointer',
-  },
-  label: {
-    fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit',
-    letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 4, display: 'block',
-  },
-  btnPrimary: {
-    background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none',
-    borderRadius: 14, padding: '12px 20px', color: 'var(--text-main)', fontSize: 12,
-    fontWeight: 700, fontFamily: 'inherit', cursor: 'pointer',
-  },
-  btnSecondary: {
-    background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-    borderRadius: 14, padding: '12px 20px', color: 'var(--text-soft)', fontSize: 12,
-    fontFamily: 'inherit', cursor: 'pointer',
-  },
-  card: {
-    overflow: 'hidden',
-  },
-}
 
 const EMPTY_FORM = { Item: '', TipoMovimentacao: 'Compra', Produto: '', Quantidade: 1, Valor: '', Data: '' }
 
@@ -153,34 +122,34 @@ export function FinanceiroModule() {
   const distinctItens = [...new Set(listaItens.map(i => i.Item))]
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
+    <div className="module-empty">
       Carregando registros financeiros...
     </div>
   )
 
   // ─── Formulário reutilizável ──────────────────────────────────────────────
   const renderForm = (form, setForm) => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-      <div>
-        <label style={s.label}>Item</label>
-        <select style={s.select} value={form.Item} onChange={e => setForm(f => ({ ...f, Item: e.target.value }))}>
+    <div className="p-form-grid--full">
+      <div className="p-field">
+        <label className="p-label">Item</label>
+        <select className="p-select" value={form.Item} onChange={e => setForm(f => ({ ...f, Item: e.target.value }))}>
           <option value="">Selecione um item...</option>
           {distinctItens.map(item => <option key={item} value={item}>{item}</option>)}
         </select>
       </div>
-      <div>
-        <label style={s.label}>Tipo de Movimentação</label>
-        <select style={s.select} value={form.TipoMovimentacao} onChange={e => setForm(f => ({ ...f, TipoMovimentacao: e.target.value }))}>
+      <div className="p-field">
+        <label className="p-label">Tipo de Movimentação</label>
+        <select className="p-select" value={form.TipoMovimentacao} onChange={e => setForm(f => ({ ...f, TipoMovimentacao: e.target.value }))}>
           {TIPO_OPTIONS.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
-      <div>
-        <label style={s.label}>Valor (R$)</label>
-        <input style={s.input} type="number" step="0.01" min="0" value={form.Valor} onChange={e => setForm(f => ({ ...f, Valor: e.target.value }))} placeholder="0.00" />
+      <div className="p-field">
+        <label className="p-label">Valor (R$)</label>
+        <input className="p-input" type="number" step="0.01" min="0" value={form.Valor} onChange={e => setForm(f => ({ ...f, Valor: e.target.value }))} placeholder="0.00" />
       </div>
-      <div>
-        <label style={s.label}>Data</label>
-        <input style={s.input} type="date" value={form.Data} onChange={e => setForm(f => ({ ...f, Data: e.target.value }))} />
+      <div className="p-field">
+        <label className="p-label">Data</label>
+        <input className="p-input" type="date" value={form.Data} onChange={e => setForm(f => ({ ...f, Data: e.target.value }))} />
       </div>
     </div>
   )
@@ -199,40 +168,40 @@ export function FinanceiroModule() {
       </div>
 
       {error && (
-        <div style={{ background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 16, color: '#E05C4B', fontSize: 13, fontFamily: 'inherit' }}>
+        <div className="p-alert p-alert--error">
           {error}
           <span onClick={() => setError('')} style={{ float: 'right', cursor: 'pointer', opacity: 0.7 }}>x</span>
         </div>
       )}
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 28 }}>
+      <div className="p-stats" style={{ marginBottom: 28 }}>
         <StatCard label="Total Vendas" value={`R$ ${fmt(totalReceitas)}`} desc="vendas acumuladas" color="#4CAF7D" />
         <StatCard label="Total Compras" value={`R$ ${fmt(totalDespesas)}`} desc="compras acumuladas" color="#E05C4B" />
         <StatCard label="Saldo" value={`R$ ${fmt(saldo)}`} desc="receitas - despesas" color={saldo >= 0 ? '#C95025' : '#E05C4B'} />
       </div>
 
       {/* Master-Detail Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+      <div className="p-split">
 
         {/* ═══ LEFT PANEL: Gallery ═══ */}
-        <div className="module-panel" style={s.card}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="module-panel">
+          <div className="p-panel-header">
             <div>
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>Movimentações</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginTop: 2 }}>
+              <div className="p-panel-header__title">Movimentações</div>
+              <div className="p-panel-header__subtitle">
                 {filtered.length} de {userFiltered.length} registros
               </div>
             </div>
-            <button onClick={() => { setIsAdding(true); setSelected(null); setEditForm(null) }} style={s.btnPrimary}>
+            <button onClick={() => { setIsAdding(true); setSelected(null); setEditForm(null) }} className="p-btn p-btn--primary">
               + Nova Movimentação
             </button>
           </div>
 
           {/* Search */}
-          <div style={{ padding: '12px 22px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+          <div className="p-panel-search">
             <input
-              style={s.input}
+              className="p-input"
               placeholder="Buscar por item..."
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -240,52 +209,44 @@ export function FinanceiroModule() {
           </div>
 
           {/* Gallery Items */}
-          <div style={{ maxHeight: 480, overflowY: 'auto' }}>
+          <div className="p-panel-list">
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-faint)' }}>
-                <div style={{ fontSize: 14, fontFamily: 'inherit', color: 'var(--text-muted)' }}>Nenhum registro encontrado</div>
+              <div className="module-empty">
+                <div className="text-muted" style={{ fontSize: 14 }}>Nenhum registro encontrado</div>
               </div>
             ) : filtered.map(r => (
               <div
                 key={r.ID}
                 onClick={() => setSelected(r)}
-                style={{
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  padding: '14px 22px', cursor: 'pointer',
-                  borderBottom: '1px solid rgba(255,255,255,0.04)',
-                  background: selected?.ID === r.ID ? 'rgba(201,80,37,0.08)' : 'transparent',
-                  borderLeft: selected?.ID === r.ID ? '3px solid #C95025' : '3px solid transparent',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={e => { if (selected?.ID !== r.ID) e.currentTarget.style.background = 'rgba(201,80,37,0.04)' }}
-                onMouseLeave={e => { if (selected?.ID !== r.ID) e.currentTarget.style.background = 'transparent' }}
+                className={`p-list-item${selected?.ID === r.ID ? ' is-active' : ''}`}
               >
                 <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
+                <div className="font-serif" style={{ fontSize: 15, fontWeight: 700 }}>
                   {r.Item}
                 </div>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 4 }}>
                     <span style={{
-                      fontSize: 11, fontWeight: 600, fontFamily: 'inherit',
+                      fontSize: 11, fontWeight: 600,
                       color: r.TipoMovimentacao === 'Receita' ? '#4CAF7D' : '#E05C4B',
                     }}>
                       {r.TipoMovimentacao}
                     </span>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
+                    <span className="text-muted" style={{ fontSize: 11 }}>
                       {r.Data}
                     </span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <span style={{
-                    fontSize: 14, fontWeight: 700, fontFamily: 'inherit',
+                    fontSize: 14, fontWeight: 700,
                     color: r.TipoMovimentacao === 'Receita' ? '#4CAF7D' : '#E05C4B',
                   }}>
                     R$ {fmt(r.Valor)}
                   </span>
                   <button
                     onClick={e => { e.stopPropagation(); setDelTarget(r) }}
-                    style={{ background: 'none', border: 'none', color: '#E05C4B', cursor: 'pointer', fontSize: 14, opacity: 0.5, padding: 4 }}
+                    className="p-btn p-btn--ghost"
+                    style={{ color: '#E05C4B', fontSize: 14, opacity: 0.5, padding: 4 }}
                     title="Remover"
                   >x</button>
                 </div>
@@ -295,47 +256,47 @@ export function FinanceiroModule() {
         </div>
 
         {/* ═══ RIGHT PANEL: Detail Form ═══ */}
-        <div className="module-panel" style={s.card}>
+        <div className="module-panel">
           {isAdding ? (
-            <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 20 }}>
+            <div className="p-panel-body">
+              <div className="font-serif" style={{ fontSize: 20, fontWeight: 700, marginBottom: 20 }}>
                 Nova Movimentação
               </div>
               {renderForm(newForm, setNewForm)}
               <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
-                <button onClick={handleAddNew} style={s.btnPrimary}>Salvar</button>
-                <button onClick={() => setIsAdding(false)} style={s.btnSecondary}>Cancelar</button>
+                <button onClick={handleAddNew} className="p-btn p-btn--primary">Salvar</button>
+                <button onClick={() => setIsAdding(false)} className="p-btn p-btn--secondary">Cancelar</button>
               </div>
             </div>
           ) : selected && editForm ? (
-            <div style={{ padding: 22 }}>
-              <div style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 4 }}>
+            <div className="p-panel-body">
+              <div className="font-serif" style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>
                 {selected.Item}
               </div>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
                 <span style={{
-                  fontSize: 13, fontWeight: 600, fontFamily: 'inherit',
+                  fontSize: 13, fontWeight: 600,
                   color: selected.TipoMovimentacao === 'Receita' ? '#4CAF7D' : '#E05C4B',
                 }}>
                   {selected.TipoMovimentacao}
                 </span>
-                <span style={{ fontSize: 13, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
+                <span className="text-muted" style={{ fontSize: 13 }}>
                   R$ {fmt(selected.Valor)} | {selected.Data}
                 </span>
               </div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#C95025', fontFamily: 'inherit', marginBottom: 14, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <div className="p-label" style={{ color: '#C95025', fontWeight: 700, marginBottom: 14 }}>
                 Editar Movimentação
               </div>
               {renderForm(editForm, setEditForm)}
               <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap' }}>
-                <button onClick={handleSaveEdit} style={s.btnPrimary}>Salvar Alterações</button>
+                <button onClick={handleSaveEdit} className="p-btn p-btn--primary">Salvar Alterações</button>
               </div>
             </div>
           ) : (
             <div className="module-empty">
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>&#9675;</div>
-                <div style={{ fontSize: 14, color: 'var(--text-muted)', fontFamily: 'inherit', lineHeight: 1.6 }}>
+                <div className="text-muted" style={{ fontSize: 14, lineHeight: 1.6 }}>
                   Selecione uma movimentação ao lado<br />para visualizar e editar detalhes
                 </div>
               </div>

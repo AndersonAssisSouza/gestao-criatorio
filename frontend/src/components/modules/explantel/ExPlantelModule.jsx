@@ -31,40 +31,6 @@ const GENERO_OPTIONS = ['Macho', 'Femea']
 
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
-// ─── Estilos ────────────────────────────────────────────────────────────────
-const S = {
-  page:       { display: 'flex', flexDirection: 'column', height: '100%', gap: 20 },
-  master:     { display: 'flex', gap: 0, flex: 1, minHeight: 0, overflow: 'hidden' },
-  gallery:    { width: '35%', borderRight: '1px solid rgba(255,255,255,0.07)', display: 'flex', flexDirection: 'column', minHeight: 0 },
-  formPanel:  { width: '65%', display: 'flex', flexDirection: 'column', minHeight: 0 },
-  galleryHeader: { padding: '20px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: 12 },
-  searchRow:  { display: 'flex', gap: 8, alignItems: 'center' },
-  searchInput:{ flex: 1, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 12, fontFamily: 'inherit', outline: 'none' },
-  addBtn:     { background: 'linear-gradient(135deg, #C95025, #A0401D)', border: 'none', borderRadius: 14, width: 42, height: 42, color: '#FFFFFF', fontSize: 18, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  galleryList:{ flex: 1, overflowY: 'auto', overflowX: 'hidden' },
-  galleryItem:{ padding: '16px 18px', borderBottom: '1px solid rgba(255,255,255,0.04)', cursor: 'pointer', transition: 'background 0.15s' },
-  galleryItemSelected: { background: 'linear-gradient(135deg, rgba(201,80,37,0.12), rgba(255,255,255,0.04))' },
-  galleryName:{ fontSize: 16, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif", marginBottom: 3 },
-  gallerySub: { fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit', marginBottom: 6 },
-  toolbar:    { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 22px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(21,40,24,0.2)' },
-  toolbarTitle:{ fontSize: 22, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" },
-  toolbarBtns:{ display: 'flex', gap: 8 },
-  iconBtn:    (color) => ({ background: 'transparent', border: `1px solid ${color}33`, borderRadius: 14, width: 40, height: 40, color, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.15s' }),
-  formBody:   { flex: 1, overflowY: 'auto', padding: '22px 26px' },
-  formGrid:   { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px 20px' },
-  fieldWrap:  { display: 'flex', flexDirection: 'column', gap: 5 },
-  fieldWrapFull: { display: 'flex', flexDirection: 'column', gap: 5, gridColumn: '1 / -1' },
-  label:      { fontSize: 11, fontFamily: 'inherit', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' },
-  input:      { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none' },
-  inputDisabled:{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-muted)', fontSize: 13, fontFamily: 'inherit', outline: 'none', cursor: 'not-allowed' },
-  select:     { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', appearance: 'none', WebkitAppearance: 'none' },
-  selectDisabled:{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-muted)', fontSize: 13, fontFamily: 'inherit', outline: 'none', cursor: 'not-allowed', appearance: 'none', WebkitAppearance: 'none' },
-  textarea:   { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-main)', fontSize: 13, fontFamily: 'inherit', outline: 'none', resize: 'vertical', minHeight: 88 },
-  textareaDisabled: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 14, padding: '12px 14px', color: 'var(--text-muted)', fontSize: 13, fontFamily: 'inherit', outline: 'none', resize: 'vertical', minHeight: 88, cursor: 'not-allowed' },
-  emptyForm:  { display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 1, color: 'var(--text-faint)', fontFamily: 'inherit', fontSize: 13, flexDirection: 'column', gap: 8 },
-  error:      { background: 'rgba(224,92,75,0.1)', border: '1px solid rgba(224,92,75,0.2)', borderRadius: 8, padding: '10px 16px', marginBottom: 12, color: '#E05C4B', fontSize: 13, fontFamily: 'inherit' },
-}
-
 const emptyForm = () => ({
   Nome: '', Status: 'Falecimento', NomeMae: '', NomePai: '', Gaiola: '',
   DataNascimento: '', CategoriaAve: '', Genero: '', Origem: '',
@@ -239,14 +205,14 @@ export function ExPlantelModule() {
   const renderInput = (key, label, opts = {}) => {
     const editable = canEditField(key)
     const { type = 'text', options, fullWidth, placeholder } = opts
-    const wrapStyle = fullWidth ? S.fieldWrapFull : S.fieldWrap
+    const wrapClass = fullWidth ? 'p-field p-form-grid--full' : 'p-field'
 
     if (type === 'dropdown') {
       return (
-        <div style={wrapStyle} key={key}>
-          <label style={S.label}>{label}</label>
+        <div className={wrapClass} key={key}>
+          <label className="p-label">{label}</label>
           <select
-            style={editable ? S.select : S.selectDisabled}
+            className="p-select"
             value={formData[key] || ''}
             onChange={e => setField(key, e.target.value)}
             disabled={!editable}
@@ -261,11 +227,11 @@ export function ExPlantelModule() {
     if (type === 'date') {
       if (isNewMode) {
         return (
-          <div style={wrapStyle} key={key}>
-            <label style={S.label}>{label}</label>
+          <div className={wrapClass} key={key}>
+            <label className="p-label">{label}</label>
             <input
               type="date"
-              style={S.input}
+              className="p-input"
               value={formData[key] || ''}
               onChange={e => setField(key, e.target.value)}
             />
@@ -273,19 +239,19 @@ export function ExPlantelModule() {
         )
       }
       return (
-        <div style={wrapStyle} key={key}>
-          <label style={S.label}>{label}</label>
-          <input style={S.inputDisabled} value={formData[key] || ''} disabled readOnly />
+        <div className={wrapClass} key={key}>
+          <label className="p-label">{label}</label>
+          <input className="p-input" value={formData[key] || ''} disabled readOnly />
         </div>
       )
     }
 
     if (type === 'textarea') {
       return (
-        <div style={wrapStyle} key={key}>
-          <label style={S.label}>{label}</label>
+        <div className={wrapClass} key={key}>
+          <label className="p-label">{label}</label>
           <textarea
-            style={editable ? S.textarea : S.textareaDisabled}
+            className="p-textarea"
             value={formData[key] || ''}
             onChange={e => setField(key, e.target.value)}
             disabled={!editable}
@@ -296,10 +262,10 @@ export function ExPlantelModule() {
     }
 
     return (
-      <div style={wrapStyle} key={key}>
-        <label style={S.label}>{label}</label>
+      <div className={wrapClass} key={key}>
+        <label className="p-label">{label}</label>
         <input
-          style={editable ? S.input : S.inputDisabled}
+          className="p-input"
           value={formData[key] || ''}
           onChange={e => setField(key, e.target.value)}
           disabled={!editable}
@@ -311,13 +277,13 @@ export function ExPlantelModule() {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: 'var(--text-muted)', fontFamily: 'inherit', fontSize: 13 }}>
+    <div className="module-empty">
       Carregando ex-plantel...
     </div>
   )
 
   return (
-    <div style={S.page}>
+    <div className="flex flex-col gap-3">
       <div className="module-hero">
         <div>
           <div className="module-hero__eyebrow">Histórico</div>
@@ -329,10 +295,10 @@ export function ExPlantelModule() {
         <div className="pill">Memória do plantel</div>
       </div>
 
-      {error && <div style={S.error}>{error}</div>}
+      {error && <div className="p-alert--error">{error}</div>}
 
       {/* Stats */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 16 }}>
+      <div className="p-stats">
         <StatCard label="Total Ex-Plantel" value={stats.total}       desc="aves desligadas"       color="#C95025" />
         <StatCard label="Falecimento"      value={stats.falecimento} desc="falecimentos"           color="#E05C4B" />
         <StatCard label="Vendidos"         value={stats.vendidos}    desc="aves vendidas"           color="#F5A623" />
@@ -340,50 +306,40 @@ export function ExPlantelModule() {
       </div>
 
       {/* Master-Detail */}
-      <div className="module-panel" style={S.master}>
+      <div className="plantel-master module-panel">
         {/* ── LEFT: Gallery ───────────────────────────────────────────────── */}
-        <div style={S.gallery}>
-          <div style={S.galleryHeader}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-main)', fontFamily: "'DM Serif Display', serif" }}>
-              Ex-Plantel
-            </div>
-            <div style={S.searchRow}>
+        <div className="plantel-gallery">
+          <div className="p-panel-header flex-col">
+            <div className="p-panel-header__title">Ex-Plantel</div>
+            <div className="p-panel-search">
               <input
-                style={S.searchInput}
+                className="p-search"
                 placeholder="Buscar por nome..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                onFocus={e => e.target.style.borderColor = 'rgba(201,80,37,0.4)'}
-                onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
               />
-              <button style={S.addBtn} onClick={handleNew} title="Novo registro">+</button>
+              <button className="p-btn p-btn--primary p-btn--sm" onClick={handleNew} title="Novo registro">+</button>
             </div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'inherit' }}>
+            <div className="text-muted" style={{ fontSize: 11 }}>
               {filtered.length} {filtered.length === 1 ? 'registro' : 'registros'}
             </div>
           </div>
 
-          <div style={S.galleryList}>
+          <div className="p-panel-list">
             {filtered.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--text-faint)' }}>
+              <div className="module-empty">
                 <div style={{ fontSize: 32, marginBottom: 8 }}>📋</div>
-                <div style={{ fontSize: 12, fontFamily: 'inherit', color: 'var(--text-muted)' }}>Nenhum registro encontrado</div>
+                <div className="text-muted" style={{ fontSize: 12 }}>Nenhum registro encontrado</div>
               </div>
             ) : (
               filtered.map(ave => (
                 <div
                   key={ave.ID}
-                  style={{
-                    ...S.galleryItem,
-                    ...(selected?.ID === ave.ID ? S.galleryItemSelected : {}),
-                    borderLeft: selected?.ID === ave.ID ? '3px solid #C95025' : '3px solid transparent',
-                  }}
+                  className={`p-list-item${selected?.ID === ave.ID ? ' is-active' : ''}`}
                   onClick={() => handleSelect(ave)}
-                  onMouseEnter={e => { if (selected?.ID !== ave.ID) e.currentTarget.style.background = 'rgba(201,80,37,0.04)' }}
-                  onMouseLeave={e => { if (selected?.ID !== ave.ID) e.currentTarget.style.background = 'transparent' }}
                 >
-                  <div style={S.galleryName}>{ave.Nome}</div>
-                  <div style={S.gallerySub}>{ave.CategoriaAve} &middot; {ave.Genero}</div>
+                  <div className="font-serif" style={{ fontSize: 16, marginBottom: 3 }}>{ave.Nome}</div>
+                  <div className="text-muted" style={{ fontSize: 11, marginBottom: 6 }}>{ave.CategoriaAve} &middot; {ave.Genero}</div>
                   <StatusBadge status={ave.Status} />
                 </div>
               ))
@@ -392,23 +348,23 @@ export function ExPlantelModule() {
         </div>
 
         {/* ── RIGHT: Form ─────────────────────────────────────────────────── */}
-        <div style={S.formPanel}>
+        <div className="plantel-detail">
           {/* Toolbar */}
-          <div style={S.toolbar}>
-            <div style={S.toolbarTitle}>
+          <div className="p-panel-header">
+            <div className="p-panel-header__title">
               {formMode === 'new' ? 'Novo Registro' : formMode === 'edit' ? `Editando: ${formData.Nome}` : selected ? selected.Nome : 'Detalhes'}
             </div>
-            <div style={S.toolbarBtns}>
+            <div className="flex gap-2">
               {(formMode === 'new' || formMode === 'edit') && (
                 <>
-                  <button style={S.iconBtn('#4CAF7D')} onClick={handleSubmit} title="Salvar">💾</button>
-                  <button style={S.iconBtn('#8A9E8C')} onClick={handleCancel} title="Cancelar">✕</button>
+                  <button className="p-btn p-btn--primary p-btn--sm" onClick={handleSubmit} title="Salvar">💾</button>
+                  <button className="p-btn p-btn--secondary p-btn--sm" onClick={handleCancel} title="Cancelar">✕</button>
                 </>
               )}
               {formMode === 'view' && selected && (
                 <>
-                  <button style={S.iconBtn('#C95025')} onClick={handleEdit} title="Editar">✏️</button>
-                  <button style={S.iconBtn('#E05C4B')} onClick={() => setDelTarget(selected)} title="Excluir">🗑️</button>
+                  <button className="p-btn p-btn--secondary p-btn--sm" onClick={handleEdit} title="Editar">✏️</button>
+                  <button className="p-btn p-btn--danger p-btn--sm" onClick={() => setDelTarget(selected)} title="Excluir">🗑️</button>
                 </>
               )}
             </div>
@@ -416,13 +372,13 @@ export function ExPlantelModule() {
 
           {/* Form Content */}
           {!formMode ? (
-            <div style={S.emptyForm}>
+            <div className="module-empty">
               <div style={{ fontSize: 36, opacity: 0.4 }}>📋</div>
               <div>Selecione um registro ou clique + para cadastrar</div>
             </div>
           ) : (
-            <div style={S.formBody}>
-              <div style={S.formGrid}>
+            <div className="p-panel-body">
+              <div className="p-form-grid">
                 {/* 1. Nome */}
                 {renderInput('Nome', 'Nome', { placeholder: 'Nome da ave' })}
 
