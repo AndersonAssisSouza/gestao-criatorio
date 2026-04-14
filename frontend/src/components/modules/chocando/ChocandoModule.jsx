@@ -13,11 +13,11 @@ const MOCK_GAIOLAS_CHOCANDO = [
 ]
 
 const MOCK_PLANTEL = [
-  { ID: 4, Nome: 'Manchinha', Genero: 'Fêmea', Status: 'Vivo', CategoriaAve: 'Tarim', Mutacao: 'Canela Pastel', Gaiola: '001' },
-  { ID: 9, Nome: 'Pardinho',  Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'Tarim', Mutacao: 'Duplo Diluído', Gaiola: '001' },
-  { ID: 8, Nome: 'Hulk',      Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'Tarim', Mutacao: 'Canela',        Gaiola: '002' },
+  { ID: 4, Nome: 'Manchinha', Genero: 'Fêmea', Status: 'Vivo', CategoriaAve: 'Tarin', Mutacao: 'Canela Pastel', Gaiola: '001' },
+  { ID: 9, Nome: 'Pardinho',  Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'Tarin', Mutacao: 'Duplo Diluído', Gaiola: '001' },
+  { ID: 8, Nome: 'Hulk',      Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'Tarin', Mutacao: 'Canela',        Gaiola: '002' },
   { ID: 10, Nome: 'Bandite',  Genero: 'Macho', Status: 'Vivo', CategoriaAve: 'canário belga', Mutacao: '',       Gaiola: '003' },
-  { ID: 11, Nome: 'Pardinha', Genero: 'Femea', Status: 'Vivo', CategoriaAve: 'Tarim', Mutacao: 'Canela Pastel', Gaiola: '003' },
+  { ID: 11, Nome: 'Pardinha', Genero: 'Femea', Status: 'Vivo', CategoriaAve: 'Tarin', Mutacao: 'Canela Pastel', Gaiola: '003' },
 ]
 
 const MOCK_OVOS = [
@@ -25,7 +25,7 @@ const MOCK_OVOS = [
 ]
 
 // TempoChoco por especie (dias) — lookup simplificado
-const TEMPO_CHOCO = { Tarim: 13, 'canário belga': 13 }
+const TEMPO_CHOCO = { Tarin: 13, 'canário belga': 13 }
 
 function mapPlantelRecord(record) {
   return {

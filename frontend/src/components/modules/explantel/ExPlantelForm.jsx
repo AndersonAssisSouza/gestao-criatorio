@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 const MOTIVOS    = ['Venda', 'Doação', 'Óbito', 'Fuga', 'Outro']
-const CATEGORIAS = ['Canário', 'Pintassilgo', 'Tarim', 'Coleiro', 'Outro']
+const CATEGORIAS = ['Canário', 'Pintassilgo', 'Tarin', 'Coleiro', 'Outro']
 const GENEROS    = ['Macho', 'Fêmea', 'Indeterminado']
 
 const EMPTY = {

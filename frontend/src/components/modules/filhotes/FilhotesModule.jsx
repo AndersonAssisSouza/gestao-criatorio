@@ -10,12 +10,12 @@ const USE_MOCK = !import.meta.env.VITE_API_URL
 
 // ─── MOCK DATA ─────────────────────────────────────────────────────────────
 const MOCK_FILHOTES = [
-  { ID: 4, NomeAve: '', NumeroOvo: 'Ovo-3-2026', Status: 'Vivo', DataNascimento: '15/04/2026', DataPrevistaAnilhamento: '20/04/2026', Gaiola: '001', IDMae: 4, IDPai: 9, NomeMae: 'Manchinha', MutacaoMae: 'Canela Pastel', NomePai: 'Pardinho', MutacaoPai: 'Duplo Diluído', CategoriaAve: 'Tarim', Genero: '', Mutacao: '', AnelEsquerdo: '', RegistroFOB: '5177616' },
-  { ID: 3, NomeAve: 'Pardinha', NumeroOvo: 'Ovo-2-2025', Status: 'Plantel', DataNascimento: '18/11/2025', DataPrevistaAnilhamento: '23/11/2025', Gaiola: '001', IDMae: 7, IDPai: 13, NomeMae: 'Manchinha', MutacaoMae: 'Canela Pastel', NomePai: 'Pardinho', MutacaoPai: 'Duplo Diluído', CategoriaAve: 'Tarim', Genero: 'Femea', Mutacao: 'Canela Pastel', AnelEsquerdo: '002', RegistroFOB: '5177616' },
+  { ID: 4, NomeAve: '', NumeroOvo: 'Ovo-3-2026', Status: 'Vivo', DataNascimento: '15/04/2026', DataPrevistaAnilhamento: '20/04/2026', Gaiola: '001', IDMae: 4, IDPai: 9, NomeMae: 'Manchinha', MutacaoMae: 'Canela Pastel', NomePai: 'Pardinho', MutacaoPai: 'Duplo Diluído', CategoriaAve: 'Tarin', Genero: '', Mutacao: '', AnelEsquerdo: '', RegistroFOB: '5177616' },
+  { ID: 3, NomeAve: 'Pardinha', NumeroOvo: 'Ovo-2-2025', Status: 'Plantel', DataNascimento: '18/11/2025', DataPrevistaAnilhamento: '23/11/2025', Gaiola: '001', IDMae: 7, IDPai: 13, NomeMae: 'Manchinha', MutacaoMae: 'Canela Pastel', NomePai: 'Pardinho', MutacaoPai: 'Duplo Diluído', CategoriaAve: 'Tarin', Genero: 'Femea', Mutacao: 'Canela Pastel', AnelEsquerdo: '002', RegistroFOB: '5177616' },
   { ID: 2, NomeAve: 'Pardinha', NumeroOvo: 'Ovo-1-2025', Status: 'Faleceu', DataNascimento: '17/11/2025', DataPrevistaAnilhamento: '22/11/2025', Gaiola: '001', IDMae: 7, IDPai: 13, NomeMae: 'Manchinha', MutacaoMae: 'Canela Pastel', NomePai: 'Pardinho', MutacaoPai: 'Duplo Diluído' },
 ]
 
-const ESPECIES = ['Tarim', 'canário belga']
+const ESPECIES = ['Tarin', 'canário belga']
 const STATUS_FILHOTE = ['Vivo', 'Faleceu']
 const MOCK_GAIOLAS = ['001', '002', '003']
 const MOCK_ANEIS = ['033', '002', 'JI783']

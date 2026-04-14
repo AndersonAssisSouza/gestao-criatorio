@@ -1,7 +1,7 @@
 module.exports = [
   {
-    especie: 'Tarim',
-    aliases: ['tarim', 'tarin', 'tarim da venezuela', 'pintassilgo da venezuela'],
+    especie: 'Tarin',
+    aliases: ['tarin', 'tarim', 'tarim da venezuela', 'tarin da venezuela', 'pintassilgo da venezuela'],
     nomeCientifico: 'Spinus cucullatus',
     origem:
       'Pequeno passeriforme originário do norte da América do Sul, especialmente Venezuela e Colômbia, muito conhecido na canaricultura pelo fator vermelho.',

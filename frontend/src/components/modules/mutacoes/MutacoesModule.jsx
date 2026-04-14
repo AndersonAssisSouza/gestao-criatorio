@@ -1014,7 +1014,7 @@ export function MutacoesModule() {
           </div>
         </div>
         <div className="pill pill--accent">
-          {especie ? `Espécie: ${especie}` : 'Tarim'}
+          {especie ? `Espécie: ${especie}` : 'Tarin'}
         </div>
       </div>
 
