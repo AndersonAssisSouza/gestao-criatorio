@@ -14,6 +14,7 @@ router.post('/request', csrfProtection, accessController.requestSubscription)
 router.post('/checkout', csrfProtection, accessController.createCheckout)
 router.post('/checkout/:paymentId/confirm', csrfProtection, accessController.confirmInternalPayment)
 router.post('/checkout/reconcile', csrfProtection, accessController.reconcileCheckout)
+router.post('/cancel', csrfProtection, accessController.cancelMySubscription)
 
 router.get('/admin/subscribers', requireOwner, accessController.listSubscribers)
 router.post('/admin/subscribers/:userId/grant', requireOwner, csrfProtection, accessController.grantAccess)

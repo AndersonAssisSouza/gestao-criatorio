@@ -369,21 +369,23 @@ const mockAccessService = {
   },
 
   async revokeAccess(userId) {
-    const users = getMockUsers()
-    const user = users.find(u => u.id === userId)
-    if (!user) throw { response: { data: { message: 'Usuário não encontrado.' } } }
     const access = {
       accessGranted: false,
       status: 'expired',
-      plan: user.access?.plan || 'trial',
+      plan: 'trial',
       label: 'Cancelado',
       expiresAt: new Date().toISOString(),
       remainingDays: 0,
       requestedPlan: null,
       paymentStatus: 'cancelled',
     }
-    updateMockUser(userId, { access })
-    return { user: { ...user, access } }
+    // Atualiza lista de demo users (Proprietário)
+    const users = getMockUsers()
+    const user = users.find(u => u.id === userId)
+    if (user) updateMockUser(userId, { access })
+    // Atualiza o próprio user logado
+    setMyMockAccess(access)
+    return { user: { ...(user || { id: userId }), access } }
   },
 
   async importMySharePointData() {

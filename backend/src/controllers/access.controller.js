@@ -467,6 +467,20 @@ async function extendTrial(req, res) {
   })
 }
 
+async function cancelMySubscription(req, res) {
+  const now = new Date().toISOString()
+  const updatedUser = await userRepository.updateUser(req.currentUser.id, (user) => ({
+    ...user,
+    subscriptionStatus: 'cancelled',
+    accessReleasedUntil: now,
+    currentPeriodEnd: now,
+    paymentStatus: 'cancelled',
+    subscriptionRequestedPlan: null,
+    requestedAt: null,
+  }))
+  return res.json({ user: serializeUser(updatedUser) })
+}
+
 async function revokeAccess(req, res) {
   const userId = req.params.userId
 
@@ -504,6 +518,7 @@ async function deletePayment(req, res) {
 
 module.exports = {
   approvePayment,
+  cancelMySubscription,
   confirmInternalPayment,
   createCheckout,
   deletePayment,
