@@ -98,29 +98,37 @@ function MiniMutBadge({ name, percentual }) {
 function MutationPreview({ crossing }) {
   if (!crossing) return null
 
+  const rowStyle = { display: 'flex', gap: 12, flexWrap: 'wrap' }
+  const colStyle = { flex: 1, minWidth: 0 }
+  const labelStyle = { fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#8a7e74', marginBottom: 4 }
+
   if (crossing.isCrossingOver) {
     return (
       <div style={{ padding: '8px 0' }}>
         <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8a7e74', marginBottom: 6 }}>
           Previsão genética (Crossing-Over)
         </div>
-        <div style={{ fontSize: 10, color: '#B39DDB', marginBottom: 6 }}>Resultado Normal:</div>
-        <div style={{ marginBottom: 4 }}>
-          <span style={{ fontSize: 10, color: '#8a7e74' }}>♂ </span>
-          {crossing.resultadoNormal.machos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+        <div style={{ fontSize: 10, color: '#B39DDB', marginBottom: 4 }}>Resultado Normal:</div>
+        <div style={{ ...rowStyle, marginBottom: 8 }}>
+          <div style={colStyle}>
+            <div style={labelStyle}>♀ Fêmeas</div>
+            {crossing.resultadoNormal.femeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+          </div>
+          <div style={colStyle}>
+            <div style={labelStyle}>♂ Machos</div>
+            {crossing.resultadoNormal.machos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+          </div>
         </div>
-        <div style={{ marginBottom: 8 }}>
-          <span style={{ fontSize: 10, color: '#8a7e74' }}>♀ </span>
-          {crossing.resultadoNormal.femeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
-        </div>
-        <div style={{ fontSize: 10, color: '#FF9800', marginBottom: 6 }}>Crossing-Over:</div>
-        <div style={{ marginBottom: 4 }}>
-          <span style={{ fontSize: 10, color: '#8a7e74' }}>♂ </span>
-          {crossing.resultadoCrossOver.machos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
-        </div>
-        <div>
-          <span style={{ fontSize: 10, color: '#8a7e74' }}>♀ </span>
-          {crossing.resultadoCrossOver.femeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+        <div style={{ fontSize: 10, color: '#FF9800', marginBottom: 4 }}>Crossing-Over:</div>
+        <div style={rowStyle}>
+          <div style={colStyle}>
+            <div style={labelStyle}>♀ Fêmeas</div>
+            {crossing.resultadoCrossOver.femeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+          </div>
+          <div style={colStyle}>
+            <div style={labelStyle}>♂ Machos</div>
+            {crossing.resultadoCrossOver.machos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+          </div>
         </div>
       </div>
     )
@@ -131,13 +139,15 @@ function MutationPreview({ crossing }) {
       <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8a7e74', marginBottom: 6 }}>
         Previsão genética dos filhotes
       </div>
-      <div style={{ marginBottom: 4 }}>
-        <span style={{ fontSize: 10, color: '#8a7e74' }}>♂ Machos: </span>
-        {crossing.resultadoMachos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
-      </div>
-      <div>
-        <span style={{ fontSize: 10, color: '#8a7e74' }}>♀ Fêmeas: </span>
-        {crossing.resultadoFemeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+      <div style={rowStyle}>
+        <div style={colStyle}>
+          <div style={labelStyle}>♀ Fêmeas</div>
+          {crossing.resultadoFemeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+        </div>
+        <div style={colStyle}>
+          <div style={labelStyle}>♂ Machos</div>
+          {crossing.resultadoMachos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+        </div>
       </div>
     </div>
   )
