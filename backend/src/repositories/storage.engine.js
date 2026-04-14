@@ -1,7 +1,9 @@
 const fs = require('fs/promises')
 const path = require('path')
 
-const DEFAULT_STORAGE_DIR = path.join(process.cwd(), 'storage')
+const DEFAULT_STORAGE_DIR = process.env.VERCEL
+  ? path.join('/tmp', 'storage')
+  : path.join(process.cwd(), 'storage')
 const DEFAULT_TABLE_NAME = 'app_state'
 const writeQueues = new Map()
 
