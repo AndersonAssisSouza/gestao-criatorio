@@ -36,6 +36,11 @@ export const MUTATION_COLORS = {
 
 export function getMutationColor(name) {
   if (MUTATION_COLORS[name]) return MUTATION_COLORS[name]
+  // Combinações com Diluído: usa a cor da mutação base
+  if (name.includes(' + Diluído')) {
+    const base = name.replace(' + Diluído', '')
+    if (MUTATION_COLORS[base]) return MUTATION_COLORS[base]
+  }
   if (name.includes('Passepartout')) return '#B39DDB'
   if (name.includes('Port.') || name.includes('Portador')) return '#C5B8A0'
   return '#8A9A8C'
@@ -640,6 +645,123 @@ export const CROSSING_DB = [
     resultadoFemeas: [
       { mutacao: 'Duplo Diluído', percentual: '50%' },
       { mutacao: 'Diluído', percentual: '50%' },
+    ],
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  //  CRUZAMENTOS COMBINADOS — Diluição (autossômica) + Sexo-ligadas
+  //  A diluição é independente e herdada separadamente.
+  //  Resultados mostram ambos os traços combinados.
+  // ═══════════════════════════════════════════════════════════════
+
+  // ── 52. Duplo Diluído × Canela ──
+  // Diluição: DD × dd = todos Diluído (Dd)
+  // Sexo-ligada: Ancestral(X) × Canela(Cy) → ♂ Port. Canela, ♀ Canela (como entrada #2 invertida → usa #22)
+  {
+    especie: 'Tarin', macho: 'Duplo Diluído', femea: 'Canela',
+    resultadoMachos: [{ mutacao: 'Port. Canela + Diluído', percentual: '100%' }],
+    resultadoFemeas: [{ mutacao: 'Canela + Diluído', percentual: '100%' }],
+  },
+  // ── 53. Duplo Diluído × Pastel ──
+  {
+    especie: 'Tarin', macho: 'Duplo Diluído', femea: 'Pastel',
+    resultadoMachos: [{ mutacao: 'Port. Pastel + Diluído', percentual: '100%' }],
+    resultadoFemeas: [{ mutacao: 'Pastel + Diluído', percentual: '100%' }],
+  },
+  // ── 54. Duplo Diluído × Canela Pastel ──
+  {
+    especie: 'Tarin', macho: 'Duplo Diluído', femea: 'Canela Pastel',
+    resultadoMachos: [{ mutacao: 'Passepartout Tipo I + Diluído', percentual: '100%' }],
+    resultadoFemeas: [{ mutacao: 'Ancestral + Diluído', percentual: '100%' }],
+  },
+  // ── 55. Diluído × Canela ──
+  {
+    especie: 'Tarin', macho: 'Diluído', femea: 'Canela',
+    resultadoMachos: [
+      { mutacao: 'Port. Canela + Diluído', percentual: '50%' },
+      { mutacao: 'Port. Canela', percentual: '50%' },
+    ],
+    resultadoFemeas: [
+      { mutacao: 'Canela + Diluído', percentual: '50%' },
+      { mutacao: 'Canela', percentual: '50%' },
+    ],
+  },
+  // ── 56. Diluído × Pastel ──
+  {
+    especie: 'Tarin', macho: 'Diluído', femea: 'Pastel',
+    resultadoMachos: [
+      { mutacao: 'Port. Pastel + Diluído', percentual: '50%' },
+      { mutacao: 'Port. Pastel', percentual: '50%' },
+    ],
+    resultadoFemeas: [
+      { mutacao: 'Pastel + Diluído', percentual: '50%' },
+      { mutacao: 'Pastel', percentual: '50%' },
+    ],
+  },
+  // ── 57. Diluído × Canela Pastel ──
+  {
+    especie: 'Tarin', macho: 'Diluído', femea: 'Canela Pastel',
+    resultadoMachos: [
+      { mutacao: 'Passepartout Tipo I + Diluído', percentual: '50%' },
+      { mutacao: 'Passepartout Tipo I', percentual: '50%' },
+    ],
+    resultadoFemeas: [
+      { mutacao: 'Ancestral + Diluído', percentual: '50%' },
+      { mutacao: 'Ancestral', percentual: '50%' },
+    ],
+  },
+  // ── 58. Canela Pastel × Diluído ──
+  {
+    especie: 'Tarin', macho: 'Canela Pastel', femea: 'Diluído',
+    resultadoMachos: [
+      { mutacao: 'Passepartout Tipo I + Diluído', percentual: '50%' },
+      { mutacao: 'Passepartout Tipo I', percentual: '50%' },
+    ],
+    resultadoFemeas: [
+      { mutacao: 'Canela Pastel + Diluído', percentual: '50%' },
+      { mutacao: 'Canela Pastel', percentual: '50%' },
+    ],
+  },
+  // ── 59. Canela Pastel × Duplo Diluído ──
+  {
+    especie: 'Tarin', macho: 'Canela Pastel', femea: 'Duplo Diluído',
+    resultadoMachos: [{ mutacao: 'Canela Pastel + Diluído', percentual: '100%' }],
+    resultadoFemeas: [{ mutacao: 'Canela Pastel + Diluído', percentual: '100%' }],
+  },
+  // ── 60. Canela × Duplo Diluído ──
+  {
+    especie: 'Tarin', macho: 'Canela', femea: 'Duplo Diluído',
+    resultadoMachos: [{ mutacao: 'Port. Canela + Diluído', percentual: '100%' }],
+    resultadoFemeas: [{ mutacao: 'Canela + Diluído', percentual: '100%' }],
+  },
+  // ── 61. Pastel × Duplo Diluído ──
+  {
+    especie: 'Tarin', macho: 'Pastel', femea: 'Duplo Diluído',
+    resultadoMachos: [{ mutacao: 'Port. Pastel + Diluído', percentual: '100%' }],
+    resultadoFemeas: [{ mutacao: 'Pastel + Diluído', percentual: '100%' }],
+  },
+  // ── 62. Canela × Diluído ──
+  {
+    especie: 'Tarin', macho: 'Canela', femea: 'Diluído',
+    resultadoMachos: [
+      { mutacao: 'Port. Canela + Diluído', percentual: '50%' },
+      { mutacao: 'Port. Canela', percentual: '50%' },
+    ],
+    resultadoFemeas: [
+      { mutacao: 'Canela + Diluído', percentual: '50%' },
+      { mutacao: 'Canela', percentual: '50%' },
+    ],
+  },
+  // ── 63. Pastel × Diluído ──
+  {
+    especie: 'Tarin', macho: 'Pastel', femea: 'Diluído',
+    resultadoMachos: [
+      { mutacao: 'Port. Pastel + Diluído', percentual: '50%' },
+      { mutacao: 'Port. Pastel', percentual: '50%' },
+    ],
+    resultadoFemeas: [
+      { mutacao: 'Pastel + Diluído', percentual: '50%' },
+      { mutacao: 'Pastel', percentual: '50%' },
     ],
   },
 ]
