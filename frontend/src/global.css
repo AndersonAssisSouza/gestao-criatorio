@@ -708,6 +708,9 @@ a:hover { text-decoration: underline; }
 .p-split--3 {
   grid-template-columns: 1fr 1fr 1fr;
 }
+.p-split--choco {
+  grid-template-columns: 200px 1.2fr 1.8fr;
+}
 
 .p-split--weighted {
   grid-template-columns: 2fr 3fr;
@@ -917,6 +920,9 @@ a:hover { text-decoration: underline; }
     grid-template-columns: 1fr;
   }
   .p-split--3 {
+    grid-template-columns: 1fr;
+  }
+  .p-split--choco {
     grid-template-columns: 1fr;
   }
   .p-split--weighted {

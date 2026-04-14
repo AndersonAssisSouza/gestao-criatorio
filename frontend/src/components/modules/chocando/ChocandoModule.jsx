@@ -405,7 +405,7 @@ export function ChocandoModule() {
       </div>
 
       {/* 3-Panel Layout */}
-      <div className="p-split p-split--3">
+      <div className="p-split p-split--choco">
 
         {/* ─── LEFT PANEL: Cage Gallery ──────────────────────────────────── */}
         <div className="module-panel flex flex-col" style={{ overflow: 'hidden' }}>
