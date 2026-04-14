@@ -88,6 +88,10 @@ function updateMockPayment(id, patch) {
   writeJson(PAYMENTS_KEY, payments)
   return payments[idx] || null
 }
+function removeMockPayment(id) {
+  const payments = getMockPayments().filter(p => p.id !== id)
+  writeJson(PAYMENTS_KEY, payments)
+}
 
 /* ──────────────────────────────────────────────
    Mock: lista de usuários demo (para Proprietário)
@@ -357,6 +361,13 @@ const mockAccessService = {
     return { user: { ...user, access }, trialEndsAt: newEnd, daysAdded: days }
   },
 
+  async deletePayment(paymentId) {
+    const payment = getMockPayments().find(p => p.id === paymentId)
+    if (!payment) throw { response: { data: { message: 'Pagamento não encontrado.' } } }
+    removeMockPayment(paymentId)
+    return { deleted: true }
+  },
+
   async importMySharePointData() {
     return { message: 'Mock: importação simulada.' }
   },
@@ -417,6 +428,11 @@ const realAccessService = {
 
   async extendTrial(userId, days) {
     const { data } = await api.post(`/api/access/admin/subscribers/${userId}/extend-trial`, { days })
+    return data
+  },
+
+  async deletePayment(paymentId) {
+    const { data } = await api.delete(`/api/access/admin/payments/${paymentId}`)
     return data
   },
 

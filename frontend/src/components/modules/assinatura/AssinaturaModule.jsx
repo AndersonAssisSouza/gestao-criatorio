@@ -48,6 +48,8 @@ export function AssinaturaModule() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [confirmingPaymentId, setConfirmingPaymentId] = useState('')
+  const [deletingPaymentId, setDeletingPaymentId] = useState('')
   const [selectedPlan, setSelectedPlan] = useState('monthly')
   const [paymentMethod, setPaymentMethod] = useState('pix')
   const [copyFeedback, setCopyFeedback] = useState('')
@@ -181,11 +183,12 @@ export function AssinaturaModule() {
 
       const response = await accessService.createCheckout(payload)
       setPayments((current) => [response.payment, ...current])
+      setCheckoutInfo(response.checkout || checkoutInfo)
       await refreshUser()
       setSuccess(
         paymentMethod === 'pix'
           ? 'Cobrança PIX gerada. Assim que o pagamento for confirmado, o acesso será liberado.'
-          : 'Solicitação no cartão registrada. O pagamento agora fica disponível para conferência e aprovação.',
+          : 'Pagamento confirmado no cartão e acesso liberado com sucesso.',
       )
     } catch (requestError) {
       setError(requestError.response?.data?.message || 'Não foi possível iniciar o pagamento.')
@@ -203,6 +206,22 @@ export function AssinaturaModule() {
       setTimeout(() => setCopyFeedback(''), 2500)
     } catch (_) {
       setCopyFeedback('Não foi possível copiar automaticamente.')
+    }
+  }
+
+  const handleConfirmPayment = async (paymentId) => {
+    setConfirmingPaymentId(paymentId)
+    setError('')
+    setSuccess('')
+
+    try {
+      await accessService.confirmInternalPayment(paymentId)
+      await loadAccess()
+      setSuccess('Pagamento confirmado e acesso liberado com sucesso.')
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Não foi possível confirmar o pagamento.')
+    } finally {
+      setConfirmingPaymentId('')
     }
   }
 
@@ -298,35 +317,7 @@ export function AssinaturaModule() {
                         : 'Gere um PIX de cobrança para o plano escolhido. O sistema registra a referência financeira e a sua área administrativa pode confirmar a quitação para liberar o acesso.'}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        setSubmitting(true)
-                        setError('')
-                        setSuccess('')
-                        setCopyFeedback('')
-
-                        try {
-                          const response = await accessService.createCheckout({ plan: selectedPlan, method: paymentMethod })
-                          setPayments((current) => [response.payment, ...current])
-                          setCheckoutInfo(response.checkout || checkoutInfo)
-                          await refreshUser()
-
-                          if (response.checkout?.redirectUrl) {
-                            window.location.href = response.checkout.redirectUrl
-                            return
-                          }
-
-                          setSuccess('Cobrança PIX gerada. Assim que o pagamento for confirmado, o acesso será liberado.')
-                        } catch (requestError) {
-                          setError(requestError.response?.data?.message || 'Não foi possível iniciar o pagamento.')
-                        } finally {
-                          setSubmitting(false)
-                        }
-                      }}
-                      disabled={submitting}
-                      className="p-btn p-btn--primary"
-                    >
+                    <button type="button" onClick={handleCheckout} disabled={submitting} className="p-btn p-btn--primary">
                       {submitting ? (usesExternalGateway ? 'Abrindo checkout...' : 'Gerando PIX...') : usesExternalGateway ? `Ir para o checkout PIX` : `Gerar PIX de ${formatSubscriptionPrice(selectedPrice)}`}
                     </button>
 
@@ -344,6 +335,14 @@ export function AssinaturaModule() {
                           <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
                             <button type="button" onClick={handleCopyPix} className="p-btn p-btn--primary">
                               Copiar código PIX
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleConfirmPayment(activeCheckout.id)}
+                              disabled={confirmingPaymentId === activeCheckout.id}
+                              className="p-btn p-btn--secondary"
+                            >
+                              {confirmingPaymentId === activeCheckout.id ? 'Confirmando...' : 'Já paguei, liberar acesso'}
                             </button>
                             <div className="pill">Expira em {formatDateTime(activeCheckout.pixExpiresAt)}</div>
                           </div>
@@ -385,36 +384,7 @@ export function AssinaturaModule() {
                         : 'Por segurança, o sistema não armazena o número completo nem o CVC do cartão. Apenas bandeira e final são registrados para conferência.'}
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        setSubmitting(true)
-                        setError('')
-                        setSuccess('')
-
-                        try {
-                          const payload = { plan: selectedPlan, method: paymentMethod }
-                          if (!usesExternalGateway) Object.assign(payload, cardForm)
-                          const response = await accessService.createCheckout(payload)
-                          setPayments((current) => [response.payment, ...current])
-                          setCheckoutInfo(response.checkout || checkoutInfo)
-                          await refreshUser()
-
-                          if (response.checkout?.redirectUrl) {
-                            window.location.href = response.checkout.redirectUrl
-                            return
-                          }
-
-                          setSuccess('Solicitação no cartão registrada. O pagamento agora fica disponível para conferência e aprovação.')
-                        } catch (requestError) {
-                          setError(requestError.response?.data?.message || 'Não foi possível iniciar o pagamento.')
-                        } finally {
-                          setSubmitting(false)
-                        }
-                      }}
-                      disabled={submitting}
-                      className="p-btn p-btn--primary"
-                    >
+                    <button type="button" onClick={handleCheckout} disabled={submitting} className="p-btn p-btn--primary">
                       {submitting ? (usesExternalGateway ? 'Abrindo checkout...' : 'Registrando cobrança...') : usesExternalGateway ? `Ir para o checkout de cartão` : `Pagar ${formatSubscriptionPrice(selectedPrice)} no cartão`}
                     </button>
                   </div>
@@ -470,6 +440,31 @@ export function AssinaturaModule() {
                     {payment.validUntil ? ` • válido até ${formatDate(payment.validUntil)}` : ''}
                     {payment.provider ? ` • gateway ${payment.provider}` : ''}
                     {payment.cardMasked ? <><br />Cartão: {payment.cardBrand} {payment.cardMasked}</> : null}
+                  </div>
+                  <div style={{ marginTop: 8, textAlign: 'right' }}>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!window.confirm('Excluir este lançamento?')) return
+                        setDeletingPaymentId(payment.id)
+                        setError('')
+                        setSuccess('')
+                        try {
+                          await accessService.deletePayment(payment.id)
+                          setSuccess('Lançamento excluído.')
+                          await loadAccess()
+                        } catch (err) {
+                          setError(err.response?.data?.message || 'Não foi possível excluir.')
+                        } finally {
+                          setDeletingPaymentId('')
+                        }
+                      }}
+                      disabled={deletingPaymentId === payment.id}
+                      className="p-btn p-btn--ghost"
+                      style={{ fontSize: 12, color: '#C95025' }}
+                    >
+                      {deletingPaymentId === payment.id ? 'Excluindo...' : 'Excluir'}
+                    </button>
                   </div>
                 </div>
               ))}

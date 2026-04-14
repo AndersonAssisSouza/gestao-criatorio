@@ -467,10 +467,23 @@ async function extendTrial(req, res) {
   })
 }
 
+async function deletePayment(req, res) {
+  const paymentId = req.params.paymentId
+
+  const existingPayment = await paymentRepository.findPaymentById(paymentId)
+  if (!existingPayment) {
+    return res.status(404).json({ message: 'Pagamento não encontrado.' })
+  }
+
+  await paymentRepository.deletePayment(paymentId)
+  return res.json({ deleted: true })
+}
+
 module.exports = {
   approvePayment,
   confirmInternalPayment,
   createCheckout,
+  deletePayment,
   extendTrial,
   getMyAccess,
   grantAccess,

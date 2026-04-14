@@ -20,5 +20,6 @@ router.post('/admin/subscribers/:userId/grant', requireOwner, csrfProtection, ac
 router.post('/admin/subscribers/:userId/extend-trial', requireOwner, csrfProtection, accessController.extendTrial)
 router.post('/admin/payments/:paymentId/approve', requireOwner, csrfProtection, accessController.approvePayment)
 router.post('/admin/payments/:paymentId/reject', requireOwner, csrfProtection, accessController.rejectPayment)
+router.delete('/admin/payments/:paymentId', requireOwner, csrfProtection, accessController.deletePayment)
 
 module.exports = router

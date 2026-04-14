@@ -64,12 +64,21 @@ async function listPaymentsByUser(userId) {
   return payments.filter((payment) => payment.userId === userId)
 }
 
+async function deletePayment(paymentId) {
+  return queueWrite(async () => {
+    const payments = await readPayments()
+    const filtered = payments.filter((payment) => payment.id !== paymentId)
+    await writePayments(filtered)
+  })
+}
+
 function queueWrite(task) {
   return storageEngine.runWithCollectionLock('payments', task)
 }
 
 module.exports = {
   createPayment,
+  deletePayment,
   findPaymentById,
   listPayments,
   listPaymentsByUser,

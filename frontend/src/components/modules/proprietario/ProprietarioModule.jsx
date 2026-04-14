@@ -39,6 +39,7 @@ export function ProprietarioModule() {
   const [processingPaymentId, setProcessingPaymentId] = useState('')
   const [extendingTrial, setExtendingTrial] = useState(false)
   const [trialDays, setTrialDays] = useState(7)
+  const [deletingPaymentId, setDeletingPaymentId] = useState('')
 
   const loadData = async () => {
     setLoading(true)
@@ -345,6 +346,31 @@ export function ProprietarioModule() {
                   Pago em: {formatDate(payment.paidAt)}<br />
                   Válido até: {formatDate(payment.validUntil)}<br />
                   Registrado por: {payment.recordedBy || 'checkout do cliente'}
+                </div>
+                <div style={{ marginTop: 8, textAlign: 'right' }}>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!window.confirm('Excluir este lançamento financeiro?')) return
+                      setDeletingPaymentId(payment.id)
+                      setError('')
+                      setSuccess('')
+                      try {
+                        await accessService.deletePayment(payment.id)
+                        setSuccess('Lançamento excluído com sucesso.')
+                        await loadData()
+                      } catch (err) {
+                        setError(err.response?.data?.message || 'Não foi possível excluir o lançamento.')
+                      } finally {
+                        setDeletingPaymentId('')
+                      }
+                    }}
+                    disabled={deletingPaymentId === payment.id}
+                    className="p-btn p-btn--ghost"
+                    style={{ fontSize: 12, color: '#C95025' }}
+                  >
+                    {deletingPaymentId === payment.id ? 'Excluindo...' : 'Excluir'}
+                  </button>
                 </div>
               </div>
             ))}
