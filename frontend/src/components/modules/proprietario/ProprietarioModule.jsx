@@ -171,6 +171,17 @@ export function ProprietarioModule() {
       <div className="billing-studio">
         <section className="billing-card">
           <div className="p-panel-header__title font-serif mb-2">Base de assinantes</div>
+
+          {/* Cabeçalho da tabela */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 2fr 1fr 1.2fr 0.8fr', gap: 8, padding: '8px 16px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-faint)', borderBottom: '2px solid var(--line-soft)' }}>
+            <span>Nome</span>
+            <span>Email</span>
+            <span>Plano</span>
+            <span>Expira em</span>
+            <span style={{ textAlign: 'right' }}>Status</span>
+          </div>
+
+          {/* Linhas de dados */}
           <div className="p-panel-list">
             {users.filter((user) => user.role !== 'owner').map((user) => (
               <button
@@ -178,16 +189,19 @@ export function ProprietarioModule() {
                 type="button"
                 onClick={() => setSelectedUserId(user.id)}
                 className={`p-list-item${selectedUserId === user.id ? ' is-active' : ''}`}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}
+                style={{ display: 'grid', gridTemplateColumns: '1.5fr 2fr 1fr 1.2fr 0.8fr', gap: 8, alignItems: 'center', textAlign: 'left', width: '100%' }}
               >
-                <strong>{user.name}</strong>
-                <span className="text-muted" style={{ fontSize: 13 }}>{user.email}</span>
+                <strong style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.name}</strong>
+                <span className="text-muted" style={{ fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</span>
                 <span className="text-faint" style={{ fontSize: 12 }}>
-                  {user.access?.plan || 'trial'} • {formatDate(user.access?.expiresAt)}
+                  {user.access?.plan === 'annual' ? 'Anual' : user.access?.plan === 'monthly' ? 'Mensal' : user.access?.plan === 'lifetime' ? 'Vitalicio' : 'Trial'}
+                </span>
+                <span className="text-faint" style={{ fontSize: 12 }}>
+                  {formatDate(user.access?.expiresAt)}
                 </span>
                 <span
                   className={user.access?.accessGranted ? 'text-success' : 'text-danger'}
-                  style={{ fontSize: 12, fontWeight: 600, marginLeft: 'auto' }}
+                  style={{ fontSize: 11, fontWeight: 600, textAlign: 'right', whiteSpace: 'nowrap' }}
                 >
                   {user.access?.label || 'Sem status'}
                 </span>
