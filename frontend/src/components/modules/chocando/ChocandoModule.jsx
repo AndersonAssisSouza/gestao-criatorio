@@ -3,6 +3,7 @@ import { StatCard }    from '../../shared/StatCard'
 import { StatusBadge } from '../../shared/StatusBadge'
 import { accessService } from '../../../services/access.service'
 import { ovosService } from '../../../services/ovos.service'
+import { CROSSING_DB, getMutationColor } from '../mutacoes/MutacoesModule'
 
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
@@ -52,6 +53,88 @@ function isAliveBird(record = {}) {
 
 function matchesGender(record = {}, expected) {
   return normalizeText(record.Genero) === normalizeText(expected)
+}
+
+// ─── Helper: normaliza espécie para lookup no CROSSING_DB ──────────────────
+const SPECIES_MAP = { tarim: 'Tarin', tarin: 'Tarin' }
+function normalizeSpecies(name = '') {
+  const key = normalizeText(name)
+  return SPECIES_MAP[key] || name
+}
+
+// ─── Helper: busca cruzamento no banco de mutações ─────────────────────────
+function findCrossing(especie, mutMacho, mutFemea) {
+  if (!especie || !mutMacho || !mutFemea) return null
+  const sp = normalizeSpecies(especie)
+  return CROSSING_DB.find(
+    c => c.especie === sp && c.macho === mutMacho && c.femea === mutFemea
+  ) || null
+}
+
+// ─── Mini MutationBadge para exibição compacta ─────────────────────────────
+function MiniMutBadge({ name, percentual }) {
+  const color = getMutationColor(name)
+  return (
+    <div style={{
+      display: 'inline-flex', alignItems: 'center', gap: 6,
+      padding: '4px 10px', borderRadius: 6, fontSize: 11,
+      background: `${color}18`, border: `1px solid ${color}40`,
+      marginBottom: 4, marginRight: 4,
+    }}>
+      <span style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />
+      <span style={{ color: '#2c2520' }}>{name}</span>
+      {percentual && <span style={{ color, fontWeight: 600 }}>{percentual}</span>}
+    </div>
+  )
+}
+
+// ─── Painel de previsão de mutações ────────────────────────────────────────
+function MutationPreview({ crossing }) {
+  if (!crossing) return null
+
+  if (crossing.isCrossingOver) {
+    return (
+      <div style={{ padding: '8px 0' }}>
+        <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8a7e74', marginBottom: 6 }}>
+          Previsão genética (Crossing-Over)
+        </div>
+        <div style={{ fontSize: 10, color: '#B39DDB', marginBottom: 6 }}>Resultado Normal:</div>
+        <div style={{ marginBottom: 4 }}>
+          <span style={{ fontSize: 10, color: '#8a7e74' }}>♂ </span>
+          {crossing.resultadoNormal.machos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+        </div>
+        <div style={{ marginBottom: 8 }}>
+          <span style={{ fontSize: 10, color: '#8a7e74' }}>♀ </span>
+          {crossing.resultadoNormal.femeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+        </div>
+        <div style={{ fontSize: 10, color: '#FF9800', marginBottom: 6 }}>Crossing-Over:</div>
+        <div style={{ marginBottom: 4 }}>
+          <span style={{ fontSize: 10, color: '#8a7e74' }}>♂ </span>
+          {crossing.resultadoCrossOver.machos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+        </div>
+        <div>
+          <span style={{ fontSize: 10, color: '#8a7e74' }}>♀ </span>
+          {crossing.resultadoCrossOver.femeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ padding: '8px 0' }}>
+      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#8a7e74', marginBottom: 6 }}>
+        Previsão genética dos filhotes
+      </div>
+      <div style={{ marginBottom: 4 }}>
+        <span style={{ fontSize: 10, color: '#8a7e74' }}>♂ Machos: </span>
+        {crossing.resultadoMachos.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+      </div>
+      <div>
+        <span style={{ fontSize: 10, color: '#8a7e74' }}>♀ Fêmeas: </span>
+        {crossing.resultadoFemeas.map((r, i) => <MiniMutBadge key={i} name={r.mutacao} percentual={r.percentual} />)}
+      </div>
+    </div>
+  )
 }
 
 // ─── Helper: format date ────────────────────────────────────────────────────
@@ -286,6 +369,15 @@ export function ChocandoModule({ onNavigate }) {
   const machos = useMemo(() => plantel.filter(p => matchesGender(p, 'Macho') && isAliveBird(p)), [plantel])
   const selectedFemeaObj = plantel.find(p => String(p.ID) === selectedFemea) || null
   const selectedMachoObj = plantel.find(p => String(p.ID) === selectedMacho) || null
+
+  // ─── Previsão genética baseada nas mutações do casal ──────────────────────
+  const crossing = useMemo(() => {
+    if (!selectedFemeaObj || !selectedMachoObj) return null
+    const especie = selectedFemeaObj.CategoriaAve || selectedMachoObj.CategoriaAve
+    const mutMacho = selectedMachoObj.Mutacao
+    const mutFemea = selectedFemeaObj.Mutacao
+    return findCrossing(especie, mutMacho, mutFemea)
+  }, [selectedFemeaObj, selectedMachoObj])
 
   const cageClutches = useMemo(() => {
     if (!selectedGaiola) return []
@@ -533,6 +625,11 @@ export function ChocandoModule({ onNavigate }) {
               </div>
             )}
           </div>
+          {crossing && (
+            <div style={{ padding: '0 16px 8px', borderBottom: '1px solid var(--line-soft)' }}>
+              <MutationPreview crossing={crossing} />
+            </div>
+          )}
           <div className="p-panel-body">
             {!selectedGaiola ? (
               <div className="module-empty">

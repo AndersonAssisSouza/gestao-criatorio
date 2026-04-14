@@ -322,7 +322,7 @@ export function GaiolasModule() {
                       {STATUS_OPTIONS.map(st => <option key={st} value={st}>{st}</option>)}
                     </select>
                   </div>
-                  <div className="flex gap-1" style={{ flexWrap: 'wrap' }}>
+                  <div className="flex gap-1 mt-3" style={{ flexWrap: 'wrap' }}>
                     <button className="p-btn p-btn--primary" onClick={handleSaveEdit}>Salvar Alterações</button>
                   </div>
                 </div>

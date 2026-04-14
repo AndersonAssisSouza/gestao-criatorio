@@ -10,7 +10,7 @@ import { useAuth } from '../../../context/AuthContext'
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ─── CORES POR MUTAÇÃO ──────────────────────────────────────────────────
-const MUTATION_COLORS = {
+export const MUTATION_COLORS = {
   'Ancestral':              '#EF5350',
   'Canela':                 '#BCAAA4',
   'Pastel':                 '#E88DB4',
@@ -34,7 +34,7 @@ const MUTATION_COLORS = {
   'Port. CP(tipo II)':      '#C9A6D9',
 }
 
-function getMutationColor(name) {
+export function getMutationColor(name) {
   if (MUTATION_COLORS[name]) return MUTATION_COLORS[name]
   if (name.includes('Passepartout')) return '#B39DDB'
   if (name.includes('Port.') || name.includes('Portador')) return '#C5B8A0'
@@ -77,7 +77,7 @@ function getMutationLegend(name) {
 //  isCrossingOver: true para cruzamentos com Passepartout (sem %)
 // ═══════════════════════════════════════════════════════════════════════════
 
-const CROSSING_DB = [
+export const CROSSING_DB = [
   // ── 1. Ancestral × Ancestral ──
   {
     especie: 'Tarin', macho: 'Ancestral', femea: 'Ancestral',
