@@ -134,7 +134,7 @@ function Dashboard() {
         />
         <div className="app-content">
           {resolvedPage === 'plantel'    && <PlantelModule />}
-          {resolvedPage === 'chocando'   && <ChocandoModule />}
+          {resolvedPage === 'chocando'   && <ChocandoModule onNavigate={navigateTo} />}
           {resolvedPage === 'gaiolas'    && <GaiolasModule />}
           {resolvedPage === 'filhotes'   && <FilhotesModule />}
           {resolvedPage === 'especies'   && <EspeciesModule />}

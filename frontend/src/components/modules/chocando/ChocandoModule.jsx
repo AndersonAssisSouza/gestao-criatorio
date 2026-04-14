@@ -212,7 +212,7 @@ function ParentCard({ bird, role }) {
 // ═════════════════════════════════════════════════════════════════════════════
 // MAIN MODULE
 // ═════════════════════════════════════════════════════════════════════════════
-export function ChocandoModule() {
+export function ChocandoModule({ onNavigate }) {
   const [gaiolas, setGaiolas]         = useState([])
   const [plantel, setPlantel]         = useState([])
   const [ovos, setOvos]               = useState([])
@@ -495,12 +495,12 @@ export function ChocandoModule() {
                 <button
                   className="p-btn p-btn--secondary w-full"
                   style={{ justifyContent: 'center' }}
-                  onClick={() => alert('Navegar para Simulacao de Mutacao dos Filhotes (tela a integrar)')}
+                  onClick={() => onNavigate?.('mutacoes')}
                 >
-                  Simulacao Mutacao dos Filhotes
+                  Simulação Mutação dos Filhotes
                 </button>
                 <div className="text-muted mt-1" style={{ fontSize: 10, textAlign: 'center' }}>
-                  Abre o simulador de previsao genetica
+                  Abre o simulador de previsão genética
                 </div>
               </>
             ) : (
