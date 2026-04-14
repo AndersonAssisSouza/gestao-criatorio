@@ -422,12 +422,11 @@ export function ChocandoModule() {
                 className={`p-list-item${selectedGaiola?.ID === g.ID ? ' is-active' : ''}`}
                 onClick={() => setSelectedGaiola(g)}
               >
-                <div className="font-serif" style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>
-                  {g.NumeroGaiola}
-                </div>
-                <StatusBadge status={g.Status} />
-                <div className="text-muted mt-1" style={{ fontSize: 11 }}>
-                  {ovos.filter(o => o.Gaiola === g.NumeroGaiola).length} ovo(s)
+                <div className="flex items-center justify-between">
+                  <div className="font-serif" style={{ fontSize: 16, fontWeight: 700 }}>
+                    {g.NumeroGaiola}
+                  </div>
+                  <StatusBadge status={g.Status} />
                 </div>
               </div>
             ))}
