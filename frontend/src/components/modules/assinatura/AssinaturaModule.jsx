@@ -100,11 +100,25 @@ export function AssinaturaModule() {
       const payload = { plan: selectedPlan, method }
       if (method === 'card') Object.assign(payload, { cardHolderName: card.name, cardNumber: card.number.replace(/\D/g, ''), expiryMonth: card.month, expiryYear: card.year, cvc: card.cvc })
       const r = await accessService.createCheckout(payload)
+
+      // Se o gateway retornou URL de redirect (MercadoPago), redireciona o usuário
+      if (r.checkout?.redirectUrl) {
+        window.location.href = r.checkout.redirectUrl
+        return
+      }
+
       setPayments(cur => [r.payment, ...cur])
       setCheckoutInfo(r.checkout || checkoutInfo)
       await refreshUser()
-      setSuccess(method === 'pix' ? 'Cobrança PIX gerada. Confirme o pagamento abaixo para liberar o acesso.' : 'Pagamento no cartão confirmado. Acesso liberado!')
-      if (method === 'card') setCard({ name: user?.name || '', number: '', month: '', year: '', cvc: '' })
+
+      if (r.payment?.status === 'paid' || r.access) {
+        setSuccess('Pagamento confirmado e acesso liberado!')
+        if (method === 'card') setCard({ name: user?.name || '', number: '', month: '', year: '', cvc: '' })
+      } else if (method === 'pix') {
+        setSuccess('Cobrança PIX gerada. Confirme o pagamento abaixo para liberar o acesso.')
+      } else {
+        setSuccess('Pagamento registrado. Aguarde a confirmação.')
+      }
     } catch (e) { setError(e.response?.data?.message || 'Erro ao processar pagamento.') }
     finally { setSubmitting(false) }
   }
@@ -140,7 +154,7 @@ export function AssinaturaModule() {
             Novo usuário entra com 7 dias grátis. Depois, escolha mensal ou anual, pague por PIX ou cartão e o acesso é liberado na hora.
           </div>
         </div>
-        <div className="pill">{isOwner ? 'Conta master • vitalício' : usesGateway ? 'Checkout via gateway' : 'Checkout integrado'}</div>
+        <div className="pill">{isOwner ? 'Conta master • vitalício' : usesGateway ? 'MercadoPago ativo' : 'Checkout integrado'}</div>
       </div>
 
       {error && <div className="p-alert--error">{error}</div>}
@@ -204,11 +218,14 @@ export function AssinaturaModule() {
                 </div>
 
                 <div className="text-muted mb-2" style={{ fontSize: 13 }}>
-                  Clique para gerar o código PIX. Copie o código, faça o pagamento no seu banco e depois confirme aqui.
+                  {usesGateway
+                    ? 'Você será redirecionado ao MercadoPago para concluir o pagamento PIX com segurança.'
+                    : 'Clique para gerar o código PIX. Copie o código, faça o pagamento no seu banco e depois confirme aqui.'
+                  }
                 </div>
 
                 <button type="button" onClick={handleCheckout} disabled={submitting} className="p-btn p-btn--primary" style={{ width: '100%' }}>
-                  {submitting ? 'Gerando PIX...' : `Gerar PIX de ${formatSubscriptionPrice(price)}`}
+                  {submitting ? (usesGateway ? 'Redirecionando...' : 'Gerando PIX...') : usesGateway ? `Pagar ${formatSubscriptionPrice(price)} via MercadoPago` : `Gerar PIX de ${formatSubscriptionPrice(price)}`}
                 </button>
 
                 {activeCheckout?.method === 'pix' && (
@@ -258,35 +275,40 @@ export function AssinaturaModule() {
                   <div className="pill pill--accent">{formatSubscriptionPrice(price)}</div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-                  <label className="p-field" style={{ gridColumn: '1 / -1' }}>
-                    <div className="p-label">Nome no cartão</div>
-                    <input value={card.name} onChange={e => setCard(c => ({ ...c, name: e.target.value }))} placeholder="Nome completo" className="p-input" />
-                  </label>
-                  <label className="p-field" style={{ gridColumn: '1 / -1' }}>
-                    <div className="p-label">Número do cartão</div>
-                    <input value={maskCard(card.number)} onChange={e => setCard(c => ({ ...c, number: e.target.value }))} placeholder="0000 0000 0000 0000" className="p-input" maxLength={19} />
-                  </label>
-                  <label className="p-field">
-                    <div className="p-label">Validade (MM/AA)</div>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <input value={card.month} onChange={e => setCard(c => ({ ...c, month: e.target.value }))} placeholder="MM" className="p-input" maxLength={2} style={{ width: 60, textAlign: 'center' }} />
-                      <span style={{ alignSelf: 'center', color: '#999' }}>/</span>
-                      <input value={card.year} onChange={e => setCard(c => ({ ...c, year: e.target.value }))} placeholder="AA" className="p-input" maxLength={4} style={{ width: 70, textAlign: 'center' }} />
-                    </div>
-                  </label>
-                  <label className="p-field">
-                    <div className="p-label">CVC</div>
-                    <input value={card.cvc} onChange={e => setCard(c => ({ ...c, cvc: e.target.value }))} placeholder="123" className="p-input" maxLength={4} type="password" style={{ width: 80 }} />
-                  </label>
-                </div>
+                {!usesGateway && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+                    <label className="p-field" style={{ gridColumn: '1 / -1' }}>
+                      <div className="p-label">Nome no cartão</div>
+                      <input value={card.name} onChange={e => setCard(c => ({ ...c, name: e.target.value }))} placeholder="Nome completo" className="p-input" />
+                    </label>
+                    <label className="p-field" style={{ gridColumn: '1 / -1' }}>
+                      <div className="p-label">Número do cartão</div>
+                      <input value={maskCard(card.number)} onChange={e => setCard(c => ({ ...c, number: e.target.value }))} placeholder="0000 0000 0000 0000" className="p-input" maxLength={19} />
+                    </label>
+                    <label className="p-field">
+                      <div className="p-label">Validade (MM/AA)</div>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <input value={card.month} onChange={e => setCard(c => ({ ...c, month: e.target.value }))} placeholder="MM" className="p-input" maxLength={2} style={{ width: 60, textAlign: 'center' }} />
+                        <span style={{ alignSelf: 'center', color: '#999' }}>/</span>
+                        <input value={card.year} onChange={e => setCard(c => ({ ...c, year: e.target.value }))} placeholder="AA" className="p-input" maxLength={4} style={{ width: 70, textAlign: 'center' }} />
+                      </div>
+                    </label>
+                    <label className="p-field">
+                      <div className="p-label">CVC</div>
+                      <input value={card.cvc} onChange={e => setCard(c => ({ ...c, cvc: e.target.value }))} placeholder="123" className="p-input" maxLength={4} type="password" style={{ width: 80 }} />
+                    </label>
+                  </div>
+                )}
 
                 <div className="text-faint mb-2" style={{ fontSize: 11 }}>
-                  O sistema não armazena o número completo nem o CVC. Apenas bandeira e final ficam registrados.
+                  {usesGateway
+                    ? 'Você será redirecionado ao MercadoPago para inserir os dados do cartão com total segurança.'
+                    : 'O sistema não armazena o número completo nem o CVC. Apenas bandeira e final ficam registrados.'
+                  }
                 </div>
 
-                <button type="button" onClick={handleCheckout} disabled={submitting || !cardValid} className="p-btn p-btn--primary" style={{ width: '100%' }}>
-                  {submitting ? 'Processando pagamento...' : `Pagar ${formatSubscriptionPrice(price)} no cartão`}
+                <button type="button" onClick={handleCheckout} disabled={submitting || (!usesGateway && !cardValid)} className="p-btn p-btn--primary" style={{ width: '100%' }}>
+                  {submitting ? (usesGateway ? 'Redirecionando...' : 'Processando pagamento...') : usesGateway ? `Pagar ${formatSubscriptionPrice(price)} via MercadoPago` : `Pagar ${formatSubscriptionPrice(price)} no cartão`}
                 </button>
               </div>
             )}

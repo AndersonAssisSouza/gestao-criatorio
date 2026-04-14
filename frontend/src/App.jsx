@@ -105,6 +105,14 @@ function Dashboard() {
     }
   }, [availablePages, defaultPage, page])
 
+  // Auto-navegar para assinatura quando retorna do MercadoPago
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('checkout') || params.get('external_reference')) {
+      setPage('assinatura')
+    }
+  }, [])
+
   const meta = PAGE_META[resolvedPage] || { title: resolvedPage, description: '' }
 
   useEffect(() => {
