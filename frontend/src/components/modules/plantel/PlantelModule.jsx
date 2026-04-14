@@ -361,21 +361,18 @@ export function PlantelModule() {
               </div>
             ) : (
               filtered.map((ave) => (
-                <button key={ave.ID} type="button" className={`p-list-item${selected?.ID === ave.ID ? ' is-active' : ''}`} onClick={() => handleSelect(ave)} style={{ textAlign: 'left' }}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="p-badge" style={{ width: 42, height: 42, borderRadius: 14, background: 'linear-gradient(135deg, rgba(201,80,37,0.25), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffd8cb', fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
+                <button key={ave.ID} type="button" className={`p-list-item${selected?.ID === ave.ID ? ' is-active' : ''}`} onClick={() => handleSelect(ave)} style={{ textAlign: 'left', flexDirection: 'column', alignItems: 'stretch' }}>
+                  <div className="flex items-center gap-2">
+                    <div style={{ width: 42, height: 42, borderRadius: 14, background: 'linear-gradient(135deg, rgba(201,80,37,0.25), rgba(255,255,255,0.04))', border: '1px solid rgba(201,80,37,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#C95025', fontSize: 15, fontWeight: 700, flexShrink: 0 }}>
                       {ave.Nome.slice(0, 1).toUpperCase()}
                     </div>
-                    <div>
-                      <div className="font-serif" style={{ fontSize: 18 }}>{ave.Nome}</div>
-                      <div className="text-muted" style={{ fontSize: 12, lineHeight: 1.6 }}>{ave.CategoriaAve} · {ave.Genero} · {ave.Gaiola || 'Sem gaiola'}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="font-serif" style={{ fontSize: 17 }}>{ave.Nome}</div>
+                      <div className="text-muted" style={{ fontSize: 12 }}>{ave.CategoriaAve} · {ave.Genero} · {ave.Gaiola || 'Sem gaiola'}</div>
                     </div>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-2 mt-2" style={{ flexWrap: 'wrap' }}>
                     <StatusBadge status={ave.Status} />
-                    <span className="text-faint" style={{ fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{ave.Mutacao || 'Sem mutação'} · {ave.AnelEsquerdo || 'Sem anel'}</span>
                   </div>
+                  <div className="text-faint" style={{ fontSize: 11, letterSpacing: '0.06em', textTransform: 'uppercase', marginTop: 6, paddingLeft: 54 }}>{ave.Mutacao || 'SEM MUTAÇÃO'} · {ave.AnelEsquerdo || 'SEM ANEL'}</div>
                 </button>
               ))
             )}
