@@ -18,6 +18,7 @@ import { MutacoesModule }   from './components/modules/mutacoes/MutacoesModule'
 import { AssinaturaModule } from './components/modules/assinatura/AssinaturaModule'
 import { ProprietarioModule } from './components/modules/proprietario/ProprietarioModule'
 import { ConfiguracoesModule } from './components/modules/configuracoes/ConfiguracoesModule'
+import { AjudaModule }        from './components/modules/ajuda/AjudaModule'
 import { BRAND } from './brand'
 
 const PAGE_META = {
@@ -73,6 +74,10 @@ const PAGE_META = {
     title: 'Configurações Visuais',
     description: 'Personalize as cores-base do sistema e ajuste a identidade da interface ao estilo do seu criatório.',
   },
+  ajuda: {
+    title: 'Central de Ajuda',
+    description: 'Manual completo do sistema com guia de todos os módulos, cadastros e funcionalidades.',
+  },
 }
 
 function Dashboard() {
@@ -83,8 +88,8 @@ function Dashboard() {
   const [page, setPage] = useState(defaultPage)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const availablePages = hasOperationalAccess
-    ? ['plantel', 'chocando', 'gaiolas', 'filhotes', 'especies', 'aviario', 'aneis', 'financeiro', 'explantel', 'assinatura', 'configuracoes']
-    : ['assinatura', 'configuracoes']
+    ? ['plantel', 'chocando', 'gaiolas', 'filhotes', 'especies', 'aviario', 'aneis', 'financeiro', 'explantel', 'assinatura', 'ajuda', 'configuracoes']
+    : ['assinatura', 'ajuda', 'configuracoes']
 
   if (isOwner) {
     availablePages.push('mutacoes')
@@ -153,6 +158,7 @@ function Dashboard() {
           {resolvedPage === 'mutacoes'   && <MutacoesModule />}
           {resolvedPage === 'assinatura' && <AssinaturaModule />}
           {resolvedPage === 'proprietario' && <ProprietarioModule />}
+          {resolvedPage === 'ajuda'          && <AjudaModule />}
           {resolvedPage === 'configuracoes' && <ConfiguracoesModule />}
         </div>
         <MobileDock activePage={resolvedPage} onNavigate={navigateTo} onOpenMenu={() => setSidebarOpen(true)} />

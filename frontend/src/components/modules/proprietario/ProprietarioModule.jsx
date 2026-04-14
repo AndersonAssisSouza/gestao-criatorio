@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { StatCard } from '../../shared/StatCard'
 import { accessService } from '../../../services/access.service'
 import { SUBSCRIPTION_PRICING, formatSubscriptionPrice } from '../../../config/subscription'
+import { ManualAdminPanel } from './ManualAdminPanel'
 
 function formatDate(value) {
   if (!value) return 'Sem vencimento'
@@ -28,7 +29,20 @@ function formatMethod(method) {
   return 'Manual'
 }
 
+const TAB_STYLE = (active) => ({
+  background: active ? 'var(--accent)' : 'transparent',
+  color: active ? '#fff' : 'var(--text-soft)',
+  border: active ? '1px solid var(--accent)' : '1px solid var(--line-soft)',
+  borderRadius: 8,
+  padding: '8px 20px',
+  fontSize: 13,
+  fontWeight: active ? 700 : 500,
+  cursor: 'pointer',
+  transition: 'all 0.2s',
+})
+
 export function ProprietarioModule() {
+  const [tab, setTab] = useState('painel')
   const [loading, setLoading] = useState(true)
   const [users, setUsers] = useState([])
   const [payments, setPayments] = useState([])
@@ -141,7 +155,7 @@ export function ProprietarioModule() {
     }
   }
 
-  if (loading) {
+  if (loading && tab === 'painel') {
     return <div className="module-empty">Carregando controle do proprietário...</div>
   }
 
@@ -157,6 +171,16 @@ export function ProprietarioModule() {
         </div>
         <div className="pill">Somente Anderson</div>
       </div>
+
+      {/* Abas */}
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button type="button" style={TAB_STYLE(tab === 'painel')} onClick={() => setTab('painel')}>Painel de Controle</button>
+        <button type="button" style={TAB_STYLE(tab === 'manual')} onClick={() => setTab('manual')}>Manual do Administrador</button>
+      </div>
+
+      {tab === 'manual' && <ManualAdminPanel />}
+
+      {tab === 'painel' && <>
 
       {error && <div className="p-alert--error">{error}</div>}
       {success && <div className="p-alert--success">{success}</div>}
@@ -425,6 +449,7 @@ export function ProprietarioModule() {
           </div>
         )}
       </section>
+      </>}
 
     </div>
   )

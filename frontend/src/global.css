@@ -1088,3 +1088,8 @@ a:hover { text-decoration: underline; }
 .app-content > * {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* ─── 26. Ajuda nav (hide on mobile) ──────────────────────────────────── */
+@media (max-width: 820px) {
+  .ajuda-nav { display: none !important; }
+}
