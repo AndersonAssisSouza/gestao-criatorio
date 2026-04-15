@@ -202,7 +202,116 @@ async function notifyUpcomingExpiration({ user, reminderType, daysBefore, expire
   })
 }
 
+// ─── Cancelamento ─────────────────────────────────────────────────────────────
+
+function buildCancellationCustomerEmail({ user, accessEnd, withinWithdrawalPeriod, reason }) {
+  const subject = 'Plumar • Cancelamento de assinatura confirmado'
+  const accessLabel = formatDate(accessEnd)
+  const withdrawalNote = withinWithdrawalPeriod
+    ? '<p style="padding:12px;background:#fff3e0;border-radius:6px;border-left:3px solid #f57c00"><strong>Direito de arrependimento:</strong> Você está dentro do prazo legal de 7 dias para solicitar reembolso integral. Responda este e-mail caso deseje exercer esse direito.</p>'
+    : ''
+  const withdrawalText = withinWithdrawalPeriod
+    ? '\nDIREITO DE ARREPENDIMENTO: Você está dentro do prazo legal de 7 dias. Responda este e-mail para solicitar reembolso integral.'
+    : ''
+
+  const text = [
+    `Olá, ${user.name}.`,
+    '',
+    'Confirmamos o cancelamento da sua assinatura no sistema Plumar.',
+    '',
+    `Seu acesso permanece ativo até: ${accessLabel}`,
+    'Após essa data, o acesso aos módulos será encerrado.',
+    '',
+    'O que você precisa saber:',
+    '• Você pode continuar usando o sistema normalmente até a data acima.',
+    '• Seus dados ficam preservados por 90 dias após o encerramento.',
+    '• Você pode reativar sua assinatura a qualquer momento.',
+    withdrawalText,
+    reason ? `\nMotivo informado: ${reason}` : '',
+    '',
+    'Lamentamos sua saída e esperamos vê-lo novamente em breve.',
+  ].filter(Boolean).join('\n')
+
+  const html = `
+    <div style="font-family:Segoe UI,Arial,sans-serif;color:#1f2937;line-height:1.7">
+      <h2 style="margin-bottom:8px;color:#C95025">Cancelamento confirmado</h2>
+      <p>Olá, <strong>${user.name}</strong>.</p>
+      <p>Confirmamos o cancelamento da sua assinatura no sistema Plumar.</p>
+      <div style="padding:16px;background:#f7f5f0;border-radius:8px;margin:16px 0">
+        <p style="margin:0"><strong>Acesso ativo até:</strong> ${accessLabel}</p>
+        <p style="margin:4px 0 0;font-size:13px;color:#666">Após essa data, o acesso aos módulos será encerrado.</p>
+      </div>
+      ${withdrawalNote}
+      <p><strong>O que você precisa saber:</strong></p>
+      <ul style="padding-left:20px">
+        <li>Você pode continuar usando o sistema normalmente até a data acima.</li>
+        <li>Seus dados ficam preservados por 90 dias após o encerramento.</li>
+        <li>Você pode reativar sua assinatura a qualquer momento.</li>
+      </ul>
+      ${reason ? `<p style="font-size:13px;color:#666"><em>Motivo informado: ${reason}</em></p>` : ''}
+      <p>Lamentamos sua saída e esperamos vê-lo novamente em breve.</p>
+    </div>
+  `
+
+  return { subject, text, html }
+}
+
+function buildCancellationMasterEmail({ user, accessEnd, withinWithdrawalPeriod, reason }) {
+  const subject = `Plumar • Cancelamento solicitado por ${user.email}`
+  const accessLabel = formatDate(accessEnd)
+
+  const text = [
+    'Um assinante solicitou cancelamento.',
+    '',
+    `Cliente: ${user.name}`,
+    `E-mail: ${user.email}`,
+    `Plano: ${formatPlan(user.subscriptionPlan)}`,
+    `Acesso ativo até: ${accessLabel}`,
+    `Dentro do prazo de arrependimento: ${withinWithdrawalPeriod ? 'Sim (7 dias)' : 'Não'}`,
+    reason ? `Motivo: ${reason}` : '',
+  ].filter(Boolean).join('\n')
+
+  const html = `
+    <div style="font-family:Segoe UI,Arial,sans-serif;color:#1f2937;line-height:1.7">
+      <h2 style="margin-bottom:8px;color:#C95025">Cancelamento de assinatura</h2>
+      <p>Um assinante solicitou o cancelamento.</p>
+      <p><strong>Cliente:</strong> ${user.name}<br />
+      <strong>E-mail:</strong> ${user.email}<br />
+      <strong>Plano:</strong> ${formatPlan(user.subscriptionPlan)}<br />
+      <strong>Acesso ativo até:</strong> ${accessLabel}<br />
+      <strong>Prazo de arrependimento:</strong> ${withinWithdrawalPeriod ? '<span style="color:#f57c00">Sim (7 dias)</span>' : 'Não'}</p>
+      ${reason ? `<p><strong>Motivo:</strong> <em>${reason}</em></p>` : ''}
+    </div>
+  `
+
+  return { subject, text, html }
+}
+
+async function notifyCancellation({ user, accessEnd, withinWithdrawalPeriod, reason }) {
+  const config = getEmailConfig()
+  const deliveries = []
+
+  // Email ao cliente
+  const customerMail = buildCancellationCustomerEmail({ user, accessEnd, withinWithdrawalPeriod, reason })
+  deliveries.push(await sendEmail({
+    to: { name: user.name, email: user.email },
+    ...customerMail,
+  }))
+
+  // Email ao administrador
+  if (config.masterEmail) {
+    const masterMail = buildCancellationMasterEmail({ user, accessEnd, withinWithdrawalPeriod, reason })
+    deliveries.push(await sendEmail({
+      to: { name: 'Administrador', email: config.masterEmail },
+      ...masterMail,
+    }))
+  }
+
+  return deliveries
+}
+
 module.exports = {
   notifyContractRelease,
   notifyUpcomingExpiration,
+  notifyCancellation,
 }

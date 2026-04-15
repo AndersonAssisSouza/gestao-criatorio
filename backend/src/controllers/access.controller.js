@@ -3,7 +3,7 @@ const paymentRepository = require('../repositories/payment.repository')
 const { applyPaymentProfile, buildAccessSummary } = require('../utils/subscription.utils')
 const { SUBSCRIPTION_PRICING } = require('../config/subscription.config')
 const { createPixPayload, normalizePaymentMethod, validateCardCheckout } = require('../utils/payment.utils')
-const { notifyContractRelease } = require('../services/subscription-notification.service')
+const { notifyContractRelease, notifyCancellation } = require('../services/subscription-notification.service')
 const { getCheckoutAvailability } = require('../config/payment-gateway.config')
 const { createCheckoutPreference, getPaymentById } = require('../services/mercadopago.service')
 const { settleMercadoPagoPayment } = require('./payment.controller')
@@ -468,17 +468,58 @@ async function extendTrial(req, res) {
 }
 
 async function cancelMySubscription(req, res) {
-  const now = new Date().toISOString()
-  const updatedUser = await userRepository.updateUser(req.currentUser.id, (user) => ({
-    ...user,
-    subscriptionStatus: 'cancelled',
-    accessReleasedUntil: now,
-    currentPeriodEnd: now,
-    paymentStatus: 'cancelled',
-    subscriptionRequestedPlan: null,
-    requestedAt: null,
-  }))
-  return res.json({ user: serializeUser(updatedUser) })
+  try {
+    const now = new Date().toISOString()
+    const user = req.currentUser
+
+    // Mantém acesso até o fim do período já pago
+    const accessEnd = user.accessReleasedUntil || user.currentPeriodEnd || now
+    const keepAccess = new Date(accessEnd) > new Date(now) ? accessEnd : now
+
+    // Verifica direito de arrependimento (7 dias após último pagamento)
+    const lastPayment = user.lastPaymentAt ? new Date(user.lastPaymentAt) : null
+    const sevenDaysAfterPayment = lastPayment ? new Date(lastPayment.getTime() + 7 * 24 * 60 * 60 * 1000) : null
+    const withinWithdrawalPeriod = sevenDaysAfterPayment && new Date(now) <= sevenDaysAfterPayment
+
+    const updatedUser = await userRepository.updateUser(user.id, (current) => ({
+      ...current,
+      subscriptionStatus: 'cancelled',
+      accessReleasedUntil: keepAccess,
+      currentPeriodEnd: keepAccess,
+      paymentStatus: 'cancelled',
+      subscriptionRequestedPlan: null,
+      requestedAt: null,
+      cancelledAt: now,
+      cancellationReason: req.body?.reason || '',
+      withinWithdrawalPeriod: !!withinWithdrawalPeriod,
+    }))
+
+    // Enviar notificações de cancelamento
+    try {
+      await notifyCancellation({
+        user: updatedUser,
+        accessEnd: keepAccess,
+        withinWithdrawalPeriod: !!withinWithdrawalPeriod,
+        reason: req.body?.reason || '',
+      })
+    } catch (emailErr) {
+      console.error('[access/cancel/email]', emailErr)
+    }
+
+    return res.json({
+      user: serializeUser(updatedUser),
+      cancellation: {
+        accessUntil: keepAccess,
+        withinWithdrawalPeriod: !!withinWithdrawalPeriod,
+        message: withinWithdrawalPeriod
+          ? `Cancelamento registrado. Você está dentro do prazo de arrependimento de 7 dias e pode solicitar reembolso. Seu acesso permanece ativo até ${new Date(keepAccess).toLocaleDateString('pt-BR')}.`
+          : `Cancelamento registrado. Seu acesso permanece ativo até ${new Date(keepAccess).toLocaleDateString('pt-BR')}. Após essa data, o acesso será encerrado.`,
+      },
+    })
+  } catch (error) {
+    console.error('[access/cancel]', error)
+    return res.status(500).json({ message: 'Erro ao processar cancelamento.' })
+  }
 }
 
 async function revokeAccess(req, res) {

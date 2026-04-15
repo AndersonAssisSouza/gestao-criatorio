@@ -368,6 +368,25 @@ const mockAccessService = {
     return { deleted: true }
   },
 
+  async cancelMySubscription(reason) {
+    const access = getMyMockAccess()
+    const updatedAccess = {
+      ...access,
+      status: 'cancelled',
+      label: 'Cancelado',
+      paymentStatus: 'cancelled',
+    }
+    setMyMockAccess(updatedAccess)
+    return {
+      user: { access: updatedAccess },
+      cancellation: {
+        accessUntil: access.expiresAt,
+        withinWithdrawalPeriod: false,
+        message: `Cancelamento registrado. Seu acesso permanece ativo até ${new Date(access.expiresAt).toLocaleDateString('pt-BR')}.`,
+      },
+    }
+  },
+
   async revokeAccess(userId) {
     const access = {
       accessGranted: false,
@@ -453,6 +472,11 @@ const realAccessService = {
 
   async deletePayment(paymentId) {
     const { data } = await api.delete(`/api/access/admin/payments/${paymentId}`)
+    return data
+  },
+
+  async cancelMySubscription(reason) {
+    const { data } = await api.post('/api/access/cancel', { reason })
     return data
   },
 

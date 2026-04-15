@@ -33,6 +33,9 @@ export function AssinaturaModule() {
   const [confirmingId, setConfirmingId] = useState('')
   const [deletingId, setDeletingId] = useState('')
   const [cancellingPlan, setCancellingPlan] = useState(false)
+  const [showCancelModal, setShowCancelModal] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
+  const [cancelStep, setCancelStep] = useState(1)
   const [selectedPlan, setSelectedPlan] = useState('monthly')
   const [method, setMethod] = useState('pix')
   const [copyFeedback, setCopyFeedback] = useState('')
@@ -131,12 +134,14 @@ export function AssinaturaModule() {
   }
 
   const handleCancelPlan = async () => {
-    if (!window.confirm('Cancelar sua assinatura? Você perderá o acesso ao sistema.')) return
     setCancellingPlan(true); setError(''); setSuccess('')
     try {
-      await accessService.revokeAccess(user.id)
+      const r = await accessService.cancelMySubscription(cancelReason)
       await loadAccess()
-      setSuccess('Assinatura cancelada. Você pode contratar novamente a qualquer momento.')
+      setShowCancelModal(false)
+      setCancelStep(1)
+      setCancelReason('')
+      setSuccess(r.cancellation?.message || 'Cancelamento registrado. Seu acesso permanece ativo até o fim do período pago.')
     } catch (e) { setError(e.response?.data?.message || 'Erro ao cancelar.') }
     finally { setCancellingPlan(false) }
   }
@@ -378,16 +383,94 @@ export function AssinaturaModule() {
             <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid var(--line-soft)' }}>
               <div style={{ fontWeight: 700, color: '#C95025', marginBottom: 4 }}>Cancelar assinatura</div>
               <div className="text-muted mb-1" style={{ fontSize: 13 }}>
-                Ao cancelar, o acesso é removido imediatamente. Você pode contratar novamente a qualquer momento.
+                Ao cancelar, seu acesso permanece ativo até o fim do período já pago. Você pode reativar a qualquer momento.
               </div>
-              <button type="button" onClick={handleCancelPlan} disabled={cancellingPlan}
+              <button type="button" onClick={() => { setShowCancelModal(true); setCancelStep(1); setCancelReason('') }}
                 className="p-btn p-btn--ghost" style={{ color: '#C95025', borderColor: '#C95025' }}>
-                {cancellingPlan ? 'Cancelando...' : 'Cancelar minha assinatura'}
+                Solicitar cancelamento
               </button>
             </div>
           )}
         </section>
       </div>
+
+      {/* Modal de cancelamento */}
+      {showCancelModal && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.5)', padding: 16 }}>
+          <div style={{ background: 'var(--bg-panel-solid, #fff)', borderRadius: 12, maxWidth: 520, width: '100%', padding: 0, boxShadow: '0 20px 60px rgba(0,0,0,0.3)', maxHeight: '90vh', overflow: 'auto' }}>
+            {/* Header */}
+            <div style={{ padding: '20px 24px 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: 18, color: '#C95025' }}>Cancelamento de assinatura</h3>
+              <button type="button" onClick={() => setShowCancelModal(false)} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: '#999', padding: 4 }}>✕</button>
+            </div>
+
+            <div style={{ padding: '16px 24px 24px' }}>
+              {cancelStep === 1 && (
+                <>
+                  <div style={{ padding: 16, background: '#fff8e1', borderRadius: 8, borderLeft: '3px solid #f57c00', marginBottom: 16 }}>
+                    <strong style={{ display: 'block', marginBottom: 6, color: '#e65100' }}>Antes de continuar, leia com atenção:</strong>
+                    <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, lineHeight: 1.8, color: '#333' }}>
+                      <li>Seu acesso permanece <strong>ativo até o fim do período já pago</strong> ({formatDate(access.expiresAt)}).</li>
+                      <li>Após essa data, o acesso aos módulos será encerrado.</li>
+                      <li>Seus dados ficam preservados por <strong>90 dias</strong> após o encerramento.</li>
+                      <li>Você pode <strong>reativar sua assinatura</strong> a qualquer momento, sem perda de dados.</li>
+                      <li><strong>Direito de arrependimento (CDC):</strong> se a compra foi feita há menos de 7 dias, você pode solicitar reembolso integral.</li>
+                      <li><strong>Não há multa</strong> por cancelamento.</li>
+                    </ul>
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', fontWeight: 600, marginBottom: 6, fontSize: 13 }}>Pode nos dizer o motivo? (opcional)</label>
+                    <select value={cancelReason} onChange={e => setCancelReason(e.target.value)}
+                      style={{ width: '100%', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--line-soft, #ddd)', fontSize: 14, background: 'var(--bg-panel-solid, #fff)' }}>
+                      <option value="">Selecione um motivo...</option>
+                      <option value="preco">Preço alto demais</option>
+                      <option value="nao_uso">Não estou usando o sistema</option>
+                      <option value="funcionalidades">Faltam funcionalidades que preciso</option>
+                      <option value="dificuldade">Dificuldade de uso</option>
+                      <option value="alternativa">Encontrei uma alternativa melhor</option>
+                      <option value="temporario">Pausa temporária no criatório</option>
+                      <option value="outro">Outro motivo</option>
+                    </select>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
+                    <button type="button" onClick={() => setShowCancelModal(false)} className="p-btn p-btn--ghost">
+                      Manter assinatura
+                    </button>
+                    <button type="button" onClick={() => setCancelStep(2)} className="p-btn" style={{ background: '#C95025', color: '#fff' }}>
+                      Continuar com cancelamento
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {cancelStep === 2 && (
+                <>
+                  <div style={{ textAlign: 'center', padding: '12px 0 20px' }}>
+                    <div style={{ fontSize: 48, marginBottom: 8 }}>⚠️</div>
+                    <h4 style={{ margin: '0 0 8px', fontSize: 16 }}>Tem certeza que deseja cancelar?</h4>
+                    <p style={{ margin: 0, fontSize: 14, color: '#666' }}>
+                      Seu acesso permanece ativo até <strong>{formatDate(access.expiresAt)}</strong>.<br />
+                      Você receberá um e-mail confirmando o cancelamento.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
+                    <button type="button" onClick={() => setCancelStep(1)} className="p-btn p-btn--ghost">
+                      Voltar
+                    </button>
+                    <button type="button" onClick={handleCancelPlan} disabled={cancellingPlan}
+                      className="p-btn" style={{ background: '#C95025', color: '#fff', minWidth: 180 }}>
+                      {cancellingPlan ? 'Processando...' : 'Confirmar cancelamento'}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
