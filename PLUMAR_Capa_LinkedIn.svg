@@ -1,0 +1,95 @@
+<svg width="1584" height="396" viewBox="0 0 1584 396" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1584" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2c2520"/>
+      <stop offset="0.4" stop-color="#3d302a"/>
+      <stop offset="1" stop-color="#4a372e"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="60" y1="40" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4B767"/>
+      <stop offset="1" stop-color="#C95025"/>
+    </linearGradient>
+    <linearGradient id="chest" x1="80" y1="80" x2="160" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4B767"/>
+      <stop offset="1" stop-color="#A0401D"/>
+    </linearGradient>
+    <linearGradient id="wing" x1="120" y1="80" x2="200" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6E9D7A"/>
+      <stop offset="1" stop-color="#2D5A46"/>
+    </linearGradient>
+    <linearGradient id="body" x1="80" y1="60" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1C2A21"/>
+      <stop offset="1" stop-color="#0D1712"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="500" y1="170" x2="1100" y2="170" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4B767"/>
+      <stop offset="1" stop-color="#E8A94A"/>
+    </linearGradient>
+    <linearGradient id="accentH" x1="0" y1="0" x2="1584" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="transparent"/>
+      <stop offset="0.1" stop-color="#C97A50"/>
+      <stop offset="0.9" stop-color="#C97A50"/>
+      <stop offset="1" stop-color="transparent"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0.12" cy="0.5" r="0.35">
+      <stop stop-color="rgba(201,122,80,0.1)"/>
+      <stop offset="1" stop-color="transparent"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.88" cy="0.3" r="0.3">
+      <stop stop-color="rgba(90,146,127,0.05)"/>
+      <stop offset="1" stop-color="transparent"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1584" height="396" fill="url(#bgGrad)"/>
+  <rect width="1584" height="396" fill="url(#glow1)"/>
+  <rect width="1584" height="396" fill="url(#glow2)"/>
+
+  <!-- Decorative feathers -->
+  <g opacity="0.035">
+    <ellipse cx="100" cy="100" rx="50" ry="130" transform="rotate(-15 100 100)" fill="#F4B767"/>
+    <ellipse cx="1500" cy="300" rx="40" ry="110" transform="rotate(20 1500 300)" fill="#6E9D7A"/>
+    <ellipse cx="1400" cy="80" rx="25" ry="70" transform="rotate(10 1400 80)" fill="#F4B767"/>
+  </g>
+
+  <!-- Bird - left portion -->
+  <g transform="translate(140, 40) scale(5)">
+    <path d="M15 36C15 24.9543 23.9543 16 35 16C39.9213 16 44.427 17.7797 47.9095 20.7311" stroke="url(#frame)" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M49 29C49 40.0457 40.0457 49 29 49C24.0787 49 19.573 47.2203 16.0905 44.2689" stroke="url(#frame)" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M18 40.6C22.8 39.1 25.9 36 28.2 31.9C30.3 28.2 33.1 24.8 38.2 23.4C43.4 22 47.6 24.3 49.6 28.8C51.6 33.5 49.6 38.6 45.1 41.2C40.8 43.7 35.7 44.1 30.6 43.4C25.8 42.8 21.9 42.4 18 40.6Z" fill="url(#body)"/>
+    <path d="M18.3 40.4C21.3 39.8 24.7 40.4 27.8 42.1C24.6 43.7 20.7 43.6 17.2 42.5C15.9 42.1 15.8 40.9 18.3 40.4Z" fill="#0B140F"/>
+    <path d="M22.2 38.8C25.8 36.5 27.8 33.4 29.6 29.9C30.9 27.4 33.4 24.9 36.8 23.8C38.1 29.2 36.3 35.8 31.1 40.5C27.8 40.5 24.9 40 22.2 38.8Z" fill="url(#chest)"/>
+    <path d="M31.5 28.4C35.4 25.1 40.3 24.9 44.3 27C46.8 28.3 47.9 31.6 46.4 34.2C44.2 38 39.4 39.2 34.4 38.5C32.6 35.3 31.7 31.9 31.5 28.4Z" fill="url(#wing)" opacity="0.96"/>
+    <path d="M45.7 25.9L51 24.7L47.2 28.6Z" fill="#F9E4BE"/>
+    <circle cx="41.4" cy="27.7" r="1.85" fill="#FFF8F1"/>
+    <path d="M18 45.3C24 43.9 31 44 36.8 46.2" stroke="rgba(246,179,96,0.68)" stroke-width="2.4" stroke-linecap="round"/>
+  </g>
+
+  <!-- Vertical separator -->
+  <line x1="520" y1="80" x2="520" y2="316" stroke="rgba(201,122,80,0.12)" stroke-width="1"/>
+
+  <!-- PLUMAR text - center-right -->
+  <text x="1020" y="175" text-anchor="middle" font-family="Georgia, 'DM Serif Display', serif" font-size="78" font-weight="400" fill="url(#textGrad)" letter-spacing="14">PLUMAR</text>
+
+  <!-- Tagline -->
+  <text x="1020" y="220" text-anchor="middle" font-family="'Segoe UI', 'Inter', sans-serif" font-size="20" fill="rgba(255,255,255,0.45)" letter-spacing="5">GESTAO INTELIGENTE PARA CRIATORIOS</text>
+
+  <!-- Feature pills -->
+  <g font-family="'Segoe UI', 'Inter', sans-serif">
+    <rect x="720" y="265" width="120" height="30" rx="15" fill="rgba(201,122,80,0.12)" stroke="rgba(201,122,80,0.2)" stroke-width="1"/>
+    <text x="780" y="285" text-anchor="middle" fill="rgba(244,183,103,0.65)" font-size="12" letter-spacing="1.5">PLANTEL</text>
+
+    <rect x="858" y="265" width="120" height="30" rx="15" fill="rgba(201,122,80,0.12)" stroke="rgba(201,122,80,0.2)" stroke-width="1"/>
+    <text x="918" y="285" text-anchor="middle" fill="rgba(244,183,103,0.65)" font-size="12" letter-spacing="1.5">GENETICA</text>
+
+    <rect x="996" y="265" width="140" height="30" rx="15" fill="rgba(201,122,80,0.12)" stroke="rgba(201,122,80,0.2)" stroke-width="1"/>
+    <text x="1066" y="285" text-anchor="middle" fill="rgba(244,183,103,0.65)" font-size="12" letter-spacing="1.5">REPRODUCAO</text>
+
+    <rect x="1154" y="265" width="140" height="30" rx="15" fill="rgba(201,122,80,0.12)" stroke="rgba(201,122,80,0.2)" stroke-width="1"/>
+    <text x="1224" y="285" text-anchor="middle" fill="rgba(244,183,103,0.65)" font-size="12" letter-spacing="1.5">FINANCEIRO</text>
+  </g>
+
+  <!-- Bottom accent -->
+  <rect x="0" y="390" width="1584" height="6" fill="url(#accentH)" opacity="0.3"/>
+</svg>

@@ -1,0 +1,50 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="400" y2="400" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2c2520" />
+      <stop offset="1" stop-color="#3d302a" />
+    </linearGradient>
+    <linearGradient id="frame" x1="120" y1="80" x2="280" y2="240" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4B767" />
+      <stop offset="1" stop-color="#C95025" />
+    </linearGradient>
+    <linearGradient id="chest" x1="140" y1="110" x2="220" y2="220" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4B767" />
+      <stop offset="1" stop-color="#A0401D" />
+    </linearGradient>
+    <linearGradient id="wing" x1="180" y1="110" x2="270" y2="230" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6E9D7A" />
+      <stop offset="1" stop-color="#2D5A46" />
+    </linearGradient>
+    <linearGradient id="body" x1="135" y1="100" x2="265" y2="250" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1C2A21" />
+      <stop offset="1" stop-color="#0D1712" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="400" height="400" rx="40" fill="url(#bg)" />
+
+  <!-- Subtle ambient glow -->
+  <circle cx="120" cy="300" r="180" fill="#c97a50" opacity="0.06" />
+  <circle cx="300" cy="100" r="150" fill="#5a927f" opacity="0.04" />
+
+  <!-- Bird icon (scaled from favicon) - centered at roughly 200,160 -->
+  <g transform="translate(100, 60) scale(3.1)">
+    <path d="M15 36C15 24.9543 23.9543 16 35 16C39.9213 16 44.427 17.7797 47.9095 20.7311" stroke="url(#frame)" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M49 29C49 40.0457 40.0457 49 29 49C24.0787 49 19.573 47.2203 16.0905 44.2689" stroke="url(#frame)" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M18 40.6C22.8 39.1 25.9 36 28.2 31.9C30.3 28.2 33.1 24.8 38.2 23.4C43.4 22 47.6 24.3 49.6 28.8C51.6 33.5 49.6 38.6 45.1 41.2C40.8 43.7 35.7 44.1 30.6 43.4C25.8 42.8 21.9 42.4 18 40.6Z" fill="url(#body)" />
+    <path d="M18.3 40.4C21.3 39.8 24.7 40.4 27.8 42.1C24.6 43.7 20.7 43.6 17.2 42.5C15.9 42.1 15.8 40.9 18.3 40.4Z" fill="#0B140F" />
+    <path d="M22.2 38.8C25.8 36.5 27.8 33.4 29.6 29.9C30.9 27.4 33.4 24.9 36.8 23.8C38.1 29.2 36.3 35.8 31.1 40.5C27.8 40.5 24.9 40 22.2 38.8Z" fill="url(#chest)" />
+    <path d="M31.5 28.4C35.4 25.1 40.3 24.9 44.3 27C46.8 28.3 47.9 31.6 46.4 34.2C44.2 38 39.4 39.2 34.4 38.5C32.6 35.3 31.7 31.9 31.5 28.4Z" fill="url(#wing)" opacity="0.96" />
+    <path d="M45.7 25.9L51 24.7L47.2 28.6Z" fill="#F9E4BE" />
+    <circle cx="41.4" cy="27.7" r="1.85" fill="#FFF8F1" />
+    <path d="M18 45.3C24 43.9 31 44 36.8 46.2" stroke="rgba(246,179,96,0.68)" stroke-width="2.4" stroke-linecap="round" />
+  </g>
+
+  <!-- PLUMAR text -->
+  <text x="200" y="320" text-anchor="middle" font-family="Georgia, 'DM Serif Display', serif" font-size="52" font-weight="700" fill="#f0d4c0" letter-spacing="6">PLUMAR</text>
+
+  <!-- Descriptor -->
+  <text x="200" y="355" text-anchor="middle" font-family="Inter, -apple-system, sans-serif" font-size="16" fill="rgba(255,255,255,0.45)" letter-spacing="1.5">gestao inteligente para criatorios</text>
+</svg>

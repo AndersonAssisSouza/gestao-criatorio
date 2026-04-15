@@ -1,0 +1,76 @@
+<svg width="1640" height="624" viewBox="0 0 1640 624" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1640" y2="624" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2c2520" />
+      <stop offset="0.5" stop-color="#3d302a" />
+      <stop offset="1" stop-color="#4a372e" />
+    </linearGradient>
+    <linearGradient id="frame" x1="80" y1="80" x2="200" y2="200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4B767" />
+      <stop offset="1" stop-color="#C95025" />
+    </linearGradient>
+    <linearGradient id="chest" x1="95" y1="100" x2="155" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4B767" />
+      <stop offset="1" stop-color="#A0401D" />
+    </linearGradient>
+    <linearGradient id="wing" x1="125" y1="100" x2="190" y2="185" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6E9D7A" />
+      <stop offset="1" stop-color="#2D5A46" />
+    </linearGradient>
+    <linearGradient id="body" x1="90" y1="90" x2="185" y2="200" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1C2A21" />
+      <stop offset="1" stop-color="#0D1712" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1640" height="624" fill="url(#bg)" />
+
+  <!-- Ambient glows -->
+  <circle cx="200" cy="500" r="350" fill="#c97a50" opacity="0.06" />
+  <circle cx="1400" cy="150" r="300" fill="#5a927f" opacity="0.04" />
+
+  <!-- Decorative line -->
+  <line x1="100" y1="540" x2="1540" y2="540" stroke="rgba(201,122,80,0.15)" stroke-width="1" />
+
+  <!-- Bird icon (left side) -->
+  <g transform="translate(80, 100) scale(2.2)">
+    <path d="M15 36C15 24.9543 23.9543 16 35 16C39.9213 16 44.427 17.7797 47.9095 20.7311" stroke="url(#frame)" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M49 29C49 40.0457 40.0457 49 29 49C24.0787 49 19.573 47.2203 16.0905 44.2689" stroke="url(#frame)" stroke-width="4.5" stroke-linecap="round" />
+    <path d="M18 40.6C22.8 39.1 25.9 36 28.2 31.9C30.3 28.2 33.1 24.8 38.2 23.4C43.4 22 47.6 24.3 49.6 28.8C51.6 33.5 49.6 38.6 45.1 41.2C40.8 43.7 35.7 44.1 30.6 43.4C25.8 42.8 21.9 42.4 18 40.6Z" fill="url(#body)" />
+    <path d="M18.3 40.4C21.3 39.8 24.7 40.4 27.8 42.1C24.6 43.7 20.7 43.6 17.2 42.5C15.9 42.1 15.8 40.9 18.3 40.4Z" fill="#0B140F" />
+    <path d="M22.2 38.8C25.8 36.5 27.8 33.4 29.6 29.9C30.9 27.4 33.4 24.9 36.8 23.8C38.1 29.2 36.3 35.8 31.1 40.5C27.8 40.5 24.9 40 22.2 38.8Z" fill="url(#chest)" />
+    <path d="M31.5 28.4C35.4 25.1 40.3 24.9 44.3 27C46.8 28.3 47.9 31.6 46.4 34.2C44.2 38 39.4 39.2 34.4 38.5C32.6 35.3 31.7 31.9 31.5 28.4Z" fill="url(#wing)" opacity="0.96" />
+    <path d="M45.7 25.9L51 24.7L47.2 28.6Z" fill="#F9E4BE" />
+    <circle cx="41.4" cy="27.7" r="1.85" fill="#FFF8F1" />
+    <path d="M18 45.3C24 43.9 31 44 36.8 46.2" stroke="rgba(246,179,96,0.68)" stroke-width="2.4" stroke-linecap="round" />
+  </g>
+
+  <!-- PLUMAR logo text -->
+  <text x="330" y="250" font-family="Georgia, 'DM Serif Display', serif" font-size="80" font-weight="700" fill="#f0d4c0" letter-spacing="8">PLUMAR</text>
+
+  <!-- Tagline -->
+  <text x="335" y="310" font-family="Inter, -apple-system, sans-serif" font-size="22" fill="rgba(255,255,255,0.55)" letter-spacing="2">Crie com inteligencia. Crie com PLUMAR.</text>
+
+  <!-- Feature badges (right side) -->
+  <g transform="translate(900, 140)">
+    <rect x="0" y="0" width="280" height="56" rx="28" fill="rgba(201,122,80,0.12)" stroke="rgba(201,122,80,0.2)" stroke-width="1" />
+    <text x="140" y="35" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" font-weight="500" fill="#f0d4c0" letter-spacing="0.5">Simulador Genetico</text>
+
+    <rect x="0" y="76" width="280" height="56" rx="28" fill="rgba(90,146,127,0.1)" stroke="rgba(90,146,127,0.2)" stroke-width="1" />
+    <text x="140" y="111" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" font-weight="500" fill="#b8d8cc" letter-spacing="0.5">Controle de Anilhas</text>
+
+    <rect x="0" y="152" width="280" height="56" rx="28" fill="rgba(201,122,80,0.12)" stroke="rgba(201,122,80,0.2)" stroke-width="1" />
+    <text x="140" y="187" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" font-weight="500" fill="#f0d4c0" letter-spacing="0.5">Gestao Financeira</text>
+
+    <rect x="0" y="228" width="280" height="56" rx="28" fill="rgba(90,146,127,0.1)" stroke="rgba(90,146,127,0.2)" stroke-width="1" />
+    <text x="140" y="263" text-anchor="middle" font-family="Inter, sans-serif" font-size="16" font-weight="500" fill="#b8d8cc" letter-spacing="0.5">Ciclos Reprodutivos</text>
+  </g>
+
+  <!-- CTA -->
+  <rect x="335" y="360" width="320" height="56" rx="12" fill="#c97a50" />
+  <text x="495" y="396" text-anchor="middle" font-family="Inter, sans-serif" font-size="18" font-weight="600" fill="#ffffff">Teste Gratis por 7 Dias</text>
+
+  <!-- URL -->
+  <text x="340" y="450" font-family="Inter, sans-serif" font-size="15" fill="rgba(255,255,255,0.35)" letter-spacing="1">plumar.com.br</text>
+</svg>
