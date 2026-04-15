@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { LoginPage }        from './components/auth/LoginPage'
+import { LandingPage }      from './components/landing/LandingPage'
 import { Sidebar }          from './components/layout/Sidebar'
 import { Topbar }           from './components/layout/Topbar'
 import { MobileDock }       from './components/layout/MobileDock'
@@ -164,6 +165,15 @@ function Dashboard() {
 
 function AppRouter() {
   const { isAuthenticated, loading } = useAuth()
+  const [showLogin, setShowLogin] = useState(false)
+
+  // Detecta se URL contém parâmetros de reset de senha → vai direto pro login
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('token') || params.get('mode') === 'reset-password') {
+      setShowLogin(true)
+    }
+  }, [])
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -180,7 +190,12 @@ function AppRouter() {
     </div>
   )
 
-  return isAuthenticated ? <Dashboard /> : <LoginPage />
+  if (isAuthenticated) return <Dashboard />
+
+  // Não autenticado: landing page pública ou tela de login
+  if (showLogin) return <LoginPage onBackToLanding={() => setShowLogin(false)} />
+
+  return <LandingPage onGoToLogin={() => setShowLogin(true)} />
 }
 
 export default function App() {

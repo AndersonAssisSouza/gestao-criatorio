@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLUMAR — Sistema de Gestão de Criatório</title>
+  <meta name="description" content="O primeiro sistema de gestão de criatório com simulador genético integrado. Controle plantel, genética, anilhas, reprodução e finanças. Teste grátis 7 dias.">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; color: #333; line-height: 1.6; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #1A3A1C 0%, #2C5F2D 50%, #3A7D3E 100%);
+      color: white; padding: 80px 20px; text-align: center; position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; }
+    .logo { font-size: 3.5rem; font-weight: 800; letter-spacing: 4px; margin-bottom: 8px; }
+    .logo span { color: #97BC62; }
+    .subtitle { font-size: 1.2rem; opacity: 0.9; margin-bottom: 32px; font-weight: 300; }
+    .hero h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 16px; line-height: 1.3; }
+    .hero p.desc { font-size: 1.1rem; opacity: 0.85; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+    .cta-btn {
+      display: inline-block; background: #97BC62; color: #1A3A1C; padding: 16px 40px;
+      font-size: 1.1rem; font-weight: 700; border-radius: 8px; text-decoration: none;
+      transition: all 0.3s; border: none; cursor: pointer;
+    }
+    .cta-btn:hover { background: #ADCF7A; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .cta-note { font-size: 0.85rem; opacity: 0.7; margin-top: 12px; }
+
+    /* Features */
+    .features { padding: 80px 20px; background: #F8F9F5; }
+    .container { max-width: 1000px; margin: 0 auto; }
+    .section-title { text-align: center; font-size: 2rem; color: #1A3A1C; margin-bottom: 12px; }
+    .section-sub { text-align: center; color: #666; margin-bottom: 48px; font-size: 1.05rem; }
+
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .feature-card {
+      background: white; border-radius: 12px; padding: 32px; border: 1px solid #E8E8E3;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.08); }
+    .feature-icon { font-size: 2.2rem; margin-bottom: 16px; }
+    .feature-card h3 { color: #2C5F2D; font-size: 1.15rem; margin-bottom: 8px; }
+    .feature-card p { color: #666; font-size: 0.95rem; }
+
+    /* Differentiator */
+    .diff { padding: 80px 20px; background: #2C5F2D; color: white; text-align: center; }
+    .diff h2 { font-size: 2rem; margin-bottom: 16px; }
+    .diff p { font-size: 1.1rem; opacity: 0.9; max-width: 700px; margin: 0 auto 32px; }
+    .diff-highlight {
+      background: rgba(255,255,255,0.1); border-radius: 12px; padding: 32px;
+      max-width: 600px; margin: 0 auto; border: 1px solid rgba(255,255,255,0.15);
+    }
+    .diff-highlight h3 { color: #97BC62; font-size: 1.3rem; margin-bottom: 12px; }
+    .diff-highlight p { font-size: 1rem; opacity: 0.85; margin-bottom: 0; }
+
+    /* Pain Points */
+    .pain { padding: 80px 20px; background: white; }
+    .pain-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 800px; margin: 0 auto; }
+    .pain-item {
+      display: flex; align-items: flex-start; gap: 12px; padding: 16px;
+      border-radius: 8px; background: #FFF8F8; border-left: 3px solid #E74C3C;
+    }
+    .pain-item.solved { background: #F0FFF0; border-left: 3px solid #2C5F2D; }
+    .pain-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .pain-text { font-size: 0.95rem; }
+    .pain-text strong { display: block; margin-bottom: 2px; }
+
+    /* Social Proof */
+    .proof { padding: 80px 20px; background: #F8F9F5; text-align: center; }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; max-width: 600px; margin: 0 auto 48px; }
+    .stat-number { font-size: 2.5rem; font-weight: 800; color: #2C5F2D; }
+    .stat-label { font-size: 0.9rem; color: #666; }
+
+    .testimonial {
+      background: white; border-radius: 12px; padding: 32px; max-width: 600px;
+      margin: 0 auto; border: 1px solid #E8E8E3; font-style: italic; color: #555;
+    }
+    .testimonial-author { margin-top: 16px; font-style: normal; font-weight: 600; color: #2C5F2D; }
+
+    /* CTA Section */
+    .cta-section { padding: 80px 20px; background: linear-gradient(135deg, #1A3A1C, #2C5F2D); color: white; text-align: center; }
+    .cta-section h2 { font-size: 2rem; margin-bottom: 16px; }
+    .cta-section p { font-size: 1.1rem; opacity: 0.9; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; }
+
+    /* Form */
+    .signup-form {
+      display: flex; gap: 12px; max-width: 500px; margin: 0 auto;
+      flex-wrap: wrap; justify-content: center;
+    }
+    .signup-form input {
+      flex: 1; min-width: 200px; padding: 14px 20px; border-radius: 8px;
+      border: 2px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.1);
+      color: white; font-size: 1rem; outline: none;
+    }
+    .signup-form input::placeholder { color: rgba(255,255,255,0.6); }
+    .signup-form input:focus { border-color: #97BC62; }
+    .signup-form button {
+      padding: 14px 32px; background: #97BC62; color: #1A3A1C; border: none;
+      border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer;
+      transition: background 0.3s;
+    }
+    .signup-form button:hover { background: #ADCF7A; }
+
+    /* Footer */
+    footer {
+      padding: 32px 20px; background: #111; color: #999; text-align: center; font-size: 0.85rem;
+    }
+    footer a { color: #97BC62; text-decoration: none; }
+
+    /* How It Works */
+    .how { padding: 80px 20px; background: white; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; max-width: 900px; margin: 0 auto; }
+    .step { text-align: center; }
+    .step-number {
+      width: 48px; height: 48px; border-radius: 50%; background: #2C5F2D; color: white;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;
+    }
+    .step h3 { color: #1A3A1C; margin-bottom: 8px; }
+    .step p { color: #666; font-size: 0.9rem; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero { padding: 60px 20px; }
+      .logo { font-size: 2.5rem; }
+      .hero h1 { font-size: 1.6rem; }
+      .pain-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; gap: 16px; }
+      .signup-form { flex-direction: column; }
+      .signup-form input { min-width: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="logo">PLU<span>MAR</span></div>
+      <p class="subtitle">Sistema de Gestão de Criatório</p>
+      <h1>O primeiro sistema com simulador genético integrado para criadores de aves</h1>
+      <p class="desc">Controle plantel, genética, anilhas, reprodução e finanças em um só lugar. Feito por criador, para criador.</p>
+      <a href="#cadastro" class="cta-btn">Teste Grátis por 7 Dias</a>
+      <p class="cta-note">Sem cartão de crédito. Cancele quando quiser.</p>
+    </div>
+  </section>
+
+  <!-- Pain vs Solution -->
+  <section class="pain">
+    <div class="container">
+      <h2 class="section-title">Chega de improvisar</h2>
+      <p class="section-sub">Se você se identificou com algum desses problemas, o PLUMAR foi feito pra você.</p>
+      <div class="pain-grid">
+        <div class="pain-item">
+          <span class="pain-icon">&#10060;</span>
+          <div class="pain-text">
+            <strong>Dados em planilhas que corrompem</strong>
+            Linhagens perdidas, histórico apagado, anos de trabalho jogados fora.
+          </div>
+        </div>
+        <div class="pain-item solved">
+          <span class="pain-icon">&#9989;</span>
+          <div class="pain-text">
+            <strong>Dados seguros na nuvem</strong>
+            Tudo centralizado, com backup, acessível do celular ou computador.
+          </div>
+        </div>
+        <div class="pain-item">
+          <span class="pain-icon">&#10060;</span>
+          <div class="pain-text">
+            <strong>Cruzamentos no achismo</strong>
+            Sem saber quais mutações podem sair de cada casal.
+          </div>
+        </div>
+        <div class="pain-item solved">
+          <span class="pain-icon">&#9989;</span>
+          <div class="pain-text">
+            <strong>Simulador genético com probabilidades</strong>
+            Veja todos os resultados possíveis antes de formar o casal.
+          </div>
+        </div>
+        <div class="pain-item">
+          <span class="pain-icon">&#10060;</span>
+          <div class="pain-text">
+            <strong>Anilhas em cadernos e papéis soltos</strong>
+            Risco de perda, erro e problema com fiscalização.
+          </div>
+        </div>
+        <div class="pain-item solved">
+          <span class="pain-icon">&#9989;</span>
+          <div class="pain-text">
+            <strong>Controle digital de anilhas</strong>
+            Busca rápida, rastreabilidade completa, pronto para SISPASS.
+          </div>
+        </div>
+        <div class="pain-item">
+          <span class="pain-icon">&#10060;</span>
+          <div class="pain-text">
+            <strong>Sem saber o custo real do criatório</strong>
+            Gastos com ração, medicamentos e estrutura sem controle.
+          </div>
+        </div>
+        <div class="pain-item solved">
+          <span class="pain-icon">&#9989;</span>
+          <div class="pain-text">
+            <strong>Dashboard financeiro automático</strong>
+            Receitas, despesas e resultado — tudo visível em tempo real.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title">Tudo que seu criatório precisa</h2>
+      <p class="section-sub">Um sistema completo, pensado para a rotina real do criador brasileiro.</p>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon">&#129414;</div>
+          <h3>Gestão de Plantel</h3>
+          <p>Cadastro completo com espécie, genética, idade, sexo e status reprodutivo. Ficha individual de cada ave.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#129516;</div>
+          <h3>Simulador Genético</h3>
+          <p>Simule cruzamentos e veja todas as mutações possíveis com probabilidades. Exclusivo no mercado.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128477;</div>
+          <h3>Controle de Gaiolas</h3>
+          <p>Organize seu espaço físico. Saiba qual ave está em qual gaiola, casais formados e disponibilidade.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128302;</div>
+          <h3>Controle de Anilhas</h3>
+          <p>Rastreamento completo de anilhas. Busca rápida, histórico e conformidade IBAMA/SISPASS.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#129722;</div>
+          <h3>Ciclos Reprodutivos</h3>
+          <p>Monitoramento de posturas, incubação e nascimentos. Acompanhe cada ninhada do ovo ao filhote.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128200;</div>
+          <h3>Gestão Financeira</h3>
+          <p>Receitas, despesas e resultado do criatório. Saiba exatamente se está tendo lucro ou prejuízo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Differentiator -->
+  <section class="diff">
+    <h2>Por que o PLUMAR é diferente?</h2>
+    <p>Existem planilhas. Existem apps genéricos de fazenda. Mas nenhum foi projetado especificamente para o criador de aves.</p>
+    <div class="diff-highlight">
+      <h3>Simulador Genético de Mutações</h3>
+      <p>A funcionalidade que nenhum outro sistema oferece. Selecione macho e fêmea, informe as mutações, e veja em segundos todos os resultados possíveis com percentuais de probabilidade. Planeje seus casais com inteligência.</p>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how">
+    <div class="container">
+      <h2 class="section-title">Comece em 3 passos</h2>
+      <p class="section-sub">Do cadastro ao controle total em minutos.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Crie sua conta</h3>
+          <p>Cadastro rápido, sem cartão de crédito. Trial de 7 dias com acesso completo.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Cadastre seu plantel</h3>
+          <p>Adicione suas aves com dados genéticos. Importe de planilha se preferir.</p>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Gerencie e simule</h3>
+          <p>Use o simulador genético, controle anilhas, monitore reprodução e finanças.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof -->
+  <section class="proof">
+    <h2 class="section-title">Criado por criador, para criadores</h2>
+    <p class="section-sub">Desenvolvido por quem vive a rotina do criatório todos os dias.</p>
+    <div class="stats-grid">
+      <div>
+        <div class="stat-number">6+</div>
+        <div class="stat-label">Módulos integrados</div>
+      </div>
+      <div>
+        <div class="stat-number">7</div>
+        <div class="stat-label">Dias de trial grátis</div>
+      </div>
+      <div>
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Web — acesse de qualquer lugar</div>
+      </div>
+    </div>
+    <div class="testimonial">
+      "O simulador genético sozinho já justifica o sistema. Parei de consultar tabelas e agora planejo meus casais com dados concretos."
+      <div class="testimonial-author">— Beta tester, criador de canários de cor</div>
+    </div>
+  </section>
+
+  <!-- CTA Final -->
+  <section class="cta-section" id="cadastro">
+    <h2>Pronto para profissionalizar seu criatório?</h2>
+    <p>Teste o PLUMAR por 7 dias, sem compromisso. Seus dados ficam salvos — é só continuar quando quiser.</p>
+    <form class="signup-form" action="#" method="POST">
+      <input type="text" name="nome" placeholder="Seu nome" required>
+      <input type="email" name="email" placeholder="Seu melhor email" required>
+      <button type="submit">Começar Grátis</button>
+    </form>
+    <p class="cta-note" style="margin-top: 16px;">Sem cartão de crédito. Sem pegadinhas.</p>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>PLUMAR &copy; 2026 — Sistema de Gestão de Criatório</p>
+    <p style="margin-top: 8px;">
+      <a href="#">Termos de Uso</a> &nbsp;|&nbsp;
+      <a href="#">Política de Privacidade</a> &nbsp;|&nbsp;
+      <a href="mailto:contato@plumar.com.br">Contato</a>
+    </p>
+  </footer>
+
+</body>
+</html>

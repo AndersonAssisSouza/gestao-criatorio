@@ -12,7 +12,7 @@ function getTokenFromLink(link = '') {
   }
 }
 
-export function LoginPage() {
+export function LoginPage({ onBackToLanding }) {
   const { login, register, forgotPassword, resetPassword } = useAuth()
   const [mode, setMode] = useState('login')
   const [name, setName] = useState('')
@@ -205,6 +205,15 @@ export function LoginPage() {
             )}
           </div>
         </div>
+
+        {onBackToLanding && (
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <button type="button" className="p-btn p-btn--ghost p-btn--sm" onClick={onBackToLanding}
+              style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+              ← Voltar para a página inicial
+            </button>
+          </div>
+        )}
 
         <div style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: 'var(--text-faint)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           {BRAND.tagline}
