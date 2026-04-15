@@ -7,7 +7,7 @@ import { useAuth } from '../../../context/AuthContext'
 // ═══════════════════════════════════════════════════════════════════════════
 //  SIMULADOR GENÉTICO — TARIM (Carduelis cucullata)
 //  Fonte: "TARIM - Acasalamentos entre mutações" — Décio Junior
-//  Lookup table replicando a lista SharePoint MutacaoTarin do Power Apps
+//  Lookup table replicando a lista SharePoint MutacaoTarim do Power Apps
 // ═══════════════════════════════════════════════════════════════════════════
 
 // ─── CORES POR MUTAÇÃO ──────────────────────────────────────────────────
@@ -86,37 +86,37 @@ function getMutationLegend(name) {
 export const CROSSING_DB = [
   // ── 1. Ancestral × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Ancestral', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Ancestral', femea: 'Ancestral',
     resultadoMachos: [{ mutacao: 'Ancestral', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Ancestral', percentual: '100%' }],
   },
   // ── 2. Ancestral × Canela ──
   {
-    especie: 'Tarin', macho: 'Ancestral', femea: 'Canela',
+    especie: 'Tarim', macho: 'Ancestral', femea: 'Canela',
     resultadoMachos: [{ mutacao: 'Portador de Canela', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Ancestral', percentual: '100%' }],
   },
   // ── 3. Ancestral × Pastel ──
   {
-    especie: 'Tarin', macho: 'Ancestral', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Ancestral', femea: 'Pastel',
     resultadoMachos: [{ mutacao: 'Portador de Pastel', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Ancestral', percentual: '100%' }],
   },
   // ── 4. Ancestral × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Ancestral', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Ancestral', femea: 'Canela Pastel',
     resultadoMachos: [{ mutacao: 'Passepartout Tipo I', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Ancestral', percentual: '100%' }],
   },
   // ── 5. Ancestral × Topázio ──
   {
-    especie: 'Tarin', macho: 'Ancestral', femea: 'Topázio',
+    especie: 'Tarim', macho: 'Ancestral', femea: 'Topázio',
     resultadoMachos: [{ mutacao: 'Portador de Topázio', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Portador de Topázio', percentual: '100%' }],
   },
   // ── 6. Ancestral × Port. Topázio ──
   {
-    especie: 'Tarin', macho: 'Ancestral', femea: 'Port. Topázio',
+    especie: 'Tarim', macho: 'Ancestral', femea: 'Port. Topázio',
     resultadoMachos: [
       { mutacao: 'Port. Topázio', percentual: '50%' },
       { mutacao: 'Ancestral', percentual: '50%' },
@@ -129,7 +129,7 @@ export const CROSSING_DB = [
 
   // ── 7. Port. Canela × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Port. Canela', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Port. Canela', femea: 'Ancestral',
     resultadoMachos: [
       { mutacao: 'Ancestral', percentual: '50%' },
       { mutacao: 'Port. Canela', percentual: '50%' },
@@ -141,7 +141,7 @@ export const CROSSING_DB = [
   },
   // ── 8. Port. Canela × Canela ──
   {
-    especie: 'Tarin', macho: 'Port. Canela', femea: 'Canela',
+    especie: 'Tarim', macho: 'Port. Canela', femea: 'Canela',
     resultadoMachos: [
       { mutacao: 'Port. Canela', percentual: '50%' },
       { mutacao: 'Canela', percentual: '50%' },
@@ -153,7 +153,7 @@ export const CROSSING_DB = [
   },
   // ── 9. Port. Canela × Pastel ──
   {
-    especie: 'Tarin', macho: 'Port. Canela', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Port. Canela', femea: 'Pastel',
     resultadoMachos: [
       { mutacao: 'Port. Canela Pastel', percentual: '50%' },
       { mutacao: 'Port. Pastel', percentual: '50%' },
@@ -165,7 +165,7 @@ export const CROSSING_DB = [
   },
   // ── 10. Port. Canela × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Port. Canela', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Port. Canela', femea: 'Canela Pastel',
     resultadoMachos: [
       { mutacao: 'Passepartout Tipo I', percentual: '50%' },
       { mutacao: 'Canela Port. CP', percentual: '50%' },
@@ -178,7 +178,7 @@ export const CROSSING_DB = [
 
   // ── 11. Port. Pastel × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Port. Pastel', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Port. Pastel', femea: 'Ancestral',
     resultadoMachos: [
       { mutacao: 'Ancestral', percentual: '50%' },
       { mutacao: 'Port. Pastel', percentual: '50%' },
@@ -190,7 +190,7 @@ export const CROSSING_DB = [
   },
   // ── 12. Port. Pastel × Canela ──
   {
-    especie: 'Tarin', macho: 'Port. Pastel', femea: 'Canela',
+    especie: 'Tarim', macho: 'Port. Pastel', femea: 'Canela',
     resultadoMachos: [
       { mutacao: 'Port. Canela', percentual: '50%' },
       { mutacao: 'Port. Canela Pastel', percentual: '50%' },
@@ -202,7 +202,7 @@ export const CROSSING_DB = [
   },
   // ── 13. Port. Pastel × Pastel ──
   {
-    especie: 'Tarin', macho: 'Port. Pastel', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Port. Pastel', femea: 'Pastel',
     resultadoMachos: [
       { mutacao: 'Pastel', percentual: '50%' },
       { mutacao: 'Port. Pastel', percentual: '50%' },
@@ -214,7 +214,7 @@ export const CROSSING_DB = [
   },
   // ── 14. Port. Pastel × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Port. Pastel', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Port. Pastel', femea: 'Canela Pastel',
     resultadoMachos: [
       { mutacao: 'Passepartout Tipo I', percentual: '50%' },
       { mutacao: 'Pastel Port. CP', percentual: '50%' },
@@ -227,7 +227,7 @@ export const CROSSING_DB = [
 
   // ── 15. Passepartout × Ancestral (crossing-over) ──
   {
-    especie: 'Tarin', macho: 'Passepartout', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Passepartout', femea: 'Ancestral',
     isCrossingOver: true,
     resultadoNormal: {
       machos: [
@@ -252,7 +252,7 @@ export const CROSSING_DB = [
   },
   // ── 16. Passepartout × Canela (crossing-over) ──
   {
-    especie: 'Tarin', macho: 'Passepartout', femea: 'Canela',
+    especie: 'Tarim', macho: 'Passepartout', femea: 'Canela',
     isCrossingOver: true,
     resultadoNormal: {
       machos: [
@@ -277,7 +277,7 @@ export const CROSSING_DB = [
   },
   // ── 17. Passepartout × Pastel (crossing-over) ──
   {
-    especie: 'Tarin', macho: 'Passepartout', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Passepartout', femea: 'Pastel',
     isCrossingOver: true,
     resultadoNormal: {
       machos: [
@@ -302,7 +302,7 @@ export const CROSSING_DB = [
   },
   // ── 18. Passepartout × Canela Pastel (crossing-over) ──
   {
-    especie: 'Tarin', macho: 'Passepartout', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Passepartout', femea: 'Canela Pastel',
     isCrossingOver: true,
     resultadoNormal: {
       machos: [
@@ -328,7 +328,7 @@ export const CROSSING_DB = [
 
   // ── 19. Port. Topázio × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Port. Topázio', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Port. Topázio', femea: 'Ancestral',
     resultadoMachos: [
       { mutacao: 'Ancestral', percentual: '50%' },
       { mutacao: 'Port. Topázio', percentual: '50%' },
@@ -340,7 +340,7 @@ export const CROSSING_DB = [
   },
   // ── 20. Port. Topázio × Topázio ──
   {
-    especie: 'Tarin', macho: 'Port. Topázio', femea: 'Topázio',
+    especie: 'Tarim', macho: 'Port. Topázio', femea: 'Topázio',
     resultadoMachos: [
       { mutacao: 'Topázio', percentual: '50%' },
       { mutacao: 'Port. Topázio', percentual: '50%' },
@@ -352,7 +352,7 @@ export const CROSSING_DB = [
   },
   // ── 21. Port. Topázio × Port. Topázio ──
   {
-    especie: 'Tarin', macho: 'Port. Topázio', femea: 'Port. Topázio',
+    especie: 'Tarim', macho: 'Port. Topázio', femea: 'Port. Topázio',
     resultadoMachos: [
       { mutacao: 'Topázio', percentual: '25%' },
       { mutacao: 'Port. Topázio', percentual: '50%' },
@@ -367,32 +367,32 @@ export const CROSSING_DB = [
 
   // ── 22. Canela × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Canela', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Canela', femea: 'Ancestral',
     resultadoMachos: [{ mutacao: 'Port. Canela', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela', percentual: '100%' }],
   },
   // ── 23. Canela × Canela ──
   {
-    especie: 'Tarin', macho: 'Canela', femea: 'Canela',
+    especie: 'Tarim', macho: 'Canela', femea: 'Canela',
     resultadoMachos: [{ mutacao: 'Canela', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela', percentual: '100%' }],
   },
   // ── 24. Canela × Pastel ──
   {
-    especie: 'Tarin', macho: 'Canela', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Canela', femea: 'Pastel',
     resultadoMachos: [{ mutacao: 'Passepartout Tipo II', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela', percentual: '100%' }],
   },
   // ── 25. Canela × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Canela', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Canela', femea: 'Canela Pastel',
     resultadoMachos: [{ mutacao: 'Canela Port. CP', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela', percentual: '100%' }],
   },
 
   // ── 26. Canela Port. CP × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Canela Port. CP', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Canela Port. CP', femea: 'Ancestral',
     resultadoMachos: [
       { mutacao: 'Port. Canela', percentual: '50%' },
       { mutacao: 'Port. CP', percentual: '50%' },
@@ -404,7 +404,7 @@ export const CROSSING_DB = [
   },
   // ── 27. Canela Port. CP × Canela ──
   {
-    especie: 'Tarin', macho: 'Canela Port. CP', femea: 'Canela',
+    especie: 'Tarim', macho: 'Canela Port. CP', femea: 'Canela',
     resultadoMachos: [
       { mutacao: 'Canela', percentual: '50%' },
       { mutacao: 'Canela Port. CP', percentual: '50%' },
@@ -416,7 +416,7 @@ export const CROSSING_DB = [
   },
   // ── 28. Canela Port. CP × Pastel ──
   {
-    especie: 'Tarin', macho: 'Canela Port. CP', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Canela Port. CP', femea: 'Pastel',
     resultadoMachos: [
       { mutacao: 'Pastel Port. CP', percentual: '50%' },
       { mutacao: 'Passepartout Tipo II', percentual: '50%' },
@@ -428,7 +428,7 @@ export const CROSSING_DB = [
   },
   // ── 29. Canela Port. CP × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Canela Port. CP', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Canela Port. CP', femea: 'Canela Pastel',
     resultadoMachos: [
       { mutacao: 'Canela Port. CP', percentual: '50%' },
       { mutacao: 'Canela Pastel', percentual: '50%' },
@@ -441,32 +441,32 @@ export const CROSSING_DB = [
 
   // ── 30. Pastel × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Pastel', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Pastel', femea: 'Ancestral',
     resultadoMachos: [{ mutacao: 'Port. Pastel', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Pastel', percentual: '100%' }],
   },
   // ── 31. Pastel × Canela ──
   {
-    especie: 'Tarin', macho: 'Pastel', femea: 'Canela',
+    especie: 'Tarim', macho: 'Pastel', femea: 'Canela',
     resultadoMachos: [{ mutacao: 'Passepartout Tipo II', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Pastel', percentual: '100%' }],
   },
   // ── 32. Pastel × Pastel ──
   {
-    especie: 'Tarin', macho: 'Pastel', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Pastel', femea: 'Pastel',
     resultadoMachos: [{ mutacao: 'Pastel', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Pastel', percentual: '100%' }],
   },
   // ── 33. Pastel × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Pastel', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Pastel', femea: 'Canela Pastel',
     resultadoMachos: [{ mutacao: 'Pastel Port. CP', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Pastel', percentual: '100%' }],
   },
 
   // ── 34. Pastel Port. CP × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Pastel Port. CP', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Pastel Port. CP', femea: 'Ancestral',
     resultadoMachos: [
       { mutacao: 'Port. Pastel', percentual: '50%' },
       { mutacao: 'Port. CP', percentual: '50%' },
@@ -478,7 +478,7 @@ export const CROSSING_DB = [
   },
   // ── 35. Pastel Port. CP × Canela ──
   {
-    especie: 'Tarin', macho: 'Pastel Port. CP', femea: 'Canela',
+    especie: 'Tarim', macho: 'Pastel Port. CP', femea: 'Canela',
     resultadoMachos: [
       { mutacao: 'Passepartout Tipo II', percentual: '50%' },
       { mutacao: 'Canela Port. CP', percentual: '50%' },
@@ -490,7 +490,7 @@ export const CROSSING_DB = [
   },
   // ── 36. Pastel Port. CP × Pastel ──
   {
-    especie: 'Tarin', macho: 'Pastel Port. CP', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Pastel Port. CP', femea: 'Pastel',
     resultadoMachos: [
       { mutacao: 'Pastel', percentual: '50%' },
       { mutacao: 'Pastel Port. CP', percentual: '50%' },
@@ -502,7 +502,7 @@ export const CROSSING_DB = [
   },
   // ── 37. Pastel Port. CP × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Pastel Port. CP', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Pastel Port. CP', femea: 'Canela Pastel',
     resultadoMachos: [
       { mutacao: 'Pastel Port. CP', percentual: '50%' },
       { mutacao: 'Canela Pastel', percentual: '50%' },
@@ -515,44 +515,44 @@ export const CROSSING_DB = [
 
   // ── 38. Canela Pastel × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Canela Pastel', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Canela Pastel', femea: 'Ancestral',
     resultadoMachos: [{ mutacao: 'Passepartout Tipo I', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela Pastel', percentual: '100%' }],
   },
   // ── 39. Canela Pastel × Canela ──
   {
-    especie: 'Tarin', macho: 'Canela Pastel', femea: 'Canela',
+    especie: 'Tarim', macho: 'Canela Pastel', femea: 'Canela',
     resultadoMachos: [{ mutacao: 'Canela Port. CP', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela Pastel', percentual: '100%' }],
   },
   // ── 40. Canela Pastel × Pastel ──
   {
-    especie: 'Tarin', macho: 'Canela Pastel', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Canela Pastel', femea: 'Pastel',
     resultadoMachos: [{ mutacao: 'Pastel Port. CP', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela Pastel', percentual: '100%' }],
   },
   // ── 41. Canela Pastel × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Canela Pastel', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Canela Pastel', femea: 'Canela Pastel',
     resultadoMachos: [{ mutacao: 'Canela Pastel', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela Pastel', percentual: '100%' }],
   },
 
   // ── 42. Topázio × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Topázio', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Topázio', femea: 'Ancestral',
     resultadoMachos: [{ mutacao: 'Port. Topázio', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Port. Topázio', percentual: '100%' }],
   },
   // ── 43. Topázio × Topázio ──
   {
-    especie: 'Tarin', macho: 'Topázio', femea: 'Topázio',
+    especie: 'Tarim', macho: 'Topázio', femea: 'Topázio',
     resultadoMachos: [{ mutacao: 'Topázio', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Topázio', percentual: '100%' }],
   },
   // ── 44. Topázio × Port. Topázio ──
   {
-    especie: 'Tarin', macho: 'Topázio', femea: 'Port. Topázio',
+    especie: 'Tarim', macho: 'Topázio', femea: 'Port. Topázio',
     resultadoMachos: [
       { mutacao: 'Topázio', percentual: '50%' },
       { mutacao: 'Port. Topázio', percentual: '50%' },
@@ -569,7 +569,7 @@ export const CROSSING_DB = [
 
   // ── 45. Diluído × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Diluído', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Diluído', femea: 'Ancestral',
     sexIndependent: true,
     resultadoMachos: [
       { mutacao: 'Diluído', percentual: '50%' },
@@ -582,7 +582,7 @@ export const CROSSING_DB = [
   },
   // ── 46. Ancestral × Diluído ──
   {
-    especie: 'Tarin', macho: 'Ancestral', femea: 'Diluído',
+    especie: 'Tarim', macho: 'Ancestral', femea: 'Diluído',
     sexIndependent: true,
     resultadoMachos: [
       { mutacao: 'Diluído', percentual: '50%' },
@@ -595,7 +595,7 @@ export const CROSSING_DB = [
   },
   // ── 47. Diluído × Diluído ──
   {
-    especie: 'Tarin', macho: 'Diluído', femea: 'Diluído',
+    especie: 'Tarim', macho: 'Diluído', femea: 'Diluído',
     sexIndependent: true,
     resultadoMachos: [
       { mutacao: 'Duplo Diluído', percentual: '25%' },
@@ -610,21 +610,21 @@ export const CROSSING_DB = [
   },
   // ── 48. Duplo Diluído × Ancestral ──
   {
-    especie: 'Tarin', macho: 'Duplo Diluído', femea: 'Ancestral',
+    especie: 'Tarim', macho: 'Duplo Diluído', femea: 'Ancestral',
     sexIndependent: true,
     resultadoMachos: [{ mutacao: 'Diluído', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Diluído', percentual: '100%' }],
   },
   // ── 49. Ancestral × Duplo Diluído ──
   {
-    especie: 'Tarin', macho: 'Ancestral', femea: 'Duplo Diluído',
+    especie: 'Tarim', macho: 'Ancestral', femea: 'Duplo Diluído',
     sexIndependent: true,
     resultadoMachos: [{ mutacao: 'Diluído', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Diluído', percentual: '100%' }],
   },
   // ── 50. Duplo Diluído × Diluído ──
   {
-    especie: 'Tarin', macho: 'Duplo Diluído', femea: 'Diluído',
+    especie: 'Tarim', macho: 'Duplo Diluído', femea: 'Diluído',
     sexIndependent: true,
     resultadoMachos: [
       { mutacao: 'Duplo Diluído', percentual: '50%' },
@@ -637,7 +637,7 @@ export const CROSSING_DB = [
   },
   // ── 51. Diluído × Duplo Diluído ──
   {
-    especie: 'Tarin', macho: 'Diluído', femea: 'Duplo Diluído',
+    especie: 'Tarim', macho: 'Diluído', femea: 'Duplo Diluído',
     sexIndependent: true,
     resultadoMachos: [
       { mutacao: 'Duplo Diluído', percentual: '50%' },
@@ -659,25 +659,25 @@ export const CROSSING_DB = [
   // Diluição: DD × dd = todos Diluído (Dd)
   // Sexo-ligada: Ancestral(X) × Canela(Cy) → ♂ Port. Canela, ♀ Canela (como entrada #2 invertida → usa #22)
   {
-    especie: 'Tarin', macho: 'Duplo Diluído', femea: 'Canela',
+    especie: 'Tarim', macho: 'Duplo Diluído', femea: 'Canela',
     resultadoMachos: [{ mutacao: 'Port. Canela + Diluído', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela + Diluído', percentual: '100%' }],
   },
   // ── 53. Duplo Diluído × Pastel ──
   {
-    especie: 'Tarin', macho: 'Duplo Diluído', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Duplo Diluído', femea: 'Pastel',
     resultadoMachos: [{ mutacao: 'Port. Pastel + Diluído', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Pastel + Diluído', percentual: '100%' }],
   },
   // ── 54. Duplo Diluído × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Duplo Diluído', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Duplo Diluído', femea: 'Canela Pastel',
     resultadoMachos: [{ mutacao: 'Passepartout Tipo I + Diluído', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Ancestral + Diluído', percentual: '100%' }],
   },
   // ── 55. Diluído × Canela ──
   {
-    especie: 'Tarin', macho: 'Diluído', femea: 'Canela',
+    especie: 'Tarim', macho: 'Diluído', femea: 'Canela',
     resultadoMachos: [
       { mutacao: 'Port. Canela + Diluído', percentual: '50%' },
       { mutacao: 'Port. Canela', percentual: '50%' },
@@ -689,7 +689,7 @@ export const CROSSING_DB = [
   },
   // ── 56. Diluído × Pastel ──
   {
-    especie: 'Tarin', macho: 'Diluído', femea: 'Pastel',
+    especie: 'Tarim', macho: 'Diluído', femea: 'Pastel',
     resultadoMachos: [
       { mutacao: 'Port. Pastel + Diluído', percentual: '50%' },
       { mutacao: 'Port. Pastel', percentual: '50%' },
@@ -701,7 +701,7 @@ export const CROSSING_DB = [
   },
   // ── 57. Diluído × Canela Pastel ──
   {
-    especie: 'Tarin', macho: 'Diluído', femea: 'Canela Pastel',
+    especie: 'Tarim', macho: 'Diluído', femea: 'Canela Pastel',
     resultadoMachos: [
       { mutacao: 'Passepartout Tipo I + Diluído', percentual: '50%' },
       { mutacao: 'Passepartout Tipo I', percentual: '50%' },
@@ -713,7 +713,7 @@ export const CROSSING_DB = [
   },
   // ── 58. Canela Pastel × Diluído ──
   {
-    especie: 'Tarin', macho: 'Canela Pastel', femea: 'Diluído',
+    especie: 'Tarim', macho: 'Canela Pastel', femea: 'Diluído',
     resultadoMachos: [
       { mutacao: 'Passepartout Tipo I + Diluído', percentual: '50%' },
       { mutacao: 'Passepartout Tipo I', percentual: '50%' },
@@ -725,25 +725,25 @@ export const CROSSING_DB = [
   },
   // ── 59. Canela Pastel × Duplo Diluído ──
   {
-    especie: 'Tarin', macho: 'Canela Pastel', femea: 'Duplo Diluído',
+    especie: 'Tarim', macho: 'Canela Pastel', femea: 'Duplo Diluído',
     resultadoMachos: [{ mutacao: 'Canela Pastel + Diluído', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela Pastel + Diluído', percentual: '100%' }],
   },
   // ── 60. Canela × Duplo Diluído ──
   {
-    especie: 'Tarin', macho: 'Canela', femea: 'Duplo Diluído',
+    especie: 'Tarim', macho: 'Canela', femea: 'Duplo Diluído',
     resultadoMachos: [{ mutacao: 'Port. Canela + Diluído', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Canela + Diluído', percentual: '100%' }],
   },
   // ── 61. Pastel × Duplo Diluído ──
   {
-    especie: 'Tarin', macho: 'Pastel', femea: 'Duplo Diluído',
+    especie: 'Tarim', macho: 'Pastel', femea: 'Duplo Diluído',
     resultadoMachos: [{ mutacao: 'Port. Pastel + Diluído', percentual: '100%' }],
     resultadoFemeas: [{ mutacao: 'Pastel + Diluído', percentual: '100%' }],
   },
   // ── 62. Canela × Diluído ──
   {
-    especie: 'Tarin', macho: 'Canela', femea: 'Diluído',
+    especie: 'Tarim', macho: 'Canela', femea: 'Diluído',
     resultadoMachos: [
       { mutacao: 'Port. Canela + Diluído', percentual: '50%' },
       { mutacao: 'Port. Canela', percentual: '50%' },
@@ -755,7 +755,7 @@ export const CROSSING_DB = [
   },
   // ── 63. Pastel × Diluído ──
   {
-    especie: 'Tarin', macho: 'Pastel', femea: 'Diluído',
+    especie: 'Tarim', macho: 'Pastel', femea: 'Diluído',
     resultadoMachos: [
       { mutacao: 'Port. Pastel + Diluído', percentual: '50%' },
       { mutacao: 'Port. Pastel', percentual: '50%' },
@@ -770,7 +770,7 @@ export const CROSSING_DB = [
 // ═══════════════════════════════════════════════════════════════════════════
 //  ESPÉCIES DISPONÍVEIS
 // ═══════════════════════════════════════════════════════════════════════════
-const SPECIES = ['Tarin']
+const SPECIES = ['Tarim']
 
 const EMPTY_MUTATION_FORM = {
   Especie: '',
@@ -1019,14 +1019,14 @@ export function MutacoesModule() {
     <div>
       <div className="module-hero">
         <div>
-          <div className="module-hero__eyebrow">Genética aplicada — Tarin (Spinus cucullatus)</div>
-          <h2 className="module-hero__title">Simulador genético do Tarin</h2>
+          <div className="module-hero__eyebrow">Genética aplicada — Tarim (Spinus cucullatus)</div>
+          <h2 className="module-hero__title">Simulador genético do Tarim</h2>
           <div className="module-hero__text">
-            Simule cruzamentos entre mutações do Tarin, visualize probabilidades genéticas e consulte resultados especiais como crossing-over. Os 51 cenários automáticos são exclusivos para a espécie Tarin.
+            Simule cruzamentos entre mutações do Tarim, visualize probabilidades genéticas e consulte resultados especiais como crossing-over. Os 51 cenários automáticos são exclusivos para a espécie Tarim.
           </div>
         </div>
         <div className="pill pill--accent">
-          {especie ? `Espécie: ${especie}` : 'Tarin'}
+          {especie ? `Espécie: ${especie}` : 'Tarim'}
         </div>
       </div>
 
@@ -1067,8 +1067,8 @@ export function MutacoesModule() {
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: 40, marginBottom: 16, opacity: 0.5 }}>&#129516;</div>
                 <div className="font-serif text-muted" style={{ fontSize: 15, lineHeight: 1.7, maxWidth: 420, margin: '0 auto' }}>
-                  Selecione a espécie Tarin e as mutações do macho e da fêmea para visualizar
-                  as possibilidades genéticas no nascimento dos filhotes. As mutações automáticas estão disponíveis exclusivamente para o Tarin.
+                  Selecione a espécie Tarim e as mutações do macho e da fêmea para visualizar
+                  as possibilidades genéticas no nascimento dos filhotes. As mutações automáticas estão disponíveis exclusivamente para o Tarim.
                 </div>
                 <div className="text-faint" style={{ fontSize: 11, marginTop: 16 }}>
                   Fonte: TARIM - Acasalamentos entre mutações (Décio Junior)

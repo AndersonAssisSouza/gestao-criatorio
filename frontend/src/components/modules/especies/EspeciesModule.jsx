@@ -9,7 +9,7 @@ import { speciesService } from '../../../services/species.service'
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const MOCK_ESPECIES = [
-  { ID: 1, Especie: 'Tarin', NomeCientifico: 'Spinus Cucullatus', Origem: 'O Pintassilgo-da-Venezuela ou Tarin (Spinus cucullatus) é um pequeno pássaro da família Fringillidae, originário da América do Sul tropical, do norte da Colômbia e da Venezuela.', Comentarios: 'O pintassilgo da Venezuela tem um comprimento de cerca de 10 cm. O macho apresenta o peito, a barriga, o dorso e o uropígio de um vermelho vivo. As asas são pretas com uma banda vermelha.', PeriodoReproducao: 'Abril a Junho, com segundo período de Novembro a Dezembro', TempoChoco: 13 },
+  { ID: 1, Especie: 'Tarim', NomeCientifico: 'Spinus Cucullatus', Origem: 'O Pintassilgo-da-Venezuela ou Tarim (Spinus cucullatus) é um pequeno pássaro da família Fringillidae, originário da América do Sul tropical, do norte da Colômbia e da Venezuela.', Comentarios: 'O pintassilgo da Venezuela tem um comprimento de cerca de 10 cm. O macho apresenta o peito, a barriga, o dorso e o uropígio de um vermelho vivo. As asas são pretas com uma banda vermelha.', PeriodoReproducao: 'Abril a Junho, com segundo período de Novembro a Dezembro', TempoChoco: 13 },
   { ID: 2, Especie: 'canário belga', NomeCientifico: 'Serinus canaria domestica', Origem: 'Ave doméstica desenvolvida a partir do canário selvagem das Ilhas Canárias, Madeira e Açores, com seleção consolidada na canaricultura europeia.', Comentarios: 'Canário doméstico amplamente criado em ambiente controlado, com reprodução bem adaptada ao manejo em criatório.', PeriodoReproducao: 'Setembro a fevereiro', TempoChoco: 13 },
 ]
 

@@ -293,7 +293,7 @@ export function AjudaModule() {
             <h3 style={S.h3}>Campos do cadastro</h3>
             <T cols={['Campo', 'Descricao', 'Obrigatorio']} rows={[
               ['Nome', 'Nome da ave', 'Sim'],
-              ['Categoria', 'Canario, Pintassilgo, Tarin, Coleiro ou Outro', 'Nao'],
+              ['Categoria', 'Canario, Pintassilgo, Tarim, Coleiro ou Outro', 'Nao'],
               ['Genero', 'Macho, Femea ou Indeterminado', 'Nao'],
               ['Status', 'Ativo, Chocando ou Inativo', 'Nao'],
               ['Gaiola', 'Codigo da gaiola', 'Nao'],
@@ -335,7 +335,7 @@ export function AjudaModule() {
             </ul>
 
             <h3 style={S.h3}>Tempo de choco por especie</h3>
-            <p style={S.p}><strong style={S.strong}>Tarin</strong>: 13 dias | <strong style={S.strong}>Canario Belga</strong>: 13 dias</p>
+            <p style={S.p}><strong style={S.strong}>Tarim</strong>: 13 dias | <strong style={S.strong}>Canario Belga</strong>: 13 dias</p>
           </div>
 
           {/* 5 - Gaiolas */}
@@ -400,7 +400,7 @@ export function AjudaModule() {
             <p style={S.p}>Mantenha um catalogo organizado de todas as especies do criatorio.</p>
 
             <T cols={['Campo', 'Descricao']} rows={[
-              ['Nome Comum', 'Nome popular (ex: Tarin)'],
+              ['Nome Comum', 'Nome popular (ex: Tarim)'],
               ['Nome Cientifico', 'Classificacao cientifica'],
               ['Familia', 'Familia taxonomica'],
               ['Cor Predominante', 'Coloracao principal'],

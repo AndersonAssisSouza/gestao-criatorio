@@ -170,12 +170,12 @@ export function ManualAdminPanel() {
 
         {/* 4 - Simulador Genetico */}
         <div id="admin-mutacoes" style={S.section}>
-          <h2 style={S.h2}>4. Modulo Mutacoes — Simulador Genetico do Tarin</h2>
-          <p style={S.p}>Simulador exclusivo de cruzamentos geneticos para a especie <strong style={S.strong}>Tarin (Spinus cucullatus)</strong>. Os 51 cenarios de mutacao automaticos sao exclusivos para o Tarin — outras especies nao possuem base genetica automatica no momento.</p>
+          <h2 style={S.h2}>4. Modulo Mutacoes — Simulador Genetico do Tarim</h2>
+          <p style={S.p}>Simulador exclusivo de cruzamentos geneticos para a especie <strong style={S.strong}>Tarim (Spinus cucullatus)</strong>. Os 51 cenarios de mutacao automaticos sao exclusivos para o Tarim — outras especies nao possuem base genetica automatica no momento.</p>
 
           <h3 style={S.h3}>Como funciona</h3>
           <ol style={S.ol}>
-            <li>Selecione a especie <strong style={S.strong}>Tarin</strong></li>
+            <li>Selecione a especie <strong style={S.strong}>Tarim</strong></li>
             <li>Selecione a <strong style={S.strong}>mutacao do macho</strong> (pai)</li>
             <li>Selecione a <strong style={S.strong}>mutacao da femea</strong> (mae)</li>
             <li>O sistema calcula automaticamente as probabilidades geneticas</li>
@@ -196,8 +196,8 @@ export function ManualAdminPanel() {
             ['Passepartout Tipo I e II', 'Lavanda', 'Crossing-over'],
           ]} />
 
-          <h3 style={S.h3}>Base de cruzamentos (exclusiva do Tarin)</h3>
-          <p style={S.p}>O sistema possui <strong style={S.strong}>51 cenarios de cruzamento</strong> pre-calculados <strong style={S.strong}>exclusivamente para o Tarin</strong>, incluindo mutacoes puras, portadores, crossing-over (Passepartout) e calculos de probabilidade separados para machos e femeas. Outras especies nao possuem simulacao genetica automatica.</p>
+          <h3 style={S.h3}>Base de cruzamentos (exclusiva do Tarim)</h3>
+          <p style={S.p}>O sistema possui <strong style={S.strong}>51 cenarios de cruzamento</strong> pre-calculados <strong style={S.strong}>exclusivamente para o Tarim</strong>, incluindo mutacoes puras, portadores, crossing-over (Passepartout) e calculos de probabilidade separados para machos e femeas. Outras especies nao possuem simulacao genetica automatica.</p>
 
           <h3 style={S.h3}>Opcao de Crossing-over</h3>
           <p style={S.p}>Para cruzamentos aplicaveis, ative a opcao de crossing-over para ver resultados alternativos com recombinacao genetica.</p>
@@ -289,7 +289,7 @@ export function ManualAdminPanel() {
             ['Aneis', 'Anilhas — IBAMA, FOB, criadouro, disponibilidade'],
             ['Financeiro', 'Receitas e despesas — vendas, compras, controle fiscal'],
             ['Ex-Plantel', 'Aves que sairam — motivo, destinatario, valor'],
-            ['Mutacoes', 'Simulador genetico exclusivo do Tarin — 51 cenarios'],
+            ['Mutacoes', 'Simulador genetico exclusivo do Tarim — 51 cenarios'],
           ]} />
         </div>
 

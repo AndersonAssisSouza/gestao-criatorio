@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const CATEGORIAS = ['Canário', 'Pintassilgo', 'Tarin', 'Coleiro', 'Outro']
+const CATEGORIAS = ['Canário', 'Pintassilgo', 'Tarim', 'Coleiro', 'Outro']
 const GENEROS    = ['Macho', 'Fêmea', 'Indeterminado']
 const ORIGENS    = ['Nascido no criatório', 'Adquirida', 'Adquirido', 'Doação']
 const STATUS     = ['Ativo', 'Chocando', 'Inativo']

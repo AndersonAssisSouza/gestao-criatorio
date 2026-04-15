@@ -14,7 +14,7 @@ const MOCK_FINANCEIRO = [
   { ID: 12, Item: 'Ave', TipoMovimentacao: 'Venda', Produto: 'Ave', Quantidade: 1, Valor: 300, ValorTotal: 300, Data: '2023-11-29', Acesso: 'Anderson Assis' },
   { ID: 13, Item: 'Ave', TipoMovimentacao: 'Compra', Produto: 'Ave', Quantidade: 2, Valor: 275, ValorTotal: 550, Data: '2024-03-19', Acesso: 'Anderson Assis' },
   { ID: 14, Item: 'Acessório', TipoMovimentacao: 'Compra', Produto: 'Ninhos', Quantidade: 1, Valor: 90, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
-  { ID: 15, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração Tarin', Quantidade: 1, Valor: 152.83, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 15, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração Tarim', Quantidade: 1, Valor: 152.83, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
   { ID: 16, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 273.10, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
   { ID: 17, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 174.50, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
   { ID: 18, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 293.31, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
@@ -22,7 +22,7 @@ const MOCK_FINANCEIRO = [
   { ID: 20, Item: 'Acessório', TipoMovimentacao: 'Venda', Produto: 'Bebedouros automáticos', Quantidade: 1, Valor: 69.75, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
   { ID: 21, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 254.99, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
   { ID: 22, Item: 'Ração', TipoMovimentacao: 'Compra', Produto: 'Ração', Quantidade: 1, Valor: 97.17, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
-  { ID: 23, Item: 'Ave', TipoMovimentacao: 'Venda', Produto: 'Macho Tarin Ancestral', Quantidade: 1, Valor: 500, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
+  { ID: 23, Item: 'Ave', TipoMovimentacao: 'Venda', Produto: 'Macho Tarim Ancestral', Quantidade: 1, Valor: 500, ValorTotal: 0, Data: '2024-03-19', Acesso: 'Anderson Assis' },
 ]
 
 const MOCK_LISTA_ITENS = [

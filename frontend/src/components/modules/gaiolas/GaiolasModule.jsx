@@ -15,11 +15,11 @@ const MOCK_GAIOLAS = [
 ]
 
 const MOCK_PLANTEL_IN_CAGE = [
-  { ID: 4, Nome: 'Manchinha', Status: 'Vivo', DataNascimento: '10/08/2023', Mutacao: 'Canela Pastel', Gaiola: '001', Genero: 'Fêmea', CategoriaAve: 'Tarin' },
-  { ID: 9, Nome: 'Pardinho', Status: 'Vivo', DataNascimento: '10/08/2023', Mutacao: 'Duplo Diluído', Gaiola: '001', Genero: 'Macho', CategoriaAve: 'Tarin' },
-  { ID: 8, Nome: 'Hulk', Status: 'Vivo', DataNascimento: '', Mutacao: 'Canela', Gaiola: '002', Genero: 'Macho', CategoriaAve: 'Tarin' },
+  { ID: 4, Nome: 'Manchinha', Status: 'Vivo', DataNascimento: '10/08/2023', Mutacao: 'Canela Pastel', Gaiola: '001', Genero: 'Fêmea', CategoriaAve: 'Tarim' },
+  { ID: 9, Nome: 'Pardinho', Status: 'Vivo', DataNascimento: '10/08/2023', Mutacao: 'Duplo Diluído', Gaiola: '001', Genero: 'Macho', CategoriaAve: 'Tarim' },
+  { ID: 8, Nome: 'Hulk', Status: 'Vivo', DataNascimento: '', Mutacao: 'Canela', Gaiola: '002', Genero: 'Macho', CategoriaAve: 'Tarim' },
   { ID: 10, Nome: 'Bandite', Status: 'Vivo', DataNascimento: '', Mutacao: '', Gaiola: '003', Genero: 'Macho', CategoriaAve: 'canário belga' },
-  { ID: 11, Nome: 'Pardinha', Status: 'Vivo', DataNascimento: '2025-11-18', Mutacao: 'Canela Pastel', Gaiola: '003', Genero: 'Femea', CategoriaAve: 'Tarin' },
+  { ID: 11, Nome: 'Pardinha', Status: 'Vivo', DataNascimento: '2025-11-18', Mutacao: 'Canela Pastel', Gaiola: '003', Genero: 'Femea', CategoriaAve: 'Tarim' },
 ]
 
 const STATUS_OPTIONS = ['Chocando', 'Vazia', 'Preparacao', 'Dividida', 'Com Ave Avulsa', 'Com Duas Aves Separadas', 'Acasalando']

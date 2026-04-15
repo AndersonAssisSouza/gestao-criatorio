@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-const CATEGORIAS = ['Canário', 'Pintassilgo', 'Tarin', 'Coleiro', 'Outro']
+const CATEGORIAS = ['Canário', 'Pintassilgo', 'Tarim', 'Coleiro', 'Outro']
 const STATUS     = ['Em Choco', 'Eclodido', 'Abandonado']
 
 const EMPTY = {
