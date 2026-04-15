@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { StatCard } from '../../shared/StatCard'
 import { mutacoesService } from '../../../services/mutacoes.service'
+import { speciesService } from '../../../services/species.service'
 import { useAuth } from '../../../context/AuthContext'
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -900,6 +901,7 @@ export function MutacoesModule() {
   const [mutationSaving, setMutationSaving] = useState(false)
   const [mutationError, setMutationError] = useState('')
   const [mutationMessage, setMutationMessage] = useState('')
+  const [catalogSpecies, setCatalogSpecies] = useState([])
 
   useEffect(() => {
     let active = true
@@ -921,6 +923,16 @@ export function MutacoesModule() {
         }
       })
 
+    speciesService.list()
+      .then((items) => {
+        if (active) {
+          setCatalogSpecies((items || []).map((s) => s.Especie).filter(Boolean))
+        }
+      })
+      .catch(() => {
+        if (active) setCatalogSpecies([])
+      })
+
     return () => {
       active = false
     }
@@ -931,8 +943,8 @@ export function MutacoesModule() {
   }, [mutationRecords])
 
   const mutationSpeciesOptions = useMemo(() => {
-    return [...new Set([...SPECIES, ...registeredSpecies])].sort((left, right) => left.localeCompare(right, 'pt-BR'))
-  }, [registeredSpecies])
+    return [...new Set([...SPECIES, ...registeredSpecies, ...catalogSpecies])].sort((left, right) => left.localeCompare(right, 'pt-BR'))
+  }, [registeredSpecies, catalogSpecies])
 
   const recentMutations = useMemo(() => {
     return mutationRecords.slice().reverse().slice(0, 10)
