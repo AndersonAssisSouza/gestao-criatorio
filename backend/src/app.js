@@ -22,6 +22,8 @@ const PORT = process.env.PORT || 3001
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.FRONTEND_PUBLIC_URL,
+  'https://plumar.com.br',
+  'https://www.plumar.com.br',
   'https://andersonassissouza.github.io',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
