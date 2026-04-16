@@ -17,35 +17,37 @@
 
 ## 2. CALENDÁRIO DE CONTEÚDO — SEMANAS 1-4
 
-### SEMANA 1: TEASERS E PRÉ-LANÇAMENTO (Publicado)
-| # | Tipo | Plataforma | Status |
-|---|------|-----------|--------|
-| Post 1 | Teaser — imagem estática | Instagram + Facebook | ✅ Publicado |
-| Post 2 | Reel "5 Problemas que Todo Criador Tem" | Instagram | Pendente (requer vídeo) |
-| Post 3 | Carrossel Educativo "Genética no Criatório" | Instagram | Pendente (requer design) |
-| Post 4 | Story Interativo (Enquete) | Instagram Stories | Pendente |
-| Post 5 | REVEAL OFICIAL | Instagram + Facebook | ✅ Publicado |
+> Cronograma consolidado com datas confirmadas: ver `marketing/CRONOGRAMA_PUBLICACOES.md` e `marketing/posts_publicar/STATUS.md`.
+
+### SEMANA 1: TEASERS E PRÉ-LANÇAMENTO
+| # | Tipo | Plataforma | Programado | Status |
+|---|------|-----------|-----------|--------|
+| Post 1 | Teaser — imagem estática | Instagram + Facebook | 2026-04-15 | ✅ Publicado |
+| Post 2 | Reel "5 Problemas que Todo Criador Tem" | Instagram + Facebook | 2026-04-17 07:30 | ⚠️ Atrasado — reagendado |
+| Post 3 | Carrossel Educativo "Genética no Criatório" | Instagram + Facebook | 2026-04-19 11:00 | 🗓 Programado |
+| Post 4 | Story Interativo (Enquete) | Instagram Stories | 2026-04-20 19:00 | 🗓 Programado |
+| Post 5 | REVEAL OFICIAL | Instagram + Facebook | 2026-04-15 | ✅ Publicado |
 
 ### SEMANA 2: LANÇAMENTO E EDUCAÇÃO
-| # | Tipo | Plataforma | Status |
-|---|------|-----------|--------|
-| Post 6 | Reel "Simulador Genético em Ação" | Instagram | Pendente (screen recording) |
-| Post 7 | Carrossel "Antes vs Depois" | Instagram | Pendente (requer design) |
-| Post 8 | Texto apresentação para grupos | Facebook | ✅ Publicado |
+| # | Tipo | Plataforma | Programado | Status |
+|---|------|-----------|-----------|--------|
+| Post 6 | Reel "Simulador Genético em Ação" | Instagram + Facebook | 2026-04-22 19:30 | 🗓 Programado |
+| Post 7 | Carrossel "Antes vs Depois" | Instagram + Facebook | 2026-04-24 12:30 | 🗓 Programado |
+| Post 8 | Texto apresentação para grupos | Facebook | 2026-04-15 | ✅ Publicado |
 
 ### SEMANA 3: PROVA SOCIAL E APROFUNDAMENTO
-| # | Tipo | Plataforma | Status |
-|---|------|-----------|--------|
-| Post 9 | Carrossel Tutorial "Simulador Passo a Passo" | Instagram | Pendente (screenshots) |
-| Post 10 | Reel "3 Funcionalidades" | Instagram | Pendente (screen recording) |
-| Post 11 | Post Educativo "Dica de Manejo" | Instagram + Facebook | Pendente |
+| # | Tipo | Plataforma | Programado | Status |
+|---|------|-----------|-----------|--------|
+| Post 9 | Carrossel Tutorial "Simulador Passo a Passo" | Instagram + Facebook | 2026-04-26 11:00 | 🗓 Programado |
+| Post 10 | Reel "3 Funcionalidades" | Instagram + Facebook | 2026-04-28 19:00 | 🗓 Programado |
+| Post 11 | Post Educativo "Dica de Manejo" | Instagram + Facebook | 2026-04-30 08:00 | 🗓 Programado |
 
 ### SEMANA 4: CONVERSÃO E ENGAJAMENTO
-| # | Tipo | Plataforma | Status |
-|---|------|-----------|--------|
-| Post 12 | Carrossel "5 Motivos para Abandonar a Planilha" | Instagram | Pendente (design) |
-| Post 13 | Reel Depoimento (Beta Tester) | Instagram | Pendente (vídeo real) |
-| Post 14 | Post de Urgência/Escassez | Instagram + Facebook + WhatsApp | Pendente |
+| # | Tipo | Plataforma | Programado | Status |
+|---|------|-----------|-----------|--------|
+| Post 12 | Carrossel "5 Motivos para Abandonar a Planilha" | Instagram + Facebook | 2026-05-02 11:00 | 🗓 Programado |
+| Post 13 | Reel Depoimento (Beta Tester) | Instagram + Facebook | 2026-05-04 19:30 | 🗓 Programado (depende de vídeo real) |
+| Post 14 | Post de Urgência/Escassez | Instagram + Facebook + WhatsApp | 2026-05-06 20:00 | 🗓 Programado |
 
 ---
 
