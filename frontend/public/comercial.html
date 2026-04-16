@@ -8,6 +8,44 @@
   <meta property="og:title" content="PLUMAR — Sistema de Gestão de Criatório">
   <meta property="og:description" content="Sistema completo para criadores de aves com simulador genético exclusivo. Plantel, anilhas, reprodução e finanças num só lugar.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://plumar.com.br">
+  <meta property="og:image" content="https://plumar.com.br/marketing/PLUMAR_Capa_Facebook_820x312.png">
+  <meta property="og:image:width" content="820">
+  <meta property="og:image:height" content="312">
+  <meta property="og:site_name" content="PLUMAR">
+  <meta property="og:locale" content="pt_BR">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="PLUMAR — Gestão de Criatório com Simulador Genético">
+  <meta name="twitter:description" content="O primeiro sistema com simulador genético integrado para criadores de aves. Teste grátis 7 dias.">
+  <meta name="twitter:image" content="https://plumar.com.br/marketing/PLUMAR_Capa_Facebook_820x312.png">
+  <link rel="canonical" href="https://plumar.com.br">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+  <!-- Google Analytics 4 — Substituir G-XXXXXXXXXX pelo ID real do GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
+  <!-- Facebook Pixel — Substituir PIXEL_ID pelo ID real do Pixel -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', 'PIXEL_ID');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -486,6 +524,17 @@
   </footer>
 
   <script>
+    // Captura UTM parameters da URL
+    function getUTMParams() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        utm_source: params.get('utm_source') || '',
+        utm_medium: params.get('utm_medium') || '',
+        utm_campaign: params.get('utm_campaign') || '',
+        utm_content: params.get('utm_content') || ''
+      };
+    }
+
     document.getElementById('signupForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
@@ -499,6 +548,9 @@
       btn.textContent = 'Enviando...';
       msg.textContent = '';
 
+      // Captura UTMs para enviar junto
+      const utm = getUTMParams();
+
       try {
         const apiBase = window.location.hostname === 'localhost'
           ? 'http://localhost:3001'
@@ -507,31 +559,65 @@
         const res = await fetch(apiBase + '/api/contact', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nome, email })
+          body: JSON.stringify({ nome, email, ...utm })
         });
 
         const data = await res.json();
 
         if (res.ok && data.success) {
-          msg.style.color = '#b8d8cc';
-          msg.textContent = 'Cadastro recebido! Redirecionando para o sistema...';
+          // Tracking de conversão — GA4
+          if (typeof gtag === 'function') {
+            gtag('event', 'generate_lead', {
+              event_category: 'signup',
+              event_label: utm.utm_source || 'direct',
+              value: 1
+            });
+          }
+
+          // Tracking de conversão — Facebook Pixel
+          if (typeof fbq === 'function') {
+            fbq('track', 'Lead', { content_name: 'trial_signup', content_category: utm.utm_source || 'direct' });
+          }
+
+          // Mostra tela de obrigado
+          document.querySelector('.cta-section').innerHTML = `
+            <div style="max-width: 560px; margin: 0 auto; text-align: center;">
+              <div style="font-size: 3rem; margin-bottom: 16px;">&#9989;</div>
+              <h2 style="font-family: var(--serif); margin-bottom: 16px;">Cadastro recebido!</h2>
+              <p style="font-size: 1.05rem; color: rgba(255,255,255,0.8); margin-bottom: 24px; line-height: 1.7;">
+                Obrigado, <strong>${nome}</strong>! Em instantes você receberá um email em <strong>${email}</strong> com as instruções de acesso ao PLUMAR.
+              </p>
+              <p style="font-size: 0.9rem; color: rgba(255,255,255,0.5); margin-bottom: 32px;">
+                Seu trial gratuito de 7 dias começa agora. Sem cartão de crédito.
+              </p>
+              <a href="https://plumar.com.br" class="btn btn--primary" style="display: inline-flex;">Acessar o PLUMAR</a>
+              <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-bottom: 12px;">Siga-nos nas redes sociais</p>
+                <div style="display: flex; gap: 16px; justify-content: center;">
+                  <a href="https://instagram.com/plumar.app" target="_blank" style="color: var(--accent-light); text-decoration: none; font-size: 0.9rem;">Instagram</a>
+                  <a href="https://facebook.com/profile.php?id=61573269494061" target="_blank" style="color: var(--accent-light); text-decoration: none; font-size: 0.9rem;">Facebook</a>
+                </div>
+              </div>
+            </div>
+          `;
+
+          // Scroll suave para a seção de obrigado
+          document.getElementById('cadastro').scrollIntoView({ behavior: 'smooth' });
           this.reset();
-          setTimeout(function() {
-            window.location.href = 'https://plumar.com.br';
-          }, 1500);
         } else {
-          msg.style.color = '#f0a0a0';
+          msg.style.color = '#cc4444';
           msg.textContent = data.message || 'Erro ao enviar. Tente novamente.';
+          btn.disabled = false;
+          btn.textContent = 'Começar Grátis';
         }
       } catch (err) {
-        msg.style.color = '#f0a0a0';
-        msg.textContent = 'Erro de conexão. Tente novamente.';
-      } finally {
+        msg.style.color = '#cc4444';
+        msg.textContent = 'Erro de conexão. Verifique sua internet e tente novamente.';
         btn.disabled = false;
         btn.textContent = 'Começar Grátis';
       }
     });
   </script>
-
 </body>
 </html>
+    

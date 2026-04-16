@@ -1,8 +1,0 @@
-# PLUMAR — plumar.com.br
-User-agent: *
-Allow: /
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard/
-
-Sitemap: https://plumar.com.br/sitemap.xml

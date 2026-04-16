@@ -42,12 +42,110 @@ setInterval(() => {
 }, 10 * 60 * 1000) // a cada 10 minutos
 
 /**
+ * Salva lead no banco de dados PostgreSQL (se disponível)
+ */
+async function saveLeadToDatabase(nome, email, origem, ip) {
+  try {
+    const dbUrl = process.env.DATABASE_URL
+    if (!dbUrl) return null
+
+    const { Pool } = require('pg')
+    const ssl = String(process.env.DATABASE_SSL || 'true').trim().toLowerCase() === 'false'
+      ? false
+      : { rejectUnauthorized: false }
+
+    const pool = new Pool({ connectionString: dbUrl, ssl, max: 2 })
+
+    // Cria tabela se não existir
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS leads (
+        id SERIAL PRIMARY KEY,
+        nome VARCHAR(255) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        origem VARCHAR(100) DEFAULT 'landing_page',
+        utm_source VARCHAR(100),
+        utm_medium VARCHAR(100),
+        utm_campaign VARCHAR(100),
+        utm_content VARCHAR(100),
+        ip VARCHAR(45),
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+      )
+    `)
+
+    // Cria índice único para evitar duplicatas
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_leads_email ON leads(email)
+    `)
+
+    // Insert com ON CONFLICT para atualizar nome e data se o email já existir
+    const result = await pool.query(
+      `INSERT INTO leads (nome, email, origem, utm_source, utm_medium, utm_campaign, utm_content, ip)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       ON CONFLICT (email) DO UPDATE SET
+         nome = EXCLUDED.nome,
+         origem = EXCLUDED.origem,
+         utm_source = COALESCE(EXCLUDED.utm_source, leads.utm_source),
+         utm_medium = COALESCE(EXCLUDED.utm_medium, leads.utm_medium),
+         utm_campaign = COALESCE(EXCLUDED.utm_campaign, leads.utm_campaign),
+         utm_content = COALESCE(EXCLUDED.utm_content, leads.utm_content),
+         created_at = NOW()
+       RETURNING id`,
+      [nome, email, origem || 'landing_page', null, null, null, null, ip]
+    )
+
+    await pool.end()
+    return result.rows[0]?.id
+  } catch (err) {
+    console.error('[CONTACT] Erro ao salvar lead no banco:', err.message)
+    return null // Não impede o fluxo se o banco falhar
+  }
+}
+
+/**
+ * GET /api/contact/leads
+ * Lista leads cadastrados (protegido por API key simples)
+ */
+router.get('/leads', async (req, res) => {
+  try {
+    const apiKey = req.headers['x-api-key'] || req.query.key
+    const expectedKey = process.env.LEADS_API_KEY || process.env.ADMIN_API_KEY
+
+    if (!expectedKey || apiKey !== expectedKey) {
+      return res.status(401).json({ success: false, message: 'Não autorizado.' })
+    }
+
+    const dbUrl = process.env.DATABASE_URL
+    if (!dbUrl) {
+      return res.status(503).json({ success: false, message: 'Banco de dados não configurado.' })
+    }
+
+    const { Pool } = require('pg')
+    const ssl = String(process.env.DATABASE_SSL || 'true').trim().toLowerCase() === 'false'
+      ? false
+      : { rejectUnauthorized: false }
+
+    const pool = new Pool({ connectionString: dbUrl, ssl, max: 2 })
+    const result = await pool.query('SELECT id, nome, email, origem, utm_source, utm_medium, utm_campaign, created_at FROM leads ORDER BY created_at DESC LIMIT 500')
+    await pool.end()
+
+    return res.status(200).json({
+      success: true,
+      total: result.rows.length,
+      leads: result.rows,
+    })
+  } catch (error) {
+    console.error('[CONTACT] Erro ao listar leads:', error.message)
+    return res.status(500).json({ success: false, message: 'Erro ao listar leads.' })
+  }
+})
+
+/**
  * POST /api/contact
- * Recebe dados do formulário da landing page e envia por email
+ * Recebe dados do formulário da landing page, salva no banco e envia email
  */
 router.post('/', async (req, res) => {
   try {
-    const { nome, email } = req.body
+    const { nome, email, utm_source, utm_medium, utm_campaign, utm_content } = req.body
 
     // Validação básica
     if (!nome || !email) {
@@ -74,8 +172,12 @@ router.post('/', async (req, res) => {
       })
     }
 
+    // Salva lead no banco de dados (não bloqueia se falhar)
+    const leadId = await saveLeadToDatabase(nome, email, utm_source || 'landing_page', clientIp)
+
     // Envia email de notificação para o PLUMAR
     const now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+    const utmInfo = utm_source ? `\nOrigem: ${utm_source} / ${utm_medium || '-'} / ${utm_campaign || '-'}` : ''
 
     await sendEmail({
       to: {
@@ -89,10 +191,12 @@ router.post('/', async (req, res) => {
         `Nome: ${nome}`,
         `Email: ${email}`,
         `Data/Hora: ${now}`,
+        leadId ? `Lead ID: ${leadId}` : '',
+        utmInfo,
         '',
         '---',
         'Este email foi enviado automaticamente pelo formulário da página comercial.',
-      ].join('\n'),
+      ].filter(Boolean).join('\n'),
       html: `
         <div style="font-family: 'Inter', Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px; background: #f7f5f0; border-radius: 12px;">
           <div style="background: #2c2520; color: #f0d4c0; padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
@@ -115,6 +219,10 @@ router.post('/', async (req, res) => {
                 <td style="padding: 10px 0; color: #8a7e74; font-size: 14px; border-top: 1px solid #f0ebe4;">Data</td>
                 <td style="padding: 10px 0; color: #2c2520; font-size: 14px; border-top: 1px solid #f0ebe4;">${now}</td>
               </tr>
+              ${utm_source ? `<tr>
+                <td style="padding: 10px 0; color: #8a7e74; font-size: 14px; border-top: 1px solid #f0ebe4;">Origem</td>
+                <td style="padding: 10px 0; color: #2c2520; font-size: 14px; border-top: 1px solid #f0ebe4;">${utm_source} / ${utm_medium || '-'} / ${utm_campaign || '-'}</td>
+              </tr>` : ''}
             </table>
           </div>
         </div>
@@ -124,12 +232,13 @@ router.post('/', async (req, res) => {
     return res.status(200).json({
       success: true,
       message: 'Cadastro recebido com sucesso!',
+      leadId: leadId || undefined,
     })
   } catch (error) {
     console.error('[CONTACT] Erro ao processar formulário:', error.message)
     return res.status(500).json({
       success: false,
-      message: 'Erro ao processar cadastro. Tente novamente.',
+      message: 'Erro interno. Tente novamente.',
     })
   }
 })
