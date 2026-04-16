@@ -2,28 +2,28 @@ name: Deploy to Cloudflare
 
 on:
   push:
-      branches: [master]
-        workflow_dispatch:
+    branches: [master]
+  workflow_dispatch:
 
-        concurrency:
-          group: deploy
-            cancel-in-progress: false
+concurrency:
+  group: deploy
+  cancel-in-progress: false
 
-            jobs:
-              deploy-backend:
-                  runs-on: ubuntu-latest
-                      name: Deploy Backend (Worker)
-                          steps:
-                                - uses: actions/checkout@v4
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    name: Deploy Backend (Worker)
+    steps:
+      - uses: actions/checkout@v4
 
-                                      - name: Install backend dependencies
-                                              working-directory: backend
-                                                      run: npm ci
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
 
-                                                            - name: Deploy Worker to Cloudflare
-                                                                    uses: cloudflare/wrangler-action@v3
-                                                                            with:
-                                                                                      apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-                                                                                                accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-                                                                                                          workingDirectory: backend
-                                                                                                                    command: deploy
+      - name: Deploy Worker to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: backend
+          command: deploy
