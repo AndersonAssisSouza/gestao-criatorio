@@ -27,6 +27,15 @@ function getTableName() {
   return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(candidate) ? candidate : DEFAULT_TABLE_NAME
 }
 
+// Detecta se está rodando em ambiente Cloudflare Workers / Edge
+function isEdgeRuntime() {
+  // Workers expõem `navigator.userAgent === 'Cloudflare-Workers'` ou não têm `fs`
+  if (typeof globalThis.WebSocketPair !== 'undefined') return true
+  if (typeof navigator !== 'undefined' && /Cloudflare-Workers/i.test(navigator.userAgent || '')) return true
+  if (!fs) return true
+  return false
+}
+
 async function getPool() {
   if (!hasDatabase()) {
     return null
@@ -34,6 +43,20 @@ async function getPool() {
 
   if (!poolPromise) {
     poolPromise = (async () => {
+      // No Cloudflare Workers, usa driver HTTP serverless do Neon (compatível com Edge)
+      if (isEdgeRuntime()) {
+        const { neon } = require('@neondatabase/serverless')
+        const sql = neon(process.env.DATABASE_URL)
+        // Adapter com API similar ao pg.Pool: expõe .query(text, params)
+        return {
+          query: async (text, params = []) => {
+            const rows = await sql.query(text, params)
+            return { rows, rowCount: rows.length }
+          },
+        }
+      }
+
+      // Node tradicional (Vercel/local): usa pg com Pool
       const { Pool } = require('pg')
       const ssl = String(process.env.DATABASE_SSL || 'true').trim().toLowerCase() === 'false'
         ? false
