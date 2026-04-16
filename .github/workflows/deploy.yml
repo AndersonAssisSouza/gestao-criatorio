@@ -18,7 +18,7 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: backend
-        run: npm ci
+        run: npm install
 
       - name: Deploy Worker to Cloudflare
         uses: cloudflare/wrangler-action@v3
