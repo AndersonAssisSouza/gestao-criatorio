@@ -1,5 +1,4 @@
 import { BRAND } from '../../brand'
-import { SocialFooter } from '../shared/SocialFooter'
 import './LandingPage.css'
 
 const FEATURES = [
@@ -246,7 +245,6 @@ export function LandingPage({ onGoToLogin }) {
       {/* ───── FOOTER ───── */}
       <footer className="lp-footer">
         <p>{BRAND.name} &copy; 2026 — {BRAND.descriptor}</p>
-        <SocialFooter variant="dark" />
       </footer>
     </div>
   )

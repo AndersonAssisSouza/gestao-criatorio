@@ -21,7 +21,6 @@ import { ProprietarioModule } from './components/modules/proprietario/Proprietar
 import { ConfiguracoesModule } from './components/modules/configuracoes/ConfiguracoesModule'
 import { AjudaModule }        from './components/modules/ajuda/AjudaModule'
 import { LimitedTierBanner } from './components/shared/LimitedTierBanner'
-import { SocialFooter } from './components/shared/SocialFooter'
 import { BRAND } from './brand'
 
 const PAGE_META = {
@@ -160,7 +159,6 @@ function Dashboard() {
           {resolvedPage === 'ajuda'          && <AjudaModule />}
           {resolvedPage === 'configuracoes' && <ConfiguracoesModule />}
         </div>
-        <SocialFooter variant="light" />
         <MobileDock activePage={resolvedPage} onNavigate={navigateTo} onOpenMenu={() => setSidebarOpen(true)} />
       </div>
     </div>

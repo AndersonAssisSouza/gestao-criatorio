@@ -1,6 +1,7 @@
 import { useAuth } from '../../context/AuthContext'
 import { BRAND } from '../../brand'
 import { BrandMark } from '../shared/BrandMark'
+import { SocialFooter } from '../shared/SocialFooter'
 
 const NAV_GROUPS = [
   {
@@ -102,6 +103,8 @@ export function Sidebar({ activePage, onNavigate, isOpen = true, onClose }) {
           )
         })}
       </div>
+
+      <SocialFooter variant="dark" />
 
       <div className="app-sidebar__footer">
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
