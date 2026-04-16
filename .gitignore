@@ -9,3 +9,6 @@ backend/storage/payments.json
 backend/storage/*.json
 storage/*.json
 backend/.env.vercel
+backend/.env.vercel.tmp
+backend/.env.pulled
+backend/setup-secrets.ps1
