@@ -7,7 +7,7 @@ compatibility_flags = ["nodejs_compat_v2"]
 NODE_ENV = "production"
 EMAIL_PROVIDER = "supabase_function"
 
-# Secrets (configurar via `wrangler secret put` ou no dashboard):
+# Secrets (configurar via wrangler secret put ou no dashboard):
 # JWT_SECRET
 # DATABASE_URL
 # DATABASE_SSL
@@ -27,7 +27,7 @@ EMAIL_PROVIDER = "supabase_function"
 [triggers]
 crons = ["0 */12 * * *"]
 
-# Custom domain
-[routes]
+# Custom domain (routes deve ser array)
+[[routes]]
 pattern = "api.plumar.com.br/*"
 zone_name = "plumar.com.br"
