@@ -14,7 +14,6 @@ const sharepointImportRoutes = require('./routes/sharepoint-import.routes')
 const contactRoutes = require('./routes/contact.routes')
 const speciesRoutes = require('./routes/species.routes')
 const mutacoesRoutes = require('./routes/mutacoes.routes')
-const contactRoutes = require('./routes/contact.routes')
 const securityHeaders = require('./middleware/security.middleware')
 const { startSubscriptionReminderWorker } = require('./services/subscription-reminder.service')
 
@@ -84,7 +83,6 @@ app.use('/api/gaiolas', gaiolasRoutes)
 app.use('/api/sharepoint', sharepointImportRoutes)
 app.use('/api/species', speciesRoutes)
 app.use('/api/mutacoes', mutacoesRoutes)
-app.use('/api/contact', contactRoutes)
 
 // ─── 404 ──────────────────────────────────────────────────────────────────────
 app.use((_, res) => res.status(404).json({ message: 'Rota não encontrada.' }))
