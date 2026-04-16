@@ -1,3 +1,5 @@
+const { TRIAL_DAYS, FREE_TIER_LIMITS } = require('../config/subscription.config')
+
 const OWNER_EMAIL = (process.env.OWNER_EMAIL || '').trim().toLowerCase()
 const OWNER_NAME = process.env.OWNER_NAME || 'Anderson Assis'
 const OWNER_ACCESS_KEY = process.env.OWNER_ACCESS_KEY || 'anderson'
@@ -29,10 +31,10 @@ function createTrialProfile(now = new Date().toISOString()) {
     subscriptionPlan: 'trial',
     subscriptionStatus: 'trialing',
     trialStartedAt: now,
-    trialEndsAt: addDays(now, 7),
-    accessReleasedUntil: addDays(now, 7),
+    trialEndsAt: addDays(now, TRIAL_DAYS),
+    accessReleasedUntil: addDays(now, TRIAL_DAYS),
     currentPeriodStart: now,
-    currentPeriodEnd: addDays(now, 7),
+    currentPeriodEnd: addDays(now, TRIAL_DAYS),
     subscriptionRequestedPlan: null,
     requestedAt: null,
     lastPaymentAt: null,
@@ -110,6 +112,9 @@ function buildAccessSummary(user) {
   if (user.isLifetimeOwner || user.subscriptionStatus === 'lifetime' || user.role === 'owner') {
     return {
       accessGranted: true,
+      tier: 'full',
+      limited: false,
+      limits: null,
       status: 'lifetime',
       plan: 'lifetime',
       label: 'Vitalício',
@@ -123,27 +128,63 @@ function buildAccessSummary(user) {
   const expiresAt = user.accessReleasedUntil || user.trialEndsAt || null
   const expiresMs = expiresAt ? new Date(expiresAt).getTime() : 0
   const remainingDays = expiresAt ? Math.max(0, Math.ceil((expiresMs - now) / 86_400_000)) : 0
-  const accessGranted = expiresAt ? expiresMs >= now : false
+  const withinPaidPeriod = expiresAt ? expiresMs >= now : false
 
   let status = user.subscriptionStatus || 'trialing'
   let label = 'Em avaliação'
+  let tier = 'full'
+  let limited = false
+  let accessGranted = withinPaidPeriod
 
-  if (status === 'trialing') label = accessGranted ? 'Teste grátis' : 'Teste expirado'
-  if (status === 'pending_review') label = 'Aguardando aprovação'
-  if (status === 'active') label = accessGranted ? 'Ativo' : 'Vencido'
-  if (status === 'past_due') label = 'Pagamento pendente'
+  if (status === 'trialing') {
+    if (withinPaidPeriod) {
+      tier = 'trial'
+      label = 'Teste grátis'
+    } else {
+      // Trial expirou sem assinatura → tier limitado (1 gaiola, 2 aves, 1 ninhada)
+      tier = 'limited'
+      limited = true
+      accessGranted = true
+      label = 'Acesso limitado'
+      status = 'free_limited'
+    }
+  } else if (status === 'active') {
+    tier = 'full'
+    label = accessGranted ? 'Ativo' : 'Vencido'
+    if (!accessGranted) {
+      tier = 'limited'
+      limited = true
+      accessGranted = true
+      status = 'free_limited'
+      label = 'Acesso limitado'
+    }
+  } else if (status === 'cancelled') {
+    if (withinPaidPeriod) {
+      tier = 'full'
+      label = 'Cancelada — ativa até o fim do período'
+    } else {
+      tier = 'limited'
+      limited = true
+      accessGranted = true
+      status = 'free_limited'
+      label = 'Acesso limitado'
+    }
+  } else if (status === 'pending_review') {
+    label = 'Aguardando aprovação'
+  } else if (status === 'past_due') {
+    label = 'Pagamento pendente'
+  }
 
   if (user.paymentStatus === 'awaiting_payment') label = 'PIX aguardando quitação'
   if (user.paymentStatus === 'redirect_pending') label = 'Checkout iniciado'
   if (user.paymentStatus === 'processing') label = 'Pagamento em análise'
   if (user.paymentStatus === 'rejected') label = 'Pagamento recusado'
 
-  if (!accessGranted && status === 'active') {
-    status = 'expired'
-  }
-
   return {
     accessGranted,
+    tier,
+    limited,
+    limits: limited ? { ...FREE_TIER_LIMITS } : null,
     status,
     plan: user.subscriptionPlan || 'trial',
     label,

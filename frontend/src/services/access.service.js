@@ -39,14 +39,17 @@ function getMyMockAccess() {
   if (stored) return stored
 
   const now = new Date().toISOString()
-  const trialEnd = addDays(now, 7)
+  const trialEnd = addDays(now, 30)
   const defaults = {
     accessGranted: true,
+    tier: 'trial',
+    limited: false,
+    limits: null,
     status: 'trialing',
     plan: 'trial',
     label: 'Teste grátis',
     expiresAt: trialEnd,
-    remainingDays: 7,
+    remainingDays: 30,
     requestedPlan: null,
     paymentStatus: 'trial',
   }

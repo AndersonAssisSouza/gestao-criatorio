@@ -1,4 +1,5 @@
 const sharepointDataRepository = require('../repositories/sharepoint-data.repository')
+const { checkFreeTierLimit } = require('../utils/free-tier.utils')
 
 function normalizeWhitespace(value = '') {
   return String(value || '')
@@ -52,6 +53,12 @@ async function create(req, res) {
     const alreadyExists = items.some((item) => normalizeWhitespace(item.NumeroGaiola) === payload.NumeroGaiola)
     if (alreadyExists) {
       return res.status(409).json({ message: 'Já existe uma gaiola com esse número.' })
+    }
+
+    // Verifica limite do tier gratuito
+    const limitCheck = checkFreeTierLimit(req.currentUser, 'gaiolas', items.length)
+    if (limitCheck.blocked) {
+      return res.status(402).json({ message: limitCheck.message, access: limitCheck.access, limit: limitCheck.limit })
     }
 
     const now = new Date().toISOString()

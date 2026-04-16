@@ -2,6 +2,7 @@ const plantelRepository = require('../repositories/plantel.repository')
 const sharepointDataRepository = require('../repositories/sharepoint-data.repository')
 const { getCriatorioForUser } = require('../services/criatorio.service')
 const { normalizeText } = require('../utils/security.utils')
+const { checkFreeTierLimit } = require('../utils/free-tier.utils')
 
 const toStorage = (body) => ({
   nome: body.nome,
@@ -138,6 +139,13 @@ async function criar(req, res) {
     const validationError = await validatePayload(req.body)
     if (validationError) {
       return res.status(400).json({ message: validationError })
+    }
+
+    // Verifica limite do tier gratuito
+    const existingBirds = await plantelRepository.listByCriatorioId(criatorio.id)
+    const limitCheck = checkFreeTierLimit(req.currentUser, 'aves', (existingBirds || []).length)
+    if (limitCheck.blocked) {
+      return res.status(402).json({ message: limitCheck.message, access: limitCheck.access, limit: limitCheck.limit })
     }
 
     const payload = {

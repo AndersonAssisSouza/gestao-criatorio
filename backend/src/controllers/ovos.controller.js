@@ -1,5 +1,6 @@
 const crypto = require('crypto')
 const sharepointDataRepository = require('../repositories/sharepoint-data.repository')
+const { checkFreeTierLimit } = require('../utils/free-tier.utils')
 
 function normalizeWhitespace(value = '') {
   return String(value || '')
@@ -225,6 +226,13 @@ async function restartClutch(req, res) {
     const dataset = await loadDataset()
     const now = new Date().toISOString()
 
+    // Verifica limite do tier gratuito (ninhadas ativas)
+    const activeClutchesCount = (dataset.clutches || []).filter((c) => c.Status === 'Ativa').length
+    const limitCheck = checkFreeTierLimit(req.currentUser, 'ninhadas', activeClutchesCount)
+    if (limitCheck.blocked) {
+      return res.status(402).json({ message: limitCheck.message, access: limitCheck.access, limit: limitCheck.limit })
+    }
+
     const nextClutches = dataset.clutches.map((clutch) => {
       if (normalizeWhitespace(clutch.Gaiola) !== cage || clutch.Status !== 'Ativa') {
         return clutch
@@ -279,6 +287,13 @@ async function create(req, res) {
     const now = new Date().toISOString()
 
     if (!activeClutch) {
+      // Verifica limite do tier gratuito antes de criar nova ninhada
+      const activeClutchesCount = (dataset.clutches || []).filter((c) => c.Status === 'Ativa').length
+      const limitCheck = checkFreeTierLimit(req.currentUser, 'ninhadas', activeClutchesCount)
+      if (limitCheck.blocked) {
+        return res.status(402).json({ message: limitCheck.message, access: limitCheck.access, limit: limitCheck.limit })
+      }
+
       activeClutch = {
         id: crypto.randomUUID(),
         Gaiola: cage,

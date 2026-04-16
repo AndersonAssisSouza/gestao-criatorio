@@ -20,6 +20,7 @@ import { AssinaturaModule } from './components/modules/assinatura/AssinaturaModu
 import { ProprietarioModule } from './components/modules/proprietario/ProprietarioModule'
 import { ConfiguracoesModule } from './components/modules/configuracoes/ConfiguracoesModule'
 import { AjudaModule }        from './components/modules/ajuda/AjudaModule'
+import { LimitedTierBanner } from './components/shared/LimitedTierBanner'
 import { BRAND } from './brand'
 
 const PAGE_META = {
@@ -141,6 +142,7 @@ function Dashboard() {
       <Sidebar activePage={resolvedPage} onNavigate={navigateTo} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="app-main">
         <Topbar onOpenMenu={() => setSidebarOpen(true)} />
+        <LimitedTierBanner access={user?.access} onGoToSubscription={() => navigateTo('assinatura')} />
         <div className="app-content">
           {resolvedPage === 'plantel'    && <PlantelModule />}
           {resolvedPage === 'chocando'   && <ChocandoModule onNavigate={navigateTo} />}
