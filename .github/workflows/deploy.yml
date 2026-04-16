@@ -10,6 +10,19 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    name: Deploy Frontend (Pages)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy frontend/public --project-name=plumar
+
   deploy-backend:
     runs-on: ubuntu-latest
     name: Deploy Backend (Worker)
@@ -18,7 +31,7 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: backend
-        run: npm install
+        run: npm ci
 
       - name: Deploy Worker to Cloudflare
         uses: cloudflare/wrangler-action@v3
