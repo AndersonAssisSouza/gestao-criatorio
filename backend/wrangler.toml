@@ -27,7 +27,5 @@ EMAIL_PROVIDER = "supabase_function"
 [triggers]
 crons = ["0 */12 * * *"]
 
-# Custom domain (routes deve ser array)
-[[routes]]
-pattern = "api.plumar.com.br/*"
-zone_name = "plumar.com.br"
+# Custom domain api.plumar.com.br configurado via Cloudflare dashboard
+# (Workers > Custom Domains) para evitar erro de autenticacao com routes
