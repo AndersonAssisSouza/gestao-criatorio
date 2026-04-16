@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
+const { SignJWT, jwtVerify } = require('jose')
 const crypto = require('crypto')
 const userRepository = require('../repositories/user.repository')
 const { sendEmail } = require('../services/email.service')
@@ -39,7 +39,8 @@ function isValidEmail(email = '') {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-function signToken(user) {
+async function signToken(user) {
+  const secret = new TextEncoder().encode(process.env.JWT_SECRET)
   const payload = {
     userId: user.id,
     email: user.email,
@@ -49,11 +50,13 @@ function signToken(user) {
     accessKeys: buildAccessKeys(user),
   }
 
-  return jwt.sign(payload, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '12h',
-    issuer: process.env.JWT_ISSUER || 'plumar-api',
-    audience: process.env.JWT_AUDIENCE || 'plumar-web',
-  })
+  return new SignJWT(payload)
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setIssuer(process.env.JWT_ISSUER || 'plumar-api')
+    .setAudience(process.env.JWT_AUDIENCE || 'plumar-web')
+    .setExpirationTime(process.env.JWT_EXPIRES_IN || '12h')
+    .sign(secret)
 }
 
 function setSessionCookies(res, token) {
@@ -176,7 +179,7 @@ async function register(req, res) {
     const passwordHash = await bcrypt.hash(password, 12)
     const role = isOwnerEmail(email) ? 'owner' : (getAdminEmails().includes(email) ? 'admin' : 'user')
     const user = await userRepository.createUser({ name, email, passwordHash, role })
-    const token = signToken(user)
+    const token = await signToken(user)
 
     setSessionCookies(res, token)
     return res.status(201).json({ user: serializeUser(user), token })
@@ -212,7 +215,7 @@ async function login(req, res) {
     }
 
     const safeUser = serializeUser(user)
-    const token = signToken(safeUser)
+    const token = await signToken(safeUser)
 
     setSessionCookies(res, token)
     return res.json({ user: safeUser, token })

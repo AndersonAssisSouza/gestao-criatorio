@@ -21,16 +21,17 @@
   <link rel="canonical" href="https://plumar.com.br">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 
-  <!-- Google Analytics 4 — Substituir G-XXXXXXXXXX pelo ID real do GA4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <!-- Google Analytics 4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-QNRCMC9GS2"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
+    gtag('config', 'G-QNRCMC9GS2');
   </script>
 
-  <!-- Facebook Pixel — Substituir PIXEL_ID pelo ID real do Pixel -->
+  <!-- Facebook Pixel — PENDENTE: criar Pixel no Events Manager manualmente e substituir PIXEL_ID -->
+  <!-- Pixel desativado até configuração manual do ID real
   <script>
     !function(f,b,e,v,n,t,s)
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -45,6 +46,7 @@
   </script>
   <noscript><img height="1" width="1" style="display:none"
     src="https://www.facebook.com/tr?id=PIXEL_ID&ev=PageView&noscript=1"/></noscript>
+  -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -554,7 +556,7 @@
       try {
         const apiBase = window.location.hostname === 'localhost'
           ? 'http://localhost:3001'
-          : 'https://gestao-criatorio-api.onrender.com';
+          : 'https://api.plumar.com.br';
 
         const res = await fetch(apiBase + '/api/contact', {
           method: 'POST',

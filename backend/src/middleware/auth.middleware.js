@@ -1,4 +1,4 @@
-const jwt = require('jsonwebtoken')
+const { jwtVerify } = require('jose')
 const { getAuthCookieName, parseCookies } = require('../utils/security.utils')
 const userRepository = require('../repositories/user.repository')
 
@@ -14,7 +14,8 @@ async function authMiddleware(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET, {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    const { payload } = await jwtVerify(token, secret, {
       issuer: process.env.JWT_ISSUER || 'plumar-api',
       audience: process.env.JWT_AUDIENCE || 'plumar-web',
     })
@@ -31,7 +32,7 @@ async function authMiddleware(req, res, next) {
       : payload
     next()
   } catch (e) {
-    if (e.name === 'TokenExpiredError') {
+    if (e?.code === 'ERR_JWT_EXPIRED') {
       return res.status(401).json({ message: 'Token expirado. Faça login novamente.' })
     }
     return res.status(401).json({ message: 'Token inválido.' })

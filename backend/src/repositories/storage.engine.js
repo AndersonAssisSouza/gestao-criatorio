@@ -1,9 +1,17 @@
-const fs = require('fs/promises')
-const path = require('path')
+let fs, path
+try {
+  fs = require('fs/promises')
+  path = require('path')
+} catch (_) {
+  // Workers environment — file storage not available
+}
 
-const DEFAULT_STORAGE_DIR = process.env.VERCEL
-  ? path.join('/tmp', 'storage')
-  : path.join(process.cwd(), 'storage')
+const DEFAULT_STORAGE_DIR = (() => {
+  if (!path) return '/tmp/storage'
+  return process.env.VERCEL
+    ? path.join('/tmp', 'storage')
+    : path.join(process.cwd(), 'storage')
+})()
 const DEFAULT_TABLE_NAME = 'app_state'
 const writeQueues = new Map()
 
@@ -126,8 +134,9 @@ async function writeToDatabase(collectionName, items) {
   return items
 }
 
-async function readCollection(collectionName, filePath = path.join(DEFAULT_STORAGE_DIR, `${collectionName}.json`)) {
+async function readCollection(collectionName, filePath = path ? path.join(DEFAULT_STORAGE_DIR, `${collectionName}.json`) : '') {
   if (!hasDatabase()) {
+    if (!fs) return []
     return readArrayFile(filePath)
   }
 
@@ -141,8 +150,9 @@ async function readCollection(collectionName, filePath = path.join(DEFAULT_STORA
   return bootstrapItems
 }
 
-async function writeCollection(collectionName, items, filePath = path.join(DEFAULT_STORAGE_DIR, `${collectionName}.json`)) {
+async function writeCollection(collectionName, items, filePath = path ? path.join(DEFAULT_STORAGE_DIR, `${collectionName}.json`) : '') {
   if (!hasDatabase()) {
+    if (!fs) return items
     return writeArrayFile(filePath, items)
   }
 

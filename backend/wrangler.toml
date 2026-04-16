@@ -1,0 +1,33 @@
+name = "gestao-criatorio-api"
+main = "src/worker.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat_v2"]
+
+[vars]
+NODE_ENV = "production"
+EMAIL_PROVIDER = "supabase_function"
+
+# Secrets (configurar via `wrangler secret put` ou no dashboard):
+# JWT_SECRET
+# DATABASE_URL
+# DATABASE_SSL
+# MERCADOPAGO_ACCESS_TOKEN
+# MERCADOPAGO_WEBHOOK_SECRET
+# SUPABASE_URL
+# SUPABASE_ANON_KEY
+# OWNER_EMAIL
+# OWNER_NAME
+# OWNER_PASSWORD
+# OWNER_ACCESS_KEY
+# LEADS_API_KEY
+# FRONTEND_URL
+# FRONTEND_PUBLIC_URL
+
+# Cron trigger para lembrete de assinatura (a cada 12h)
+[triggers]
+crons = ["0 */12 * * *"]
+
+# Custom domain
+[routes]
+pattern = "api.plumar.com.br/*"
+zone_name = "plumar.com.br"

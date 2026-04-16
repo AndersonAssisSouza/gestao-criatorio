@@ -1,5 +1,3 @@
-const net = require('net')
-const tls = require('tls')
 const { getEmailConfig, isEmailConfigured } = require('../config/email.config')
 
 function encodeBase64(value = '') {
@@ -58,6 +56,8 @@ function buildMessage({ fromName, fromEmail, to, subject, text, html }) {
 }
 
 async function createConnection(config) {
+  const net = require('net')
+  const tls = require('tls')
   return new Promise((resolve, reject) => {
     const onError = (error) => reject(error)
     const socket = config.secure
@@ -136,6 +136,7 @@ function createSmtpChannel(socket) {
 }
 
 async function upgradeToTls(socket, config) {
+  const tls = require('tls')
   return new Promise((resolve, reject) => {
     const secureSocket = tls.connect({
       socket,
