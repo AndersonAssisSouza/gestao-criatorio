@@ -221,7 +221,15 @@ async function login(req, res) {
     return res.json({ user: safeUser, token })
   } catch (error) {
     console.error('[auth/login]', error)
-    return res.status(500).json({ message: 'Erro ao fazer login.' })
+    return res.status(500).json({
+      message: 'Erro ao fazer login.',
+      debug: {
+        name: error?.name || 'Error',
+        message: String(error?.message || error).slice(0, 500),
+        code: error?.code,
+        stack: String(error?.stack || '').split('\n').slice(0, 3).join(' | '),
+      },
+    })
   }
 }
 
