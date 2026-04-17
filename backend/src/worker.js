@@ -538,6 +538,25 @@ sharepoint.post('/me/import', wrapMiddleware(csrfProtection), wrapHandler(sharep
 app.route('/api/sharepoint', sharepoint)
 
 // ===========================================================================
+//  META routes — /api/meta (agendamento via Graph API — owner only)
+// ===========================================================================
+const metaController = require('./controllers/meta.controller')
+const meta = new Hono()
+meta.use('/*', wrapMiddleware(authMiddleware))
+meta.use('/*', wrapMiddleware(apiLimiter))
+meta.use('/*', wrapMiddleware(requireOwner))
+
+meta.get('/scheduled', wrapHandler(metaController.listScheduled))
+meta.post('/schedule', wrapMiddleware(csrfProtection), wrapHandler(metaController.scheduleOne))
+meta.get('/scheduled/:id', wrapHandler(metaController.getScheduled))
+meta.post('/scheduled/:id/cancel', wrapMiddleware(csrfProtection), wrapHandler(metaController.cancelScheduled))
+meta.delete('/scheduled/:id', wrapMiddleware(csrfProtection), wrapHandler(metaController.deleteScheduled))
+meta.post('/scheduled/:id/publish-now', wrapMiddleware(csrfProtection), wrapHandler(metaController.publishNow))
+meta.post('/sweep', wrapMiddleware(csrfProtection), wrapHandler(metaController.runDueSweep))
+
+app.route('/api/meta', meta)
+
+// ===========================================================================
 //  CONTACT routes — /api/contact  (inline, ported from contact.routes.js)
 // ===========================================================================
 const contact = new Hono()
@@ -799,7 +818,21 @@ export default {
     for (const [key, value] of Object.entries(env)) {
       if (typeof value === 'string') process.env[key] = value
     }
-    const { runSubscriptionReminderSweep } = require('./services/subscription-reminder.service')
-    await runSubscriptionReminderSweep()
+    // Despacha por cron expression (Cloudflare passa event.cron)
+    const cron = event.cron || ''
+    try {
+      if (cron === '*/5 * * * *') {
+        // Publicação de posts agendados via Meta Graph API
+        const { runDueSweep } = require('./services/meta-publisher.service')
+        const results = await runDueSweep({ limit: 5 })
+        console.log('[cron meta] runDueSweep:', JSON.stringify(results))
+      } else {
+        // Default — lembretes de assinatura (cron 0 */12 * * *)
+        const { runSubscriptionReminderSweep } = require('./services/subscription-reminder.service')
+        await runSubscriptionReminderSweep()
+      }
+    } catch (err) {
+      console.error('[cron error]', cron, err.message)
+    }
   },
 }

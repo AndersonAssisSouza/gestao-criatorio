@@ -22,10 +22,18 @@ EMAIL_PROVIDER = "supabase_function"
 # LEADS_API_KEY
 # FRONTEND_URL
 # FRONTEND_PUBLIC_URL
+#
+# Meta Graph API (agendamento automatizado de posts):
+# META_GRAPH_VERSION          (opcional, default v21.0)
+# META_PAGE_ID                (id da Facebook Page — 1146018875251408)
+# META_PAGE_ACCESS_TOKEN      (long-lived, renovar a cada 60 dias)
+# META_IG_BUSINESS_ID         (id do Instagram Business Account)
 
-# Cron trigger para lembrete de assinatura (a cada 12h)
+# Cron triggers:
+#   "0 */12 * * *"  — lembrete de assinatura (a cada 12h)
+#   "*/5 * * * *"   — publicação de scheduled_posts via Meta Graph API
 [triggers]
-crons = ["0 */12 * * *"]
+crons = ["0 */12 * * *", "*/5 * * * *"]
 
 # Custom domain api.plumar.com.br configurado via Cloudflare dashboard
 # (Workers > Custom Domains) para evitar erro de autenticacao com routes
