@@ -4,7 +4,7 @@ Marque com `x` quando publicar. Mantenha a data real de publicação.
 
 | Post | Programado para | Formato | Plataforma | Publicado? | Data real | Link do post |
 |------|-----------------|---------|------------|------------|-----------|--------------|
-| 2    | 2026-04-17 07:30 | Reel     | IG+FB      | [ ]        |           |              |
+| 2    | 2026-04-17 07:30 | Reel     | IG+FB      | [!]        | PENDENTE  | skip automático (Reel exige fluxo manual Meta Business Suite / app) |
 | 3    | 2026-04-19 11:00 | Carrossel| IG         | [ ]        |           |              |
 | 4    | 2026-04-20 19:00 | Stories  | IG         | [ ]        |           |              |
 | 6    | 2026-04-22 19:30 | Reel     | IG+FB      | [ ]        |           |              |
