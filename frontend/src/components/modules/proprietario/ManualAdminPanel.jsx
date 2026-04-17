@@ -152,7 +152,7 @@ export function ManualAdminPanel() {
             ['Clientes', 'Total de usuarios cadastrados (excluindo o proprietario)'],
             ['Ativos', 'Usuarios com acesso liberado (assinatura ativa)'],
             ['Cobrancas', 'Pagamentos pendentes de validacao'],
-            ['Trial', 'Usuarios no periodo de teste gratuito (7 dias)'],
+            ['Trial', 'Usuarios no periodo de teste gratuito (30 dias)'],
           ]} />
 
           <h3 style={S.h3}>Lista de assinantes</h3>
@@ -357,9 +357,9 @@ export function ManualAdminPanel() {
          |
 2. Preenche nome, e-mail e senha
          |
-3. Sistema cria conta com role="user" e trial de 7 dias
+3. Sistema cria conta com role="user" e trial de 30 dias
          |
-4. Usuario tem acesso a todos os modulos por 7 dias
+4. Usuario tem acesso a todos os modulos por 30 dias
          |
 5. No Painel do Proprietario, o card "Trial" incrementa
          |
@@ -372,8 +372,10 @@ export function ManualAdminPanel() {
    |                  8. Pagamento confirmado
    |                       |
    v                       v
-Perde acesso          Acesso ativo
-(so Assinatura)       (todos os modulos)`}
+Modo gratuito         Acesso ativo
+limitado              (todos os modulos
+(1 gaiola / 2 aves   sem limites)
+ / 1 ninhada)`}
           </div>
 
           <h3 style={S.h3}>Cenarios de intervencao manual</h3>
@@ -394,6 +396,9 @@ Perde acesso          Acesso ativo
 
           <div style={S.faqQ}>Usuario nao ve os modulos operacionais</div>
           <div style={S.faqA}>Assinatura expirada ou trial encerrado. No Painel do Proprietario, selecione o usuario, verifique o status e conceda acesso ou estenda o trial.</div>
+
+          <div style={S.faqQ}>Usuario reclama de bloqueio ao cadastrar (1 gaiola / 2 aves / 1 ninhada)</div>
+          <div style={S.faqA}>Trial de 30 dias expirou e a conta esta em modo gratuito limitado. O usuario pode manter ate 1 gaiola, 2 aves e 1 ninhada. Para liberar cadastros ilimitados, o usuario deve contratar um plano — ou voce pode estender o trial / conceder acesso manualmente no Painel.</div>
 
           <div style={S.faqQ}>Pagamento aparece como pendente</div>
           <div style={S.faqA}>Verifique no MercadoPago se o pagamento foi recebido. Se confirmado, aprove manualmente no Painel. Se nao, peca ao usuario para tentar novamente.</div>

@@ -43,7 +43,7 @@ export function LoginPage({ onBackToLanding }) {
   const screenCopy = useMemo(() => {
     if (isForgotMode) return { title: 'Recuperar acesso', description: 'Informe o e-mail cadastrado para receber o link de redefinição.', button: 'Enviar instruções' }
     if (isResetMode) return { title: 'Criar nova senha', description: 'Defina uma nova senha com pelo menos 8 caracteres.', button: 'Salvar nova senha' }
-    if (isRegisterMode) return { title: 'Criar conta', description: 'Primeiro acesso com 7 dias gratuitos.', button: 'Criar conta e entrar' }
+    if (isRegisterMode) return { title: 'Criar conta', description: 'Primeiro acesso com 30 dias gratuitos.', button: 'Criar conta e entrar' }
     return { title: 'Entrar no sistema', description: BRAND.promise, button: 'Entrar' }
   }, [isForgotMode, isRegisterMode, isResetMode])
 

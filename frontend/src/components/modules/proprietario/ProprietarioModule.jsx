@@ -189,7 +189,7 @@ export function ProprietarioModule() {
         <StatCard label="Clientes" value={stats.total} desc="usuarios cadastrados" color="#C95025" />
         <StatCard label="Ativos" value={stats.ativos} desc="acesso liberado" color="#4CAF7D" />
         <StatCard label="Cobranças" value={stats.pendentes} desc="pendentes de conferência" color="#F5A623" />
-        <StatCard label="Trial" value={stats.trial} desc="7 dias gratuitos" color="#5BC0EB" />
+        <StatCard label="Trial" value={stats.trial} desc="30 dias gratuitos" color="#5BC0EB" />
       </div>
 
       <div className="billing-studio">

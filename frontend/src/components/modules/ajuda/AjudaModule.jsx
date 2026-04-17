@@ -229,7 +229,7 @@ export function AjudaModule() {
               <li>Preencha <strong style={S.strong}>Nome</strong> (3 a 80 caracteres), <strong style={S.strong}>E-mail</strong> e <strong style={S.strong}>Senha</strong> (minimo 8 caracteres com letras e numeros)</li>
               <li>Clique em <strong style={S.strong}>"Criar conta e entrar"</strong></li>
             </ol>
-            <p style={S.p}>Ao criar sua conta, voce recebe automaticamente <span style={S.badge}>7 dias gratuitos</span> para testar todas as funcionalidades.</p>
+            <p style={S.p}>Ao criar sua conta, voce recebe automaticamente <span style={S.badge}>30 dias gratuitos</span> com acesso completo a todas as funcionalidades — sem cartao de credito.</p>
 
             <h3 style={S.h3}>Fazendo login</h3>
             <ol style={S.ol}>
@@ -262,8 +262,16 @@ export function AjudaModule() {
             ]} />
             <p style={S.p}>No rodape da barra lateral voce ve seu avatar, nome, status da assinatura e o botao de sair.</p>
 
-            <h3 style={S.h3}>Periodo de teste</h3>
-            <p style={S.p}>Durante os 7 dias de teste voce tem acesso a todos os modulos. Ao expirar, so ficam disponiveis <strong style={S.strong}>Assinatura</strong> e <strong style={S.strong}>Configuracoes</strong> ate contratar um plano.</p>
+            <h3 style={S.h3}>Periodo de teste e acesso limitado</h3>
+            <p style={S.p}>Durante os <strong style={S.strong}>30 dias gratuitos</strong> voce tem acesso completo a todos os modulos, sem limites.</p>
+            <p style={S.p}>Apos o termino do teste, caso nao contrate uma assinatura, sua conta entra em <strong style={S.strong}>modo gratuito limitado</strong>:</p>
+            <ul style={S.ul}>
+              <li>Voce pode manter cadastrados ate <strong style={S.strong}>1 gaiola</strong>, <strong style={S.strong}>2 aves</strong> e <strong style={S.strong}>1 ninhada</strong></li>
+              <li>Tentar cadastrar acima desses limites sera bloqueado com aviso para contratar um plano</li>
+              <li>Os modulos continuam navegaveis para consulta dos dados existentes</li>
+              <li>Um banner laranja aparece no topo indicando o status e o atalho para assinar</li>
+              <li>Seus dados ficam preservados — assim que contratar um plano, tudo e liberado imediatamente</li>
+            </ul>
 
             <h3 style={S.h3}>Dispositivos moveis</h3>
             <p style={S.p}>No celular, a barra lateral e substituida por uma barra de navegacao inferior (dock). Toque no icone de menu para abrir o menu completo.</p>
@@ -563,8 +571,14 @@ export function AjudaModule() {
           <div id="ajuda-faq" style={S.section}>
             <h2 style={S.h2}>14. Perguntas Frequentes</h2>
 
-            <div style={S.faqQ}>O que acontece quando meu periodo de teste acaba?</div>
-            <div style={S.faqA}>Voce perde acesso aos modulos operacionais e so consegue acessar Assinatura e Configuracoes. Contrate um plano para retomar o acesso.</div>
+            <div style={S.faqQ}>Quanto tempo dura o teste gratuito?</div>
+            <div style={S.faqA}>30 dias com acesso completo a todos os modulos, sem precisar de cartao de credito.</div>
+
+            <div style={S.faqQ}>O que acontece quando meu periodo de teste de 30 dias acaba?</div>
+            <div style={S.faqA}>Sua conta entra em modo gratuito limitado: voce pode manter cadastrados ate 1 gaiola, 2 aves e 1 ninhada. Cadastros acima desses limites sao bloqueados ate voce contratar um plano. Seus dados sao preservados e o acesso completo e restaurado imediatamente apos a assinatura.</div>
+
+            <div style={S.faqQ}>Meus dados sao apagados depois dos 30 dias?</div>
+            <div style={S.faqA}>Nao. Tudo continua salvo. Voce nao perde nada — apenas os limites do modo gratuito passam a valer para novos cadastros.</div>
 
             <div style={S.faqQ}>Posso mudar minha senha?</div>
             <div style={S.faqA}>Sim. Na tela de login, clique em "Esqueci minha senha" e siga o processo de recuperacao.</div>

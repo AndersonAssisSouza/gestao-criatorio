@@ -156,7 +156,7 @@ export function AssinaturaModule() {
           <div className="module-hero__eyebrow">Assinatura, cobrança e acesso</div>
           <h2 className="module-hero__title">Minha assinatura</h2>
           <div className="module-hero__text">
-            Novo usuário entra com 7 dias grátis. Depois, escolha mensal ou anual, pague por PIX ou cartão e o acesso é liberado na hora.
+            Novo usuário entra com 30 dias grátis. Depois, escolha mensal ou anual, pague por PIX ou cartão e o acesso é liberado na hora. Sem plano, a conta fica em modo gratuito limitado (1 gaiola, 2 aves e 1 ninhada).
           </div>
         </div>
         <div className="pill">{isOwner ? 'Conta master • vitalício' : usesGateway ? 'MercadoPago ativo' : 'Checkout integrado'}</div>
