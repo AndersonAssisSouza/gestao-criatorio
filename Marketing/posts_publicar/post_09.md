@@ -21,7 +21,7 @@ Salva esse post e usa como guia na próxima vez que for formar um casal.
 
 1. Seleciona a espécie → 2. Marca as mutações do macho → 3. Marca as da fêmea → 4. Simula → 5. Lê o percentual de cada mutação possível na ninhada.
 
-Teste grátis 7 dias. Link na bio.
+Teste grátis 30 dias. Link na bio.
 
 #plumar #simuladorgenetico #geneticadeaves #tutorial #mutacoes #canariodecor #ringneck #agapornis #gestaodecriatório
 

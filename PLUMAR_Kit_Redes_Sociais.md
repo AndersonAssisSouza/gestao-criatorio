@@ -23,7 +23,7 @@ PLUMAR | Gestão de Criatório
 Sistema de gestão para criadores de aves
 Simulador genético exclusivo
 Plantel | Anilhas | Reprodução | Finanças
-Teste grátis 7 dias
+Teste grátis 30 dias
 ```
 
 ### Link na bio:
@@ -53,7 +53,7 @@ Usar o arquivo `PLUMAR_Perfil_Instagram.png` (gerado junto com este kit)
 
 ### Sobre (descrição curta — copiar):
 ```
-O primeiro sistema de gestão de criatório com simulador genético integrado. Controle plantel, genética, anilhas, reprodução e finanças. Teste grátis por 7 dias.
+O primeiro sistema de gestão de criatório com simulador genético integrado. Controle plantel, genética, anilhas, reprodução e finanças. Teste grátis por 30 dias.
 ```
 
 ### Descrição longa (copiar):
@@ -69,7 +69,7 @@ Desenvolvido por quem vive a rotina do criatório, o sistema inclui:
 - Monitoramento de ciclos reprodutivos
 - Dashboard financeiro (receitas, despesas, resultado)
 
-Acesse de qualquer dispositivo. Teste grátis por 7 dias, sem cartão de crédito.
+Acesse de qualquer dispositivo. Teste grátis por 30 dias, sem cartão de crédito.
 
 Acesse: https://plumar.com.br
 ```

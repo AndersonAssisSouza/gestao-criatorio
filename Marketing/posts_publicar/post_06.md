@@ -13,7 +13,7 @@ Para de adivinhar e começa a planejar seus cruzamentos. 🧬
 
 Escolhe o casal → vê as probabilidades → monta a temporada com método.
 
-Teste grátis 7 dias no link da bio.
+Teste grátis 30 dias no link da bio.
 
 #plumar #simuladorgenetico #mutacoesdeaves #criacaoprofissional #geneticadeaves #gestaodecriatório #canariodecor #ringneck #agapornis
 

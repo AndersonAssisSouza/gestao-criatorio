@@ -24,7 +24,7 @@ A landing page já está integrada ao frontend do PLUMAR como componente React. 
 
 1. Faça deploy normalmente do frontend (mesmo processo que já usa)
 2. O fluxo agora é: **Landing Page → Botão "Entrar" → Tela de Login → Dashboard**
-3. O botão "Teste Grátis por 7 Dias" na landing page rola até a seção de CTA
+3. O botão "Teste Grátis por 30 Dias" na landing page rola até a seção de CTA
 4. O botão "Criar Conta Grátis" leva direto para a tela de login/registro
 
 **Arquivos modificados:**
@@ -60,7 +60,7 @@ npm run dev
   🐦 Sistema de gestão para criadores de aves
   🧬 Simulador genético exclusivo
   📋 Plantel • Anilhas • Reprodução • Finanças
-  ⬇️ Teste grátis 7 dias
+  ⬇️ Teste grátis 30 dias
   ```
 - **Link na bio:** URL do PLUMAR (landing page)
 - **Foto de perfil:** Logo PLUMAR (fundo escuro, texto claro)
@@ -70,7 +70,7 @@ npm run dev
 
 1. Criar Página → Categoria: "Software" ou "Aplicativo"
 2. Nome: PLUMAR — Gestão de Criatório
-3. Sobre: "O primeiro sistema de gestão de criatório com simulador genético integrado. Controle plantel, genética, anilhas, reprodução e finanças. Teste grátis por 7 dias."
+3. Sobre: "O primeiro sistema de gestão de criatório com simulador genético integrado. Controle plantel, genética, anilhas, reprodução e finanças. Teste grátis por 30 dias."
 4. CTA Button: "Cadastre-se" → link para landing page
 5. Foto de capa: Banner com tagline "Crie com inteligência. Crie com PLUMAR."
 

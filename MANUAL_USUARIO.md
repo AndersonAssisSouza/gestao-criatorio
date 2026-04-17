@@ -36,7 +36,7 @@
    - **Senha** (mínimo 8 caracteres, contendo letras e números)
 4. Clique em **"Criar conta e entrar"**
 
-Ao criar sua conta, você recebe automaticamente **7 dias gratuitos** para testar todas as funcionalidades do sistema.
+Ao criar sua conta, você recebe automaticamente **30 dias gratuitos** para testar todas as funcionalidades do sistema.
 
 ### 1.2 Fazendo login
 
@@ -74,7 +74,7 @@ No rodapé da barra lateral, você verá seu **avatar** (iniciais do nome), seu 
 
 ### 2.2 Período de teste
 
-Durante o período de teste gratuito (7 dias), você tem acesso a todos os módulos operacionais. Quando o teste expirar, será necessário contratar um plano para continuar usando o sistema. Enquanto sem assinatura ativa, apenas os módulos **Assinatura** e **Configurações** ficam disponíveis.
+Durante o período de teste gratuito (30 dias), você tem acesso a todos os módulos operacionais. Quando o teste expirar, será necessário contratar um plano para continuar usando o sistema. Enquanto sem assinatura ativa, apenas os módulos **Assinatura** e **Configurações** ficam disponíveis.
 
 ### 2.3 Navegação em dispositivos móveis
 

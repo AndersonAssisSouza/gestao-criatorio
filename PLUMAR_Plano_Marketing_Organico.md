@@ -116,7 +116,7 @@
 ### Protocolo de Resposta
 
 **Dúvida técnica sobre o sistema:**
-> "Boa pergunta! [resposta direta]. Se quiser testar, temos 7 dias grátis: plumar.com.br 🐦"
+> "Boa pergunta! [resposta direta]. Se quiser testar, temos 30 dias grátis: plumar.com.br 🐦"
 
 **Elogio/feedback positivo:**
 > "Muito obrigado! Feedback assim nos motiva a continuar melhorando. 💪🐦"
@@ -125,7 +125,7 @@
 > "Valeu pelo retorno! Vou levar isso pro time de desenvolvimento. Seu feedback é essencial pra gente evoluir."
 
 **Pergunta sobre preço:**
-> "Temos planos acessíveis e você pode testar grátis por 7 dias sem cartão de crédito. Acesse plumar.com.br e veja qual se encaixa melhor pra você!"
+> "Temos planos acessíveis e você pode testar grátis por 30 dias sem cartão de crédito. Acesse plumar.com.br e veja qual se encaixa melhor pra você!"
 
 **Spam/comentário irrelevante:**
 > Ocultar ou ignorar. Não engajar.

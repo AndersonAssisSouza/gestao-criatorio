@@ -28,7 +28,7 @@ Quem usa, recomenda. 🐦
 
 Depoimento de [NOME], criador de [ESPÉCIE] há [X] anos, beta tester do PLUMAR.
 
-Cadastre-se hoje e ganhe 7 dias grátis. Link na bio.
+Cadastre-se hoje e ganhe 30 dias grátis. Link na bio.
 
 #plumar #depoimento #criadores #criacaodeaves #simuladorgenetico #gestaodecriatório
 

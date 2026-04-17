@@ -7,7 +7,7 @@
 
 ## Caption Instagram/Facebook (copiar e colar)
 
-⏰ Últimos dias com trial de 7 dias estendido!
+⏰ Últimos dias com trial de 30 dias estendido!
 
 Quem criar conta essa semana ganha acesso completo a todas as funcionalidades — sem cartão de crédito, sem pegadinha.
 
@@ -21,7 +21,7 @@ Depois, o trial padrão volta ao normal.
 
 > 🚨 Pessoal, aviso rápido:
 >
-> O trial estendido de 7 dias do PLUMAR termina essa semana.
+> O trial estendido de 30 dias do PLUMAR termina essa semana.
 >
 > Quem criar conta até [DATA DE CORTE] ganha acesso completo, sem cartão.
 >

@@ -49,7 +49,7 @@
 > Slide 4: "A genética de mutações segue regras. Dá pra prever."
 > Slide 5: "Imagine simular o resultado ANTES de formar o casal"
 > Slide 6: "Isso existe. E se chama PLUMAR."
-> Slide 7: CTA — "Teste grátis por 7 dias. Link na bio."
+> Slide 7: CTA — "Teste grátis por 30 dias. Link na bio."
 
 **Caption:**
 > A diferença entre um criatório amador e um profissional? Planejamento genético.
@@ -93,7 +93,7 @@
 >
 > Feito por criador, para criador. 🇧🇷
 >
-> 👉 Teste grátis por 7 dias — link na bio!
+> 👉 Teste grátis por 30 dias — link na bio!
 >
 > #plumar #gestaodecriatório #criadordeaves #sispass #ibama #aviculturabrasileira
 
@@ -128,7 +128,7 @@
 > Slide 3: ANTES: "Anilhas anotadas em papel" → DEPOIS: "Controle digital com busca"
 > Slide 4: ANTES: "Cruzamento no achismo" → DEPOIS: "Simulador genético com probabilidades"
 > Slide 5: ANTES: "Sem ideia do custo real" → DEPOIS: "Dashboard financeiro automático"
-> Slide 6: CTA — "Migre para o PLUMAR. 7 dias grátis."
+> Slide 6: CTA — "Migre para o PLUMAR. 30 dias grátis."
 
 ---
 
@@ -146,7 +146,7 @@
 > — Monitoramento de ciclos reprodutivos
 > — Gestão financeira
 >
-> Estou oferecendo 7 dias de teste grátis para quem quiser experimentar.
+> Estou oferecendo 30 dias de teste grátis para quem quiser experimentar.
 >
 > Quem tiver interesse, o link está nos comentários. E qualquer dúvida, tô à disposição!
 
@@ -164,7 +164,7 @@
 > Slide 5: "Passo 4: Clique em Simular"
 > Slide 6: "Resultado: veja todas as mutações possíveis com percentuais"
 > Slide 7: "Use essa informação para planejar seus casais da temporada"
-> Slide 8: CTA — "Teste agora: 7 dias grátis"
+> Slide 8: CTA — "Teste agora: 30 dias grátis"
 
 ---
 
@@ -208,7 +208,7 @@
 > Slide 4: "3. Planilhas não avisam sobre ciclos. O PLUMAR monitora."
 > Slide 5: "4. Planilhas não controlam anilhas. O PLUMAR rastreia."
 > Slide 6: "5. Planilhas não mostram seu lucro. O PLUMAR calcula."
-> CTA: "Migre hoje. 7 dias grátis."
+> CTA: "Migre hoje. 30 dias grátis."
 
 ---
 
@@ -225,7 +225,7 @@
 ### Post 14 — Post de Urgência/Escassez
 **Formato:** Imagem (Instagram + Facebook + WhatsApp)
 **Caption:**
-> ⏰ Últimos dias com trial de 7 dias estendido!
+> ⏰ Últimos dias com trial de 30 dias estendido!
 >
 > Quem criar conta essa semana ganha acesso completo a todas as funcionalidades — sem cartão de crédito.
 >
@@ -246,7 +246,7 @@
 >
 > É um sistema web onde você gerencia todo o criatório: plantel, genética, anilhas, reprodução e finanças. Tem até simulador de mutações pra planejar cruzamentos.
 >
-> Tô dando 7 dias de teste grátis. Quem quiser testar: [LINK]
+> Tô dando 30 dias de teste grátis. Quem quiser testar: [LINK]
 >
 > Qualquer dúvida, me chama! 👊
 
@@ -266,7 +266,7 @@
 >
 > Quem ainda não testou, aproveita: [LINK]
 >
-> 7 dias grátis, sem compromisso. 🐦
+> 30 dias grátis, sem compromisso. 🐦
 
 ---
 

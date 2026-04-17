@@ -16,6 +16,6 @@ Saber a data exata permite:
 
 No PLUMAR, o ciclo reprodutivo é monitorado automaticamente: cada ovo, cada ninhada, cada filhote registrado.
 
-👉 Teste grátis 7 dias: link na bio.
+👉 Teste grátis 30 dias: link na bio.
 
 #plumar #dicasdemanejo #criacaodeaves #cicloreprodutivo #ovoseninhadas #gestaodecriatório #canariodecor #agapornis

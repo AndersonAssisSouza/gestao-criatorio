@@ -15,7 +15,7 @@ Olá, [NOME]!
 
 Que bom ter você no PLUMAR. Você acabou de dar o primeiro passo para profissionalizar a gestão do seu criatório.
 
-Seu trial gratuito de 7 dias já está ativo. Nesse período, você tem acesso completo a todas as funcionalidades:
+Seu trial gratuito de 30 dias já está ativo. Nesse período, você tem acesso completo a todas as funcionalidades:
 
 — Cadastro de plantel com dados genéticos
 — Simulador de mutações e cruzamentos
@@ -160,7 +160,7 @@ Olá, [NOME]!
 
 Hoje é o último dia do seu trial no PLUMAR.
 
-Vou ser direto: se o sistema te ajudou em alguma coisa nos últimos 7 dias — seja no controle de plantel, na simulação genética, ou simplesmente por ter tudo num lugar só — vale a pena continuar.
+Vou ser direto: se o sistema te ajudou em alguma coisa nos últimos 30 dias — seja no controle de plantel, na simulação genética, ou simplesmente por ter tudo num lugar só — vale a pena continuar.
 
 O investimento é menor que um saco de ração. E o retorno, em organização e qualidade genética, é muito maior.
 
@@ -245,7 +245,7 @@ Nesse material, você vai encontrar:
 — Dicas de organização de ciclos reprodutivos
 — Como calcular o custo real do seu criatório
 
-E se quiser automatizar tudo isso, o **PLUMAR** faz por você. Teste grátis por 7 dias.
+E se quiser automatizar tudo isso, o **PLUMAR** faz por você. Teste grátis por 30 dias.
 
 [BOTÃO: Testar o PLUMAR Grátis]
 
@@ -272,7 +272,7 @@ No PLUMAR, você seleciona macho e fêmea com suas mutações, e o sistema mostr
 
 Imagina planejar toda a temporada sabendo exatamente o que esperar de cada casal.
 
-[BOTÃO: Experimentar o Simulador — 7 Dias Grátis]
+[BOTÃO: Experimentar o Simulador — 30 Dias Grátis]
 
 Anderson Assis
 Criador do PLUMAR

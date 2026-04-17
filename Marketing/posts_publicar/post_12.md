@@ -22,7 +22,7 @@
 4. Planilhas não controlam anilhas. O PLUMAR rastreia.
 5. Planilhas não mostram seu lucro. O PLUMAR calcula.
 
-Migre hoje. 7 dias grátis. Link na bio.
+Migre hoje. 30 dias grátis. Link na bio.
 
 #plumar #gestaodecriatório #adeusplanilha #criacaodeaves #simuladorgenetico #controledeaves #sispass
 

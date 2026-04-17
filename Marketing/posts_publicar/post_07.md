@@ -17,7 +17,7 @@ Planilha vs PLUMAR — qual é o seu criatório hoje?
 
 Se você ainda gerencia o criatório com Excel e caderno, esse post é pra você.
 
-Migre para o PLUMAR. 7 dias grátis. Link na bio.
+Migre para o PLUMAR. 30 dias grátis. Link na bio.
 
 #plumar #gestaodecriatório #criacaodeaves #adeusplanilha #simuladorgenetico #controledeaves #sispass #aviculturabrasileira
 

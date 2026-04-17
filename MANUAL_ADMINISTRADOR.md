@@ -94,7 +94,7 @@ No topo do painel, quatro indicadores mostram a saúde do negócio:
 | **Clientes** | Total de usuários cadastrados (excluindo o proprietário) |
 | **Ativos** | Usuários com acesso liberado (assinatura ativa) |
 | **Cobranças** | Pagamentos pendentes de validação |
-| **Trial** | Usuários no período de teste gratuito (7 dias) |
+| **Trial** | Usuários no período de teste gratuito (30 dias) |
 
 ### 3.2 Lista de assinantes
 
@@ -222,7 +222,7 @@ Para cada assinante selecionado, você pode executar:
 | **Conceder Acesso** | Libera acesso com plano específico (Mensal, Anual ou Vitalício) |
 | **Aprovar Pagamento** | Confirma pagamento pendente e libera acesso |
 | **Rejeitar Pagamento** | Recusa pagamento e mantém acesso bloqueado |
-| **Estender Trial** | Adiciona mais 7 dias ao período de teste |
+| **Estender Trial** | Adiciona mais 30 dias ao período de teste |
 | **Revogar Acesso** | Cancela assinatura ativa e bloqueia acesso |
 
 ### 6.2 Concedendo acesso manual
@@ -244,7 +244,7 @@ Isso é útil para:
 
 1. Selecione o assinante em trial
 2. Clique em **"Estender Trial"**
-3. O sistema adiciona **7 dias** ao período atual
+3. O sistema adiciona **30 dias** ao período atual
 
 ### 6.4 Revogando acesso
 
@@ -365,9 +365,9 @@ Este URL deve ser cadastrado no painel de desenvolvedor do MercadoPago para que 
          │
 2. Preenche nome, e-mail e senha
          │
-3. Sistema cria a conta com role="user" e trial de 7 dias
+3. Sistema cria a conta com role="user" e trial de 30 dias
          │
-4. Usuário tem acesso a todos os módulos operacionais por 7 dias
+4. Usuário tem acesso a todos os módulos operacionais por 30 dias
          │
 5. No Painel do Proprietário, o card "Trial" incrementa
          │
@@ -389,7 +389,7 @@ Perde acesso         Acesso ativo
 ### Cenários de intervenção manual:
 
 - **Pagamento PIX não confirmado automaticamente**: Aprovar manualmente no Painel do Proprietário
-- **Usuário precisa de mais tempo de teste**: Estender trial (+7 dias)
+- **Usuário precisa de mais tempo de teste**: Estender trial (+30 dias)
 - **Parceiro ou cortesia**: Conceder acesso Vitalício diretamente
 - **Problema com assinante**: Revogar acesso
 

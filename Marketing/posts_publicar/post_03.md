@@ -20,10 +20,10 @@ Cruzar sem previsão é jogar no escuro. Hoje dá pra simular ANTES de formar o 
 
 Salva esse post e compartilha com aquele amigo criador. 🔖
 
-Teste grátis 7 dias — link na bio.
+Teste grátis 30 dias — link na bio.
 
 #plumar #geneticadeaves #mutacoes #canariodecor #criacaodeaves #simuladorgenetico #gestaodecriatório #aviculturabrasileira
 
 ## Primeiro comentário (bumper de engajamento)
 
-👉 plumar.com.br — 7 dias grátis sem cartão.
+👉 plumar.com.br — 30 dias grátis sem cartão.
