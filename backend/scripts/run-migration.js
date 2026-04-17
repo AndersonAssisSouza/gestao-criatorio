@@ -39,10 +39,36 @@ async function main() {
   }
 
   const sql = neon(url)
-  const statements = fs.readFileSync(abs, 'utf8')
-    .split(/;\s*$/m)
-    .map((s) => s.trim())
-    .filter((s) => s && !/^--/.test(s))
+  // 1) Remove comentários "--" linha-a-linha ANTES do split (senão blocos que
+  //    começam com comentário são descartados junto com o statement seguinte).
+  // 2) Divide em statements respeitando blocos $$ ... $$ (funções PL/pgSQL
+  //    têm ";" internos que NÃO devem quebrar o statement).
+  const raw = fs.readFileSync(abs, 'utf8')
+    .split(/\r?\n/)
+    .map((line) => line.replace(/--.*$/, ''))
+    .join('\n')
+
+  const statements = []
+  let buf = ''
+  let inDollar = false
+  for (let i = 0; i < raw.length; i++) {
+    const two = raw.substr(i, 2)
+    if (two === '$$') {
+      inDollar = !inDollar
+      buf += two
+      i++
+      continue
+    }
+    const ch = raw[i]
+    if (ch === ';' && !inDollar) {
+      const trimmed = buf.trim()
+      if (trimmed) statements.push(trimmed)
+      buf = ''
+    } else {
+      buf += ch
+    }
+  }
+  if (buf.trim()) statements.push(buf.trim())
 
   console.log(`Executando ${statements.length} statements de ${filePath}...`)
   for (const stmt of statements) {
