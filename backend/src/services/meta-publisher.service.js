@@ -93,15 +93,16 @@ async function publishFacebookVideo(post) {
   const pageId = env('META_PAGE_ID')
   const token = env('META_PAGE_ACCESS_TOKEN')
   const [videoUrl] = post.mediaUrls
-  // Publica como reel se mediaType=reel
-  const endpoint = post.mediaType === 'reel' ? `/${pageId}/video_reels` : `/${pageId}/videos`
-  const body = post.mediaType === 'reel'
-    ? { upload_phase: 'start', video_state: 'PUBLISHED' }
-    : { file_url: videoUrl, description: captionWithHashtags(post), published: true }
-  // NOTA: FB reels têm fluxo multi-etapa (start → upload → finish).
-  // Para simplificar, usa /videos com published:true que aceita file_url.
-  // Reels via file_url: POST /{page-id}/videos com descrição e o próprio FB converte.
-  const data = await graphRequest('POST', endpoint, body, token)
+  // O endpoint /video_reels exige fluxo multi-etapa (start → upload → finish)
+  // e NÃO aceita file_url direto num único POST — a implementação anterior só
+  // chamava "start" e deixava o reel como rascunho vazio. Usa /videos para
+  // todos os vídeos (inclusive reel): Graph API aceita file_url + published=true
+  // e o Facebook decide o formato de exibição. Funciona para Reel e vídeo comum.
+  const data = await graphRequest('POST', `/${pageId}/videos`, {
+    file_url: videoUrl,
+    description: captionWithHashtags(post),
+    published: true,
+  }, token)
   return data.id
 }
 

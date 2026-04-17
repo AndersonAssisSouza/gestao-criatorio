@@ -39,7 +39,11 @@ const PLAN = {
   10: { type: 'reel',     media: ['PLUMAR_Post10_Reel_3Funcionalidades.mp4'], when: '2026-04-28T19:00-03:00', platforms: ['facebook', 'instagram'] },
   11: { type: 'image',    media: ['PLUMAR_Post11_DicaManejo.png'],           when: '2026-04-30T08:00-03:00', platforms: ['facebook', 'instagram'] },
   12: { type: 'carousel', media: Array.from({ length: 7 }, (_, i) => `PLUMAR_Post12_Slide${i+1}.png`), when: '2026-05-02T11:00-03:00', platforms: ['facebook', 'instagram'] },
-  13: { type: 'reel',     media: ['PLUMAR_Post13_Depoimento.png'],           when: '2026-05-04T19:30-03:00', platforms: ['facebook', 'instagram'] },
+  // Post 13 originalmente planejado como Reel de depoimento em vídeo, mas a
+  // mídia disponível é um PNG. Tratamos como image para não quebrar a
+  // publicação automática; quando o vídeo real for produzido, trocar
+  // type:'reel' e media para o .mp4 e reaplicar o seed (upsert por external_key).
+  13: { type: 'image',    media: ['PLUMAR_Post13_Depoimento.png'],           when: '2026-05-04T19:30-03:00', platforms: ['facebook', 'instagram'] },
   14: { type: 'image',    media: ['PLUMAR_Post14_Urgencia.png'],             when: '2026-05-06T20:00-03:00', platforms: ['facebook', 'instagram'] },
 }
 
