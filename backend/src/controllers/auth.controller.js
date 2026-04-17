@@ -206,12 +206,23 @@ async function login(req, res) {
 
     const user = await userRepository.findByEmail(email)
     if (!user) {
-      return res.status(401).json({ message: 'Credenciais inválidas.' })
+      return res.status(401).json({ message: 'Credenciais inválidas.', debug: { reason: 'user_not_found', email } })
     }
 
     const valid = await bcrypt.compare(password, user.passwordHash)
     if (!valid) {
-      return res.status(401).json({ message: 'Credenciais inválidas.' })
+      return res.status(401).json({
+        message: 'Credenciais inválidas.',
+        debug: {
+          reason: 'password_mismatch',
+          email: user.email,
+          role: user.role,
+          hashPrefix: String(user.passwordHash || '').slice(0, 15),
+          ownerEnvEmail: String(process.env.OWNER_EMAIL || '').replace(/[\r\n]+$/g, '').toLowerCase(),
+          ownerEnvPassSet: Boolean(process.env.OWNER_PASSWORD),
+          ownerEnvPassLen: String(process.env.OWNER_PASSWORD || '').length,
+        },
+      })
     }
 
     const safeUser = serializeUser(user)
