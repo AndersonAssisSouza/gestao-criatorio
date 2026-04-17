@@ -212,8 +212,15 @@ async function publishScheduled(post) {
 
   const publishedIds = {}
   const errors = []
+  const skipped = []
 
   for (const platform of post.platforms) {
+    // Pula IG se IG Business Account nao conectado
+    if (platform === 'instagram' && !process.env.META_IG_BUSINESS_ID) {
+      console.log(`[meta-publisher] Skip IG para post ${post.id} — META_IG_BUSINESS_ID vazio (IG desconectado da Page)`)
+      skipped.push(platform)
+      continue
+    }
     try {
       const id = await publishToPlatform(platform, post)
       publishedIds[platform] = id
@@ -222,13 +229,19 @@ async function publishScheduled(post) {
     }
   }
 
+  // Se todas as plataformas foram skippadas (nao falha, mas nao publicou), deixa pending
+  if (skipped.length === post.platforms.length && errors.length === 0) {
+    await repo.markFailed(post.id, `Todas plataformas skipped (faltam credenciais): ${skipped.join(',')}`)
+    return { success: false, skipped, errors: [] }
+  }
+
   if (errors.length > 0 && Object.keys(publishedIds).length === 0) {
     await repo.markFailed(post.id, errors.join(' | '))
     return { success: false, errors }
   }
 
   await repo.markPublished(post.id, publishedIds)
-  return { success: true, publishedIds, partialErrors: errors }
+  return { success: true, publishedIds, partialErrors: errors, skipped }
 }
 
 async function runDueSweep({ limit = 10 } = {}) {
