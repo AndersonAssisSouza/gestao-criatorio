@@ -1,8 +1,23 @@
 const { TRIAL_DAYS, FREE_TIER_LIMITS } = require('../config/subscription.config')
 
-const OWNER_EMAIL = (process.env.OWNER_EMAIL || '').trim().toLowerCase()
-const OWNER_NAME = process.env.OWNER_NAME || 'Anderson Assis'
-const OWNER_ACCESS_KEY = process.env.OWNER_ACCESS_KEY || 'anderson'
+// Lazy getters — em Cloudflare Workers process.env não está populado no require()
+// do bundle; só dentro do handler da request. Avaliar eager aqui deixa as
+// constantes como string vazia em produção e quebra o owner bootstrap.
+function cleanEnv(raw) {
+  return String(raw ?? '').replace(/[\r\n]+$/g, '').trim()
+}
+function getOwnerEmail() {
+  return cleanEnv(process.env.OWNER_EMAIL).toLowerCase()
+}
+function getOwnerName() {
+  return cleanEnv(process.env.OWNER_NAME) || 'Anderson Assis'
+}
+function getOwnerAccessKey() {
+  return cleanEnv(process.env.OWNER_ACCESS_KEY) || 'anderson'
+}
+function getOwnerPassword() {
+  return cleanEnv(process.env.OWNER_PASSWORD)
+}
 
 function toIso(value) {
   return new Date(value).toISOString()
@@ -196,21 +211,24 @@ function buildAccessSummary(user) {
 }
 
 function getOwnerSeed() {
-  if (!OWNER_EMAIL || !process.env.OWNER_PASSWORD) {
+  const email = getOwnerEmail()
+  const password = getOwnerPassword()
+  if (!email || !password) {
     return null
   }
 
   return {
-    name: OWNER_NAME,
-    email: OWNER_EMAIL,
-    password: process.env.OWNER_PASSWORD,
+    name: getOwnerName(),
+    email,
+    password,
     role: 'owner',
-    accessKey: OWNER_ACCESS_KEY,
+    accessKey: getOwnerAccessKey(),
   }
 }
 
 function isOwnerEmail(email = '') {
-  return OWNER_EMAIL && String(email).trim().toLowerCase() === OWNER_EMAIL
+  const owner = getOwnerEmail()
+  return Boolean(owner) && String(email).trim().toLowerCase() === owner
 }
 
 module.exports = {
