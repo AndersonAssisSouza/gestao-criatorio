@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { StatCard } from '../../shared/StatCard'
 import { cuponsService } from '../../../services/cupons.service'
+import { KitDivulgacao } from './KitDivulgacao'
 
 function brl(value) {
   const n = Number(value || 0)
@@ -241,6 +242,9 @@ export function IndicacoesModule() {
                 </button>
               </div>
             </div>
+
+            {/* Kit de divulgação */}
+            <KitDivulgacao cupom={p.cupom} />
 
             {/* Indicações */}
             <div style={{ marginTop: 16 }}>

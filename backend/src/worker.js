@@ -530,8 +530,9 @@ app.route('/api/mutacoes', mutacoes)
 // ===========================================================================
 const cupons = new Hono()
 
-// Rota de validação de cupom — pública (sem auth). Antifraude aplicada no checkout.
+// Rotas públicas (sem auth)
 cupons.get('/validar', wrapMiddleware(apiLimiter), wrapHandler(cuponsController.validarCupomPublico))
+cupons.get('/ranking', wrapMiddleware(apiLimiter), wrapHandler(cuponsController.rankingPublico))
 
 // Demais rotas — autenticadas
 cupons.use('/*', wrapMiddleware(authMiddleware))
@@ -541,6 +542,7 @@ cupons.use('/*', wrapMiddleware(apiLimiter))
 cupons.get('/meu-programa', wrapHandler(cuponsController.meuPrograma))
 cupons.post('/meu-programa/:id/solicitar-payout', wrapHandler(cuponsController.solicitarPayout))
 
+cupons.get('/payout-requests', wrapMiddleware(requireOwner), wrapHandler(cuponsController.listPayoutRequestsAdmin))
 cupons.get('/', wrapMiddleware(requireOwner), wrapHandler(cuponsController.listCuponsAdmin))
 cupons.post('/', wrapMiddleware(requireOwner), wrapHandler(cuponsController.createCupomAdmin))
 cupons.get('/:id', wrapMiddleware(requireOwner), wrapHandler(cuponsController.detalhesCupomAdmin))

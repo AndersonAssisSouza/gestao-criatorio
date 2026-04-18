@@ -1,6 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BRAND } from '../../brand'
+import { cuponsService } from '../../services/cupons.service'
 import './LandingPage.css'
+
+const TIER_COLOR = { bronze: '#BCAAA4', prata: '#90A4AE', ouro: '#F5A623' }
+const MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' }
 
 const TIERS = [
   {
@@ -40,6 +44,11 @@ export function AfiliadosPage({ onGoToLogin }) {
   const [name, setName] = useState('')
   const [mensagem, setMensagem] = useState('')
   const [enviado, setEnviado] = useState(false)
+  const [ranking, setRanking] = useState(null)
+
+  useEffect(() => {
+    cuponsService.ranking().then(setRanking).catch(() => {})
+  }, [])
 
   const mailto = () => {
     const subject = encodeURIComponent('Quero ser captador PLUMAR')
@@ -162,6 +171,50 @@ Aguardo meu código personalizado.`
           </p>
         </div>
       </section>
+
+      {/* RANKING */}
+      {ranking && ranking.top?.length > 0 && (
+        <section className="lp-section">
+          <h2 className="lp-section__title">🏆 Top captadores do PLUMAR</h2>
+          <p className="lp-section__sub">
+            {ranking.stats.totalCaptadores} captador{ranking.stats.totalCaptadores !== 1 ? 'es' : ''} já estão ganhando.
+            Juntos geraram <strong>{ranking.stats.totalIndicacoes}</strong> indicaç{ranking.stats.totalIndicacoes !== 1 ? 'ões' : 'ão'}.
+          </p>
+          <div style={{ maxWidth: 700, margin: '30px auto 0' }}>
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '60px 1fr 120px 120px', padding: '14px 18px', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.5)', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                <div>Pos</div><div>Captador</div><div style={{ textAlign: 'center' }}>Tier</div><div style={{ textAlign: 'right' }}>Indicações</div>
+              </div>
+              {ranking.top.map((r) => (
+                <div key={r.posicao} style={{
+                  display: 'grid', gridTemplateColumns: '60px 1fr 120px 120px',
+                  padding: '14px 18px', alignItems: 'center',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                  background: r.posicao <= 3 ? `rgba(245,166,35,${0.15 - r.posicao * 0.03})` : 'transparent',
+                }}>
+                  <div style={{ fontSize: 22, fontWeight: 700, color: r.posicao <= 3 ? '#FFD180' : '#fff' }}>
+                    {MEDAL[r.posicao] || `${r.posicao}º`}
+                  </div>
+                  <div style={{ color: '#fff', fontWeight: r.posicao <= 3 ? 700 : 500 }}>
+                    {r.nome}
+                  </div>
+                  <div style={{ textAlign: 'center' }}>
+                    <span style={{ background: TIER_COLOR[r.tier] || '#888', color: '#000', padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 700, textTransform: 'uppercase' }}>
+                      {r.tier}
+                    </span>
+                  </div>
+                  <div style={{ textAlign: 'right', color: '#fff', fontWeight: 700, fontSize: 18 }}>
+                    {r.totalIndicacoes}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>
+              Atualizado em tempo real · Nomes parcialmente ocultos por privacidade
+            </p>
+          </div>
+        </section>
+      )}
 
       {/* FORM / CTA */}
       <section className="lp-section lp-section--cta" id="inscrever">

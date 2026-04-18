@@ -4,6 +4,8 @@ const USE_MOCK = !import.meta.env.VITE_API_URL
 
 const mock = {
   async validate() { return { valido: false, message: 'Mock sem cupons.' } },
+  async ranking() { return { top: [], stats: { totalCaptadores: 0, totalIndicacoes: 0 } } },
+  async payoutRequests() { return { pedidos: [], pendentes: [], totalPendentes: 0, totalValorPendente: 0 } },
   async listAdmin() { return { items: [], tiers: {}, rules: {} } },
   async detalhes() { return null },
   async create() { return null },
@@ -17,6 +19,14 @@ const mock = {
 const real = {
   async validate(codigo, plano) {
     const { data } = await api.get('/api/cupons/validar', { params: { codigo, plano } })
+    return data
+  },
+  async ranking() {
+    const { data } = await api.get('/api/cupons/ranking')
+    return data
+  },
+  async payoutRequests() {
+    const { data } = await api.get('/api/cupons/payout-requests')
     return data
   },
   async listAdmin() {

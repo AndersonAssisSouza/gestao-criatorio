@@ -135,7 +135,37 @@ async function registrarPayoutAdmin(req, res) {
       descricao: req.body.descricao || `Pagamento via PIX para ${cupom.captadorNome}`,
     })
 
+    // Marca pedidos pendentes desse cupom como pagos (até cobrir o valor)
+    const movimentos = await cuponsRepository.listMovimentosByCupomId(cupom.id)
+    const pendentes = movimentos
+      .filter((m) => m.tipo === 'adjust' && String(m.descricao || '').includes('Saque solicitado') && !String(m.descricao).includes('✅ PAGO'))
+      .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+
+    let restante = valor
+    for (const p of pendentes) {
+      if (restante <= 0) break
+      const match = String(p.descricao).match(/R\$\s*([\d.,]+)/)
+      const pedidoValor = match ? Number(String(match[1]).replace(/\./g, '').replace(',', '.')) : 0
+      if (pedidoValor <= restante + 0.01) {
+        // Atualizar o movimento via update genérico (não temos — vamos criar adjust marcando)
+        await cuponsRepository.createMovimento({
+          cupomId: cupom.id,
+          cupomCodigo: cupom.codigo,
+          tipo: 'adjust',
+          valor: 0,
+          descricao: `✅ PAGO — pedido ${p.id.slice(0, 8)} quitado`,
+          indicacaoId: p.id,
+        })
+        restante -= pedidoValor
+      }
+    }
+
     const novoSaldo = await cuponsRepository.calcularSaldo(cupom.id)
+    // Atualiza totalPago no cupom
+    await cuponsRepository.updateCupom(cupom.id, {
+      totalPago: Math.round(((cupom.totalPago || 0) + valor) * 100) / 100,
+    })
+
     return res.json({ saldo: novoSaldo, message: 'Pagamento registrado.' })
   } catch (error) {
     console.error('[cupons/payout]', error)
@@ -378,6 +408,106 @@ async function solicitarPayout(req, res) {
   }
 }
 
+// ─── RANKING PÚBLICO ─────────────────────────────────────────────────────────
+
+function maskName(name = '') {
+  const s = String(name || '').trim()
+  if (!s) return 'Captador Anônimo'
+  const parts = s.split(/\s+/)
+  if (parts.length === 1) {
+    // "Fulano" → "F****"
+    return parts[0][0] + '*'.repeat(Math.max(3, parts[0].length - 1))
+  }
+  // "Fulano da Silva" → "Fulano S."
+  const first = parts[0]
+  const lastInitial = parts[parts.length - 1][0]
+  return `${first} ${lastInitial}.`
+}
+
+async function rankingPublico(_, res) {
+  try {
+    const cupons = await cuponsRepository.listCupons()
+    const ativos = cupons.filter((c) => c.status === 'ativo')
+
+    // Ordena por totalIndicacoes desc, depois totalCreditado desc
+    ativos.sort((a, b) => {
+      const ai = Number(b.totalIndicacoes || 0) - Number(a.totalIndicacoes || 0)
+      if (ai !== 0) return ai
+      return Number(b.totalCreditado || 0) - Number(a.totalCreditado || 0)
+    })
+
+    const top = ativos.slice(0, 10).map((c, idx) => ({
+      posicao: idx + 1,
+      nome: maskName(c.captadorNome),
+      tier: c.tier,
+      totalIndicacoes: c.totalIndicacoes || 0,
+      // Não retornamos valores monetários exatos em público — só faixa
+      faixaGanho: Number(c.totalCreditado || 0) > 0
+        ? Number(c.totalCreditado || 0) >= 500
+          ? 'R$ 500+'
+          : Number(c.totalCreditado || 0) >= 100
+            ? 'R$ 100-500'
+            : 'até R$ 100'
+        : '—',
+    }))
+
+    const totalCaptadores = ativos.length
+    const totalIndicacoes = ativos.reduce((s, c) => s + (c.totalIndicacoes || 0), 0)
+
+    return res.json({
+      top,
+      stats: { totalCaptadores, totalIndicacoes },
+    })
+  } catch (error) {
+    console.error('[cupons/ranking]', error)
+    return res.status(500).json({ message: 'Erro ao carregar ranking.' })
+  }
+}
+
+// ─── PEDIDOS DE SAQUE PENDENTES (admin) ──────────────────────────────────────
+
+async function listPayoutRequestsAdmin(_, res) {
+  try {
+    const movimentos = await cuponsRepository.listMovimentos()
+    const cupons = await cuponsRepository.listCupons()
+
+    // IDs de pedidos já marcados como pagos
+    const idsPagos = new Set(
+      movimentos
+        .filter((m) => m.tipo === 'adjust' && String(m.descricao || '').includes('✅ PAGO') && m.indicacaoId)
+        .map((m) => m.indicacaoId)
+    )
+
+    const pedidos = movimentos
+      .filter((m) => m.tipo === 'adjust' && String(m.descricao || '').includes('Saque solicitado'))
+      .map((m) => {
+        const cupom = cupons.find((c) => c.id === m.cupomId)
+        const match = String(m.descricao).match(/R\$\s*([\d.,]+)/)
+        const valor = match ? Number(String(match[1]).replace(/\./g, '').replace(',', '.')) : 0
+        return {
+          id: m.id,
+          createdAt: m.createdAt,
+          cupomId: m.cupomId,
+          cupomCodigo: m.cupomCodigo,
+          captadorNome: cupom?.captadorNome,
+          captadorEmail: cupom?.captadorEmail,
+          pixChave: cupom?.pixChave,
+          valor,
+          descricao: m.descricao,
+          pago: idsPagos.has(m.id),
+        }
+      })
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+    const pendentes = pedidos.filter((p) => !p.pago)
+
+    return res.json({ pedidos, pendentes, totalPendentes: pendentes.length, totalValorPendente: pendentes.reduce((s, p) => s + p.valor, 0) })
+  } catch (error) {
+    console.error('[cupons/payout-requests]', error)
+    return res.status(500).json({ message: 'Erro ao carregar pedidos.' })
+  }
+}
+
 // ─── PAINEL DO CAPTADOR: meus cupons + saldo ────────────────────────────────
 
 async function meuPrograma(req, res) {
@@ -414,9 +544,12 @@ module.exports = {
   detalhesCupomAdmin,
   // público
   validarCupomPublico,
+  rankingPublico,
   // captador
   meuPrograma,
   solicitarPayout,
+  // admin extra
+  listPayoutRequestsAdmin,
   // helper interno
   registrarIndicacaoPaga,
   verificarEPromoverTier,

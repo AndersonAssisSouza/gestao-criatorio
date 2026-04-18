@@ -30,6 +30,7 @@ export function CuponsPanel() {
   const [rules, setRules] = useState({})
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [pedidosPendentes, setPedidosPendentes] = useState([])
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -43,15 +44,33 @@ export function CuponsPanel() {
   const loadData = async () => {
     setLoading(true)
     try {
-      const response = await cuponsService.listAdmin()
+      const [response, pedidos] = await Promise.all([
+        cuponsService.listAdmin(),
+        cuponsService.payoutRequests().catch(() => ({ pendentes: [] })),
+      ])
       setCupons(response.items || [])
       setTiers(response.tiers || {})
       setRules(response.rules || {})
+      setPedidosPendentes(pedidos.pendentes || [])
       setError('')
     } catch (e) {
       setError(e.response?.data?.message || 'Erro ao carregar cupons.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const resolverPedido = async (pedido) => {
+    if (!confirm(`Confirmar pagamento de ${brl(pedido.valor)} para ${pedido.captadorNome} via PIX ${pedido.pixChave}?`)) return
+    try {
+      await cuponsService.payout(pedido.cupomId, {
+        valor: pedido.valor,
+        descricao: `Pagamento PIX — pedido ${pedido.id.slice(0, 8)}`,
+      })
+      setSuccess(`Pagamento de ${brl(pedido.valor)} registrado.`)
+      await loadData()
+    } catch (e) {
+      setError(e.response?.data?.message || 'Erro ao registrar pagamento.')
     }
   }
 
@@ -186,6 +205,63 @@ export function CuponsPanel() {
     <div style={{ padding: '0 4px' }}>
       {error && <div style={{ ...CARD, background: '#FDECEA', color: '#B71C1C', marginBottom: 12 }}>{error}</div>}
       {success && <div style={{ ...CARD, background: '#E8F5E9', color: '#1B5E20', marginBottom: 12 }}>{success}</div>}
+
+      {pedidosPendentes.length > 0 && (
+        <div style={{
+          ...CARD,
+          background: 'linear-gradient(135deg, #FFF3E0, #FFE0B2)',
+          borderColor: '#FB8C00',
+          marginBottom: 16,
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+            <div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#E65100' }}>
+                💸 {pedidosPendentes.length} pedido{pedidosPendentes.length > 1 ? 's' : ''} de saque pendente{pedidosPendentes.length > 1 ? 's' : ''}
+              </div>
+              <div style={{ fontSize: 12, color: '#6D4C41', marginTop: 2 }}>
+                Faça o PIX manualmente e clique em "Marcar como pago" abaixo.
+              </div>
+            </div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: '#E65100' }}>
+              {brl(pedidosPendentes.reduce((s, p) => s + p.valor, 0))}
+            </div>
+          </div>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {pedidosPendentes.map((p) => (
+              <div key={p.id} style={{
+                padding: 10, background: 'rgba(255,255,255,0.7)',
+                borderRadius: 6, display: 'grid',
+                gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'center',
+                fontSize: 13,
+              }}>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#333' }}>
+                    {p.captadorNome} <span style={{ fontFamily: 'monospace', fontSize: 11, color: '#6D4C41' }}>· {p.cupomCodigo}</span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>
+                    <strong>PIX:</strong> <code style={{ background: 'rgba(0,0,0,0.05)', padding: '1px 6px', borderRadius: 3 }}>{p.pixChave || 'Não informada'}</code>
+                    {' · '}
+                    <strong>Valor:</strong> {brl(p.valor)}
+                    {' · '}
+                    <span style={{ color: '#999' }}>{formatDateTime(p.createdAt)}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => resolverPedido(p)}
+                  style={{
+                    background: '#2E7D32', color: '#fff', border: 'none',
+                    padding: '8px 14px', borderRadius: 6, fontSize: 12,
+                    fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap',
+                  }}
+                >
+                  ✓ Marcar como pago
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="p-stats">
         <StatCard label="Cupons" value={stats.totalCupons} desc="cadastrados" color="#C95025" />
