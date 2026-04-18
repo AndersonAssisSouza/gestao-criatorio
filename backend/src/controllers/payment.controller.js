@@ -19,9 +19,14 @@ function verifyMercadoPagoSignature(req, dataId) {
   const secret = config.mercadoPago.webhookSecret
 
   if (!secret) {
-    // Modo degradado: sem secret configurado, aceita (log warn).
-    // Em produção com secret ausente, admin deve configurar.
-    console.warn('[payments/webhook] MERCADOPAGO_WEBHOOK_SECRET ausente — aceitando sem validação HMAC')
+    // Fail-closed em produção (não aceita sem secret).
+    // Em dev, aceita para facilitar testes locais.
+    const isProd = String(process.env.NODE_ENV || '').trim().toLowerCase() === 'production'
+    if (isProd) {
+      console.error('[payments/webhook] MERCADOPAGO_WEBHOOK_SECRET ausente em produção — rejeitando')
+      return false
+    }
+    console.warn('[payments/webhook] MERCADOPAGO_WEBHOOK_SECRET ausente — modo dev, aceitando')
     return true
   }
 
