@@ -124,7 +124,7 @@ export function IndicacoesModule() {
         <h2 className="module-hero__title">Você ainda não é um captador</h2>
         <div className="module-hero__text">
           Quer divulgar o PLUMAR e ganhar comissão recorrente a cada indicação que virar assinatura?
-          Entre em contato com o proprietário pelo e-mail <strong>anderson.assis@lumaplataforma.com.br</strong> para
+          Entre em contato com o proprietário pelo e-mail <strong>plumarapp@plumar.com.br</strong> para
           receber seu cupom personalizado.
         </div>
         <div style={{ marginTop: 20, padding: 16, background: 'var(--accent-ghost)', borderRadius: 12, fontSize: 13 }}>

@@ -63,7 +63,7 @@ ${mensagem || '(conte onde vai compartilhar: Instagram, YouTube, grupo de criado
 
 Aguardo meu código personalizado.`
     )
-    window.location.href = `mailto:anderson.assis@lumaplataforma.com.br?subject=${subject}&body=${body}`
+    window.location.href = `mailto:plumarapp@plumar.com.br?subject=${subject}&body=${body}`
     setEnviado(true)
   }
 
@@ -239,7 +239,7 @@ Aguardo meu código personalizado.`
           </button>
           {enviado && (
             <div style={{ marginTop: 14, padding: 12, background: 'rgba(255,255,255,0.15)', color: '#fff', borderRadius: 8, fontSize: 13, textAlign: 'center' }}>
-              ✉️ Se o seu cliente de e-mail não abriu, envie direto para <strong>anderson.assis@lumaplataforma.com.br</strong>
+              ✉️ Se o seu cliente de e-mail não abriu, envie direto para <strong>plumarapp@plumar.com.br</strong>
             </div>
           )}
         </div>
