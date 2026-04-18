@@ -131,22 +131,16 @@ async function ensureOwnerUser() {
   const ownerSeed = getOwnerSeed()
   if (!ownerSeed) return null
 
-  // OTIMIZAÇÃO: só faz bcrypt.hash (caro) se necessário
+  // OTIMIZAÇÃO: se owner já existe, retorna imediatamente.
+  // (A verificação de senha será feita no login normal)
   const existingUser = await userRepository.findByEmail(ownerSeed.email)
-
-  if (existingUser && existingUser.role === 'owner' && existingUser.passwordHash) {
-    // Verifica se a senha do env bate com o hash atual. Se sim, nada a fazer.
-    try {
-      const match = await bcrypt.compare(ownerSeed.password, existingUser.passwordHash)
-      if (match) {
-        return existingUser
-      }
-    } catch (_) { /* hash inválido, vai reescrever */ }
+  if (existingUser && existingUser.role === 'owner') {
+    return existingUser
   }
 
-  // Senha do env mudou ou owner não existe → re-hash e upsert
-  const passwordHash = await bcrypt.hash(ownerSeed.password, 12)
-  const existing = await userRepository.ensureUser({
+  // Owner não existe → cria (bootstrap). Usa cost 10 para performance.
+  const passwordHash = await bcrypt.hash(ownerSeed.password, 10)
+  const created = await userRepository.ensureUser({
     name: ownerSeed.name,
     email: ownerSeed.email,
     passwordHash,
@@ -155,7 +149,7 @@ async function ensureOwnerUser() {
     profile: createLifetimeProfile(),
   })
 
-  await userRepository.updateUser(existing.id, (current) => ({
+  await userRepository.updateUser(created.id, (current) => ({
     ...current,
     name: ownerSeed.name,
     role: 'owner',
@@ -164,7 +158,7 @@ async function ensureOwnerUser() {
     ...createLifetimeProfile(current.createdAt || new Date().toISOString()),
   }))
 
-  return existing
+  return created
 }
 
 async function register(req, res) {
