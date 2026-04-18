@@ -6,6 +6,8 @@ const { createPixPayload, normalizePaymentMethod, validateCardCheckout } = requi
 const { notifyContractRelease, notifyCancellation } = require('../services/subscription-notification.service')
 const { getCheckoutAvailability } = require('../config/payment-gateway.config')
 const { createCheckoutPreference, getPaymentById } = require('../services/mercadopago.service')
+const cuponsRepository = require('../repositories/cupons.repository')
+const cuponsController = require('./cupons.controller')
 const { settleMercadoPagoPayment } = require('./payment.controller')
 
 function serializeUser(user) {
@@ -60,7 +62,30 @@ async function createCheckout(req, res) {
     return res.status(400).json({ message: 'A conta proprietária não precisa realizar pagamento.' })
   }
 
-  const amount = SUBSCRIPTION_PRICING[plan] ?? 0
+  const valorOriginal = SUBSCRIPTION_PRICING[plan] ?? 0
+  let amount = valorOriginal
+  let cupomAplicado = null
+  let descontoAplicado = 0
+
+  // Aplicar cupom (se fornecido)
+  const codigoCupom = String(req.body?.cupom || '').trim()
+  if (codigoCupom) {
+    const cupom = await cuponsRepository.findCupomByCodigo(codigoCupom)
+    if (cupom && cupom.status === 'ativo') {
+      const mesmoEmail = cupom.captadorEmail && cupom.captadorEmail === String(req.currentUser.email || '').toLowerCase()
+      if (!mesmoEmail) {
+        const preview = cuponsController.calcularDesconto(cupom, plan)
+        amount = preview.valorFinal
+        descontoAplicado = preview.desconto
+        cupomAplicado = {
+          codigo: cupom.codigo,
+          captadorNome: cupom.captadorNome,
+          descontoPercentual: cupom.descontoPercentual,
+        }
+      }
+    }
+  }
+
   const now = new Date().toISOString()
   const checkoutAvailability = getCheckoutAvailability()
 
@@ -70,10 +95,13 @@ async function createCheckout(req, res) {
     customerEmail: req.currentUser.email,
     plan,
     amount,
+    valorOriginal,
+    descontoAplicado,
+    cupomCodigo: cupomAplicado?.codigo || null,
     method,
     status: checkoutAvailability.configured ? 'redirect_pending' : method === 'pix' ? 'awaiting_payment' : 'processing',
     initiatedAt: now,
-    notes: 'Checkout iniciado pelo próprio cliente.',
+    notes: cupomAplicado ? `Checkout com cupom ${cupomAplicado.codigo} (-${cupomAplicado.descontoPercentual}%).` : 'Checkout iniciado pelo próprio cliente.',
   }
 
   if (!checkoutAvailability.configured && method === 'pix') {
@@ -144,6 +172,22 @@ async function createCheckout(req, res) {
       validUntil: access.expiresAt,
       recordedBy: 'checkout_cartao_interno',
     }))
+
+    // Registrar indicação se houver cupom
+    if (cupomAplicado) {
+      try {
+        await cuponsController.registrarIndicacaoPaga({
+          codigoCupom: cupomAplicado.codigo,
+          usuarioId: updatedUser.id,
+          usuarioEmail: updatedUser.email,
+          paymentId: payment.id,
+          plano: plan,
+          valorPagoLiquido: amount,
+        })
+      } catch (error) {
+        console.error('[access/createCheckout/card/cupom]', error)
+      }
+    }
 
     let notifications = []
     try {
@@ -219,6 +263,22 @@ async function confirmInternalPayment(req, res) {
     validUntil: access.expiresAt,
     recordedBy: 'checkout_interno_confirmado',
   }))
+
+  // Registrar indicação se pagamento tinha cupom
+  if (payment.cupomCodigo) {
+    try {
+      await cuponsController.registrarIndicacaoPaga({
+        codigoCupom: payment.cupomCodigo,
+        usuarioId: updatedUser.id,
+        usuarioEmail: updatedUser.email,
+        paymentId: updatedPayment.id,
+        plano: payment.plan,
+        valorPagoLiquido: payment.amount,
+      })
+    } catch (error) {
+      console.error('[access/confirmInternalPayment/cupom]', error)
+    }
+  }
 
   let notifications = []
   try {
@@ -374,6 +434,22 @@ async function approvePayment(req, res) {
     recordedBy: req.currentUser.email,
     notes: [current.notes, notes].filter(Boolean).join(' | '),
   }))
+
+  // Registrar indicação se pagamento tinha cupom
+  if (existingPayment.cupomCodigo) {
+    try {
+      await cuponsController.registrarIndicacaoPaga({
+        codigoCupom: existingPayment.cupomCodigo,
+        usuarioId: updatedUser.id,
+        usuarioEmail: updatedUser.email,
+        paymentId: payment.id,
+        plano: existingPayment.plan,
+        valorPagoLiquido: existingPayment.amount,
+      })
+    } catch (error) {
+      console.error('[access/approvePayment/cupom]', error)
+    }
+  }
 
   let notifications = []
   try {

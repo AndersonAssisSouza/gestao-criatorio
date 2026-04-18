@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { StatCard } from '../../shared/StatCard'
 import { useAuth } from '../../../context/AuthContext'
 import { accessService } from '../../../services/access.service'
+import { cuponsService } from '../../../services/cupons.service'
 import { SUBSCRIPTION_PRICING, formatSubscriptionPrice } from '../../../config/subscription'
 
 const PLAN_OPTIONS = [
@@ -40,6 +41,28 @@ export function AssinaturaModule() {
   const [method, setMethod] = useState('pix')
   const [copyFeedback, setCopyFeedback] = useState('')
   const [card, setCard] = useState({ name: user?.name || '', number: '', month: '', year: '', cvc: '' })
+  // Cupom
+  const [cupomInput, setCupomInput] = useState('')
+  const [cupomAplicado, setCupomAplicado] = useState(null) // { codigo, captadorNome, descontoPercentual, preview }
+  const [cupomError, setCupomError] = useState('')
+  const [cupomLoading, setCupomLoading] = useState(false)
+
+  // Capturar cupom da URL (ex: ?cupom=FULANO15) ou do localStorage (persistido no primeiro acesso)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const fromUrl = params.get('cupom')
+    const fromStorage = localStorage.getItem('plumar_cupom_ref')
+    const codigo = (fromUrl || fromStorage || '').trim().toUpperCase()
+    if (codigo && !cupomAplicado && !cupomInput) {
+      setCupomInput(codigo)
+      if (fromUrl) localStorage.setItem('plumar_cupom_ref', codigo)
+      // auto-aplicar
+      cuponsService.validate(codigo, selectedPlan)
+        .then((r) => { if (r?.valido) setCupomAplicado({ ...r.cupom, preview: r.preview }) })
+        .catch(() => {})
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const loadAccess = async () => {
     setLoading(true)
@@ -82,7 +105,8 @@ export function AssinaturaModule() {
   const usesGateway = Boolean(checkoutInfo?.configured)
   const sorted = useMemo(() => [...payments].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)), [payments])
   const activeCheckout = sorted.find(p => ['redirect_pending', 'awaiting_payment', 'processing'].includes(p.status)) || null
-  const price = SUBSCRIPTION_PRICING[selectedPlan] ?? 0
+  const priceOriginal = SUBSCRIPTION_PRICING[selectedPlan] ?? 0
+  const price = cupomAplicado?.preview?.valorFinal ?? priceOriginal
   const hasActivePlan = access.accessGranted && access.status === 'active' && ['monthly', 'annual'].includes(access.plan)
 
   const stats = useMemo(() => [
@@ -93,6 +117,44 @@ export function AssinaturaModule() {
 
   const cardValid = card.name.length > 2 && card.number.replace(/\D/g, '').length >= 13 && card.month && card.year && card.cvc.length >= 3
 
+  const aplicarCupom = async () => {
+    setCupomError('')
+    const codigo = cupomInput.trim().toUpperCase()
+    if (!codigo) { setCupomError('Informe o código.'); return }
+    setCupomLoading(true)
+    try {
+      const r = await cuponsService.validate(codigo, selectedPlan)
+      if (r?.valido) {
+        setCupomAplicado({ ...r.cupom, preview: r.preview })
+        setCupomError('')
+      } else {
+        setCupomAplicado(null)
+        setCupomError(r?.message || 'Cupom inválido.')
+      }
+    } catch (e) {
+      setCupomAplicado(null)
+      setCupomError(e.response?.data?.message || 'Cupom inválido.')
+    } finally {
+      setCupomLoading(false)
+    }
+  }
+
+  const removerCupom = () => {
+    setCupomAplicado(null)
+    setCupomInput('')
+    setCupomError('')
+  }
+
+  // Re-aplicar cupom se mudou plano
+  useEffect(() => {
+    if (cupomAplicado?.codigo) {
+      // atualiza preview mantendo cupom
+      cuponsService.validate(cupomAplicado.codigo, selectedPlan)
+        .then((r) => { if (r?.valido) setCupomAplicado({ ...r.cupom, preview: r.preview }) })
+        .catch(() => {})
+    }
+  }, [selectedPlan])
+
   const handleCheckout = async () => {
     if (method === 'card' && !cardValid) {
       setError('Preencha todos os campos do cartão corretamente.')
@@ -101,6 +163,7 @@ export function AssinaturaModule() {
     setSubmitting(true); setError(''); setSuccess(''); setCopyFeedback('')
     try {
       const payload = { plan: selectedPlan, method }
+      if (cupomAplicado?.codigo) payload.cupom = cupomAplicado.codigo
       if (method === 'card') Object.assign(payload, { cardHolderName: card.name, cardNumber: card.number.replace(/\D/g, ''), expiryMonth: card.month, expiryYear: card.year, cvc: card.cvc })
       const r = await accessService.createCheckout(payload)
 
@@ -199,6 +262,53 @@ export function AssinaturaModule() {
                   <div className="text-muted" style={{ fontSize: 13 }}>{p.text}</div>
                 </button>
               ))}
+            </div>
+
+            {/* Cupom de desconto */}
+            <div className="billing-card" style={{ background: 'var(--bg-panel-solid)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div>
+                  <div className="text-faint" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 1 }}>Cupom de desconto</div>
+                  <strong style={{ fontSize: 14 }}>Tem um código de indicação?</strong>
+                </div>
+              </div>
+
+              {!cupomAplicado ? (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input
+                    type="text"
+                    value={cupomInput}
+                    onChange={(e) => { setCupomInput(e.target.value.toUpperCase()); setCupomError('') }}
+                    placeholder="Digite seu cupom"
+                    style={{
+                      flex: 1, padding: '10px 14px', border: '1px solid var(--line-soft)',
+                      borderRadius: 8, background: 'var(--bg)', color: 'var(--text)',
+                      fontSize: 14, fontFamily: 'monospace', textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                    onKeyDown={(e) => e.key === 'Enter' && aplicarCupom()}
+                  />
+                  <button type="button" onClick={aplicarCupom} disabled={cupomLoading} className="p-btn p-btn--ghost">
+                    {cupomLoading ? 'Validando…' : 'Aplicar'}
+                  </button>
+                </div>
+              ) : (
+                <div style={{ padding: 12, background: '#E8F5E9', border: '1px solid #4CAF7D', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 13, color: '#1B5E20' }}>
+                      ✓ Cupom <strong style={{ fontFamily: 'monospace' }}>{cupomAplicado.codigo}</strong> aplicado
+                    </div>
+                    <div style={{ fontSize: 12, color: '#2E7D32', marginTop: 2 }}>
+                      {cupomAplicado.descontoPercentual}% OFF • você economiza {formatSubscriptionPrice(cupomAplicado.preview?.desconto || 0)}
+                      {cupomAplicado.captadorNome && ` • indicado por ${cupomAplicado.captadorNome}`}
+                    </div>
+                  </div>
+                  <button type="button" onClick={removerCupom} style={{ background: 'none', border: 'none', color: '#B71C1C', cursor: 'pointer', fontSize: 12, textDecoration: 'underline' }}>
+                    Remover
+                  </button>
+                </div>
+              )}
+              {cupomError && <div style={{ marginTop: 6, fontSize: 12, color: '#B71C1C' }}>{cupomError}</div>}
             </div>
 
             {/* Método */}

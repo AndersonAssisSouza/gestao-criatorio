@@ -16,6 +16,7 @@ const aneisController = require('./controllers/aneis.controller')
 const sharepointImportController = require('./controllers/sharepoint-import.controller')
 const speciesController = require('./controllers/species.controller')
 const mutacoesController = require('./controllers/mutacoes.controller')
+const cuponsController = require('./controllers/cupons.controller')
 
 const authMiddleware = require('./middleware/auth.middleware')
 const csrfProtection = require('./middleware/csrf.middleware')
@@ -523,6 +524,41 @@ mutacoes.get('/', wrapHandler(mutacoesController.list))
 mutacoes.post('/', wrapHandler(mutacoesController.create))
 
 app.route('/api/mutacoes', mutacoes)
+
+// ===========================================================================
+//  CUPONS routes — /api/cupons
+// ===========================================================================
+const cupons = new Hono()
+
+// Rota de validação de cupom: aceita usuário logado OU anônimo (para checkout pré-login)
+cupons.get('/validar', wrapMiddleware(apiLimiter), async (c, next) => {
+  // Tenta autenticar sem bloquear
+  try {
+    await new Promise((resolve) => {
+      wrapMiddleware(authMiddleware)(c, resolve).catch(() => resolve())
+    })
+    await new Promise((resolve) => {
+      wrapMiddleware(attachCurrentUser)(c, resolve).catch(() => resolve())
+    })
+  } catch (_) { /* ignore */ }
+  return wrapHandler(cuponsController.validarCupomPublico)(c)
+})
+
+// Demais rotas — autenticadas
+cupons.use('/*', wrapMiddleware(authMiddleware))
+cupons.use('/*', wrapMiddleware(attachCurrentUser))
+cupons.use('/*', wrapMiddleware(apiLimiter))
+
+cupons.get('/meu-programa', wrapHandler(cuponsController.meuPrograma))
+
+cupons.get('/', wrapMiddleware(requireOwner), wrapHandler(cuponsController.listCuponsAdmin))
+cupons.post('/', wrapMiddleware(requireOwner), wrapHandler(cuponsController.createCupomAdmin))
+cupons.get('/:id', wrapMiddleware(requireOwner), wrapHandler(cuponsController.detalhesCupomAdmin))
+cupons.put('/:id', wrapMiddleware(requireOwner), wrapHandler(cuponsController.updateCupomAdmin))
+cupons.delete('/:id', wrapMiddleware(requireOwner), wrapHandler(cuponsController.deleteCupomAdmin))
+cupons.post('/:id/payout', wrapMiddleware(requireOwner), wrapHandler(cuponsController.registrarPayoutAdmin))
+
+app.route('/api/cupons', cupons)
 
 // ===========================================================================
 //  SHAREPOINT routes — /api/sharepoint

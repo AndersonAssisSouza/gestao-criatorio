@@ -3,6 +3,7 @@ import { StatCard } from '../../shared/StatCard'
 import { accessService } from '../../../services/access.service'
 import { SUBSCRIPTION_PRICING, formatSubscriptionPrice } from '../../../config/subscription'
 import { ManualAdminPanel } from './ManualAdminPanel'
+import { CuponsPanel } from './CuponsPanel'
 
 function formatDate(value) {
   if (!value) return 'Sem vencimento'
@@ -173,12 +174,14 @@ export function ProprietarioModule() {
       </div>
 
       {/* Abas */}
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <button type="button" style={TAB_STYLE(tab === 'painel')} onClick={() => setTab('painel')}>Painel de Controle</button>
+        <button type="button" style={TAB_STYLE(tab === 'cupons')} onClick={() => setTab('cupons')}>Cupons & Indicações</button>
         <button type="button" style={TAB_STYLE(tab === 'manual')} onClick={() => setTab('manual')}>Manual do Administrador</button>
       </div>
 
       {tab === 'manual' && <ManualAdminPanel />}
+      {tab === 'cupons' && <CuponsPanel />}
 
       {tab === 'painel' && <>
 

@@ -33,6 +33,7 @@ const NAV_GROUPS = [
     label: 'Sistema',
     items: [
       { key: 'assinatura', label: 'Assinatura' },
+      { key: 'indicacoes', label: 'Indicações' },
       { key: 'proprietario', label: 'Proprietário', ownerOnly: true },
       { key: 'ajuda', label: 'Ajuda' },
       { key: 'configuracoes', label: 'Configurações' },
@@ -51,7 +52,7 @@ export function Sidebar({ activePage, onNavigate, isOpen = true, onClose }) {
 
   const isVisible = (item) => {
     if (item.ownerOnly) return isOwner
-    if (['assinatura', 'ajuda', 'configuracoes'].includes(item.key)) return true
+    if (['assinatura', 'indicacoes', 'ajuda', 'configuracoes'].includes(item.key)) return true
     return hasAccess
   }
 

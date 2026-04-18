@@ -20,6 +20,7 @@ import { AssinaturaModule } from './components/modules/assinatura/AssinaturaModu
 import { ProprietarioModule } from './components/modules/proprietario/ProprietarioModule'
 import { ConfiguracoesModule } from './components/modules/configuracoes/ConfiguracoesModule'
 import { AjudaModule }        from './components/modules/ajuda/AjudaModule'
+import { IndicacoesModule }   from './components/modules/indicacoes/IndicacoesModule'
 import { LimitedTierBanner } from './components/shared/LimitedTierBanner'
 import { BRAND } from './brand'
 
@@ -68,6 +69,10 @@ const PAGE_META = {
     title: 'Minha Assinatura',
     description: 'Acompanhe trial, pagamento e período de acesso liberado para continuar usando o sistema.',
   },
+  indicacoes: {
+    title: 'Programa de Indicações',
+    description: 'Acompanhe suas comissões, extrato e divulgue seu link para ganhar mais.',
+  },
   proprietario: {
     title: 'Controle do Proprietário',
     description: 'Gerencie assinaturas, pagamentos, testes grátis e liberação de acesso dos usuários.',
@@ -90,8 +95,8 @@ function Dashboard() {
   const [page, setPage] = useState(defaultPage)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const availablePages = hasOperationalAccess
-    ? ['plantel', 'chocando', 'gaiolas', 'filhotes', 'especies', 'aviario', 'aneis', 'financeiro', 'explantel', 'assinatura', 'ajuda', 'configuracoes']
-    : ['assinatura', 'ajuda', 'configuracoes']
+    ? ['plantel', 'chocando', 'gaiolas', 'filhotes', 'especies', 'aviario', 'aneis', 'financeiro', 'explantel', 'assinatura', 'indicacoes', 'ajuda', 'configuracoes']
+    : ['assinatura', 'indicacoes', 'ajuda', 'configuracoes']
 
   if (isOwner) {
     availablePages.push('mutacoes')
@@ -155,6 +160,7 @@ function Dashboard() {
           {resolvedPage === 'explantel'  && <ExPlantelModule />}
           {resolvedPage === 'mutacoes'   && <MutacoesModule />}
           {resolvedPage === 'assinatura' && <AssinaturaModule />}
+          {resolvedPage === 'indicacoes' && <IndicacoesModule />}
           {resolvedPage === 'proprietario' && <ProprietarioModule />}
           {resolvedPage === 'ajuda'          && <AjudaModule />}
           {resolvedPage === 'configuracoes' && <ConfiguracoesModule />}

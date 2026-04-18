@@ -3,6 +3,7 @@ const userRepository = require('../repositories/user.repository')
 const { applyPaymentProfile, buildAccessSummary } = require('../utils/subscription.utils')
 const { getPaymentById } = require('../services/mercadopago.service')
 const { notifyContractRelease } = require('../services/subscription-notification.service')
+const cuponsController = require('./cupons.controller')
 
 async function settleMercadoPagoPayment(localPayment, providerPayment, approvedBy = 'mercadopago') {
   const user = await userRepository.findById(localPayment.userId)
@@ -31,6 +32,22 @@ async function settleMercadoPagoPayment(localPayment, providerPayment, approvedB
       recordedBy: approvedBy,
       rawProviderPayload: providerPayment.raw,
     }))
+
+    // Registrar indicação se pagamento tinha cupom
+    if (localPayment.cupomCodigo) {
+      try {
+        await cuponsController.registrarIndicacaoPaga({
+          codigoCupom: localPayment.cupomCodigo,
+          usuarioId: updatedUser.id,
+          usuarioEmail: updatedUser.email,
+          paymentId: updatedPayment.id,
+          plano: localPayment.plan,
+          valorPagoLiquido: localPayment.amount,
+        })
+      } catch (error) {
+        console.error('[payment/settle/cupom]', error)
+      }
+    }
 
     let notifications = []
     try {
