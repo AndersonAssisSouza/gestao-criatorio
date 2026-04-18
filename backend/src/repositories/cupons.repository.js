@@ -159,6 +159,7 @@ async function createMovimento(data) {
     valor: Number(data.valor || 0),            // positivo (credit) ou negativo (payout/adjust)
     descricao: data.descricao || '',
     indicacaoId: data.indicacaoId || null,
+    liberadaEm: data.liberadaEm || null,       // carência antes de virar sacável
     createdAt: now,
   }
   all.push(item)
