@@ -11,6 +11,7 @@ const mock = {
   async remove() { return null },
   async payout() { return null },
   async meuPrograma() { return { programas: [], rules: {}, tiers: {} } },
+  async solicitarPayout() { return { message: 'Mock' } },
 }
 
 const real = {
@@ -44,6 +45,10 @@ const real = {
   },
   async meuPrograma() {
     const { data } = await api.get('/api/cupons/meu-programa')
+    return data
+  },
+  async solicitarPayout(cupomId, valor) {
+    const { data } = await api.post(`/api/cupons/meu-programa/${cupomId}/solicitar-payout`, { valor })
     return data
   },
 }

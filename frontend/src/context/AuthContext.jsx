@@ -44,8 +44,8 @@ export function AuthProvider({ children }) {
     return data
   }
 
-  const register = async (name, email, password) => {
-    const data = await authService.register(name, email, password)
+  const register = async (name, email, password, extras = {}) => {
+    const data = await authService.register(name, email, password, extras)
     setUser(data.user)
     return data
   }

@@ -19,6 +19,7 @@ router.use(apiLimiter)
 
 // Captador vê seu próprio programa
 router.get('/meu-programa', cuponsController.meuPrograma)
+router.post('/meu-programa/:id/solicitar-payout', cuponsController.solicitarPayout)
 
 // Admin (owner-only)
 router.get('/', requireOwner, cuponsController.listCuponsAdmin)

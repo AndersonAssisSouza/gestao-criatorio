@@ -25,7 +25,9 @@ export function IndicacoesModule() {
   const [loading, setLoading] = useState(true)
   const [data, setData] = useState(null)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
   const [copied, setCopied] = useState('')
+  const [solicitandoPayout, setSolicitandoPayout] = useState('')
 
   useEffect(() => {
     (async () => {
@@ -51,6 +53,30 @@ export function IndicacoesModule() {
       pago: acc.pago + (p.saldo?.totalPago || 0),
     }), { saldo: 0, sacavel: 0, indicacoes: 0, pago: 0 })
   }, [programas])
+
+  const solicitarSaque = async (cupom, saldoSacavel) => {
+    const saqueMin = rules.saqueMinimo || 50
+    if (saldoSacavel < saqueMin) {
+      setError(`Saldo sacável (${brl(saldoSacavel)}) é menor que o mínimo de ${brl(saqueMin)}.`)
+      return
+    }
+    if (!confirm(`Solicitar saque de ${brl(saldoSacavel)} via PIX?\nO pagamento será feito em até 72h.`)) return
+
+    setSolicitandoPayout(cupom.id)
+    setError('')
+    setSuccess('')
+    try {
+      const r = await cuponsService.solicitarPayout(cupom.id, saldoSacavel)
+      setSuccess(r.message || 'Pedido registrado.')
+      // Recarrega dados
+      const d = await cuponsService.meuPrograma()
+      setData(d)
+    } catch (e) {
+      setError(e.response?.data?.message || 'Erro ao solicitar saque.')
+    } finally {
+      setSolicitandoPayout('')
+    }
+  }
 
   const copyLink = async (codigo) => {
     const link = `https://plumar.com.br/?cupom=${codigo}`
@@ -127,6 +153,17 @@ export function IndicacoesModule() {
         </div>
       </div>
 
+      {error && (
+        <div style={{ padding: 12, margin: '12px 0', background: '#FDECEA', color: '#B71C1C', borderRadius: 8, fontSize: 13 }}>
+          {error}
+        </div>
+      )}
+      {success && (
+        <div style={{ padding: 12, margin: '12px 0', background: '#E8F5E9', color: '#1B5E20', borderRadius: 8, fontSize: 13 }}>
+          {success}
+        </div>
+      )}
+
       <div className="p-stats">
         <StatCard label="Saldo" value={brl(totalGeral.saldo)} desc="acumulado" color="#C95025" />
         <StatCard label="Sacável" value={brl(totalGeral.sacavel)} desc="disponível p/ PIX" color="#4CAF7D" />
@@ -165,6 +202,25 @@ export function IndicacoesModule() {
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>
                   Total: {brl(p.saldo?.saldoTotal)}
                 </div>
+                {p.saldo?.saldoSacavel >= (rules.saqueMinimo || 50) && (
+                  <button
+                    type="button"
+                    onClick={() => solicitarSaque(p.cupom, p.saldo.saldoSacavel)}
+                    disabled={solicitandoPayout === p.cupom.id}
+                    style={{
+                      marginTop: 10, background: '#4CAF7D', color: '#fff',
+                      border: 'none', padding: '8px 16px', borderRadius: 8,
+                      fontSize: 12, fontWeight: 700, cursor: 'pointer',
+                    }}
+                  >
+                    {solicitandoPayout === p.cupom.id ? 'Enviando…' : `💸 Solicitar saque via PIX`}
+                  </button>
+                )}
+                {p.saldo?.saldoSacavel < (rules.saqueMinimo || 50) && p.saldo?.saldoSacavel > 0 && (
+                  <div style={{ marginTop: 8, fontSize: 11, color: 'var(--text-muted)' }}>
+                    Saque mínimo: {brl(rules.saqueMinimo || 50)}
+                  </div>
+                )}
               </div>
             </div>
 

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { BRAND } from '../../brand'
 import './LandingPage.css'
 
@@ -68,6 +69,21 @@ const STEPS = [
 ]
 
 export function LandingPage({ onGoToLogin }) {
+  const [cupomRef, setCupomRef] = useState('')
+
+  // Captura cupom da URL e persiste no localStorage
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const cupom = (params.get('cupom') || '').trim().toUpperCase()
+    if (cupom) {
+      localStorage.setItem('plumar_cupom_ref', cupom)
+      setCupomRef(cupom)
+    } else {
+      const stored = localStorage.getItem('plumar_cupom_ref')
+      if (stored) setCupomRef(stored)
+    }
+  }, [])
+
   const scrollToCadastro = () => {
     document.getElementById('lp-cadastro')?.scrollIntoView({ behavior: 'smooth' })
   }
@@ -93,6 +109,15 @@ export function LandingPage({ onGoToLogin }) {
             Teste Grátis por 30 Dias
           </button>
           <span className="lp-hero__note">Sem cartão de crédito. Cancele quando quiser.</span>
+          {cupomRef && (
+            <div style={{
+              marginTop: 14, display: 'inline-block',
+              background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.3)',
+              color: '#fff', padding: '8px 16px', borderRadius: 20, fontSize: 13, fontWeight: 500,
+            }}>
+              🎁 Cupom <strong style={{ fontFamily: 'monospace' }}>{cupomRef}</strong> aplicado — desconto na sua 1ª compra!
+            </div>
+          )}
         </div>
       </section>
 
@@ -245,6 +270,11 @@ export function LandingPage({ onGoToLogin }) {
       {/* ───── FOOTER ───── */}
       <footer className="lp-footer">
         <p>{BRAND.name} &copy; 2026 — {BRAND.descriptor}</p>
+        <p style={{ marginTop: 8, fontSize: 13 }}>
+          <a href="/?page=afiliados" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'underline' }}>
+            💰 Programa de indicações — seja afiliado
+          </a>
+        </p>
       </footer>
     </div>
   )

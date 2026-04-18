@@ -67,8 +67,20 @@ async function createCheckout(req, res) {
   let cupomAplicado = null
   let descontoAplicado = 0
 
-  // Aplicar cupom (se fornecido)
-  const codigoCupom = String(req.body?.cupom || '').trim()
+  // 1) Cupom explícito no body tem prioridade
+  let codigoCupom = String(req.body?.cupom || '').trim()
+
+  // 2) Senão, tenta usar cupomReferenciador salvo no user (janela de 30 dias)
+  if (!codigoCupom && req.currentUser?.cupomReferenciador) {
+    const capturaEm = req.currentUser.cupomReferenciadorDataCaptura
+    if (capturaEm) {
+      const diasDesdeCaptura = (Date.now() - new Date(capturaEm).getTime()) / 86_400_000
+      if (diasDesdeCaptura <= 30) {
+        codigoCupom = req.currentUser.cupomReferenciador
+      }
+    }
+  }
+
   if (codigoCupom) {
     const cupom = await cuponsRepository.findCupomByCodigo(codigoCupom)
     if (cupom && cupom.status === 'ativo') {

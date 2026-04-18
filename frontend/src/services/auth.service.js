@@ -52,7 +52,7 @@ const mockAuth = {
     if (!email || !password) throw { response: { data: { message: 'Preencha e-mail e senha.' } } }
     return { user: buildMockUser(email, email.split('@')[0]) }
   },
-  async register(name, email, password) {
+  async register(name, email, password, extras = {}) {
     return { user: buildMockUser(email, name) }
   },
   async me() {
@@ -96,8 +96,8 @@ const realAuth = {
     if (data.token) saveToken(data.token)
     return data
   },
-  async register(name, email, password) {
-    const { data } = await api.post('/api/auth/register', { name, email, password })
+  async register(name, email, password, extras = {}) {
+    const { data } = await api.post('/api/auth/register', { name, email, password, ...extras })
     if (data.token) saveToken(data.token)
     return data
   },
@@ -128,8 +128,8 @@ function wrapMockLogin(backend) {
       window.sessionStorage.setItem('plumar_mock_user', JSON.stringify(result.user))
       return result
     },
-    async register(name, email, password) {
-      const result = await backend.register(name, email, password)
+    async register(name, email, password, extras = {}) {
+      const result = await backend.register(name, email, password, extras)
       window.sessionStorage.setItem('plumar_mock_user', JSON.stringify(result.user))
       return result
     },

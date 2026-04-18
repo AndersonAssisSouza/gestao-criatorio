@@ -61,7 +61,7 @@ async function findById(id) {
   return users.find((user) => user.id === id) || null
 }
 
-async function createUser({ name, email, passwordHash, role = 'user' }) {
+async function createUser({ name, email, passwordHash, role = 'user', cupomReferenciador = null, cupomReferenciadorDataCaptura = null }) {
   return queueWrite(async () => {
     const users = await readUsers()
     const normalizedEmail = normalizeEmail(email)
@@ -82,6 +82,8 @@ async function createUser({ name, email, passwordHash, role = 'user' }) {
       accessKey: normalizeText(name) || normalizedEmail.split('@')[0],
       createdAt: now,
       updatedAt: now,
+      cupomReferenciador,
+      cupomReferenciadorDataCaptura,
       ...createTrialProfile(now),
       isLifetimeOwner: false,
     }

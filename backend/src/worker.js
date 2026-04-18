@@ -539,6 +539,7 @@ cupons.use('/*', wrapMiddleware(attachCurrentUser))
 cupons.use('/*', wrapMiddleware(apiLimiter))
 
 cupons.get('/meu-programa', wrapHandler(cuponsController.meuPrograma))
+cupons.post('/meu-programa/:id/solicitar-payout', wrapHandler(cuponsController.solicitarPayout))
 
 cupons.get('/', wrapMiddleware(requireOwner), wrapHandler(cuponsController.listCuponsAdmin))
 cupons.post('/', wrapMiddleware(requireOwner), wrapHandler(cuponsController.createCupomAdmin))

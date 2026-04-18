@@ -178,7 +178,18 @@ async function register(req, res) {
 
     const passwordHash = await bcrypt.hash(password, 12)
     const role = isOwnerEmail(email) ? 'owner' : (getAdminEmails().includes(email) ? 'admin' : 'user')
-    const user = await userRepository.createUser({ name, email, passwordHash, role })
+
+    // Captura cupom de indicação no cadastro (se veio no body)
+    const cupomReferenciador = String(req.body?.cupomReferenciador || req.body?.cupom || '').trim().toUpperCase()
+
+    const user = await userRepository.createUser({
+      name,
+      email,
+      passwordHash,
+      role,
+      cupomReferenciador: cupomReferenciador || null,
+      cupomReferenciadorDataCaptura: cupomReferenciador ? new Date().toISOString() : null,
+    })
     const token = await signToken(user)
 
     setSessionCookies(res, token)

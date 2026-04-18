@@ -1,6 +1,7 @@
 const cuponsRepository = require('../repositories/cupons.repository')
 const { SUBSCRIPTION_PRICING } = require('../config/subscription.config')
 const { CUPOM_TIERS, CUPOM_RULES, CUPOM_CODIGO_REGEX } = require('../config/cupons.config')
+const cupomNotify = require('../services/cupom-notification.service')
 
 function normalizeCode(code) {
   return String(code || '').toUpperCase().replace(/\s+/g, '').trim()
@@ -212,8 +213,58 @@ async function validarCupomPublico(req, res) {
 // ─── INTERNO: REGISTRAR INDICAÇÃO AO CONFIRMAR PAGAMENTO ─────────────────────
 
 /**
+ * Verifica se o cupom atingiu os critérios para um tier superior e promove.
+ * Retorna { promovido: bool, tierAntigo, tierNovo } se houve upgrade.
+ */
+async function verificarEPromoverTier(cupomId) {
+  const cupom = await cuponsRepository.findCupomById(cupomId)
+  if (!cupom) return { promovido: false }
+
+  const indicacoesPagas = cupom.totalIndicacoes || 0
+  const tierAtual = cupom.tier || 'bronze'
+
+  // Descobre tier máximo alcançado
+  const ordemTiers = ['bronze', 'prata', 'ouro']
+  let tierAlvo = tierAtual
+  for (const t of ordemTiers) {
+    const config = CUPOM_TIERS[t]
+    if (config && indicacoesPagas >= config.minIndicacoes) {
+      tierAlvo = t
+    }
+  }
+
+  const idxAtual = ordemTiers.indexOf(tierAtual)
+  const idxAlvo = ordemTiers.indexOf(tierAlvo)
+
+  if (idxAlvo > idxAtual) {
+    const defaults = CUPOM_TIERS[tierAlvo]
+    const atualizado = await cuponsRepository.updateCupom(cupom.id, {
+      tier: tierAlvo,
+      descontoPercentual: defaults.descontoPercentual,
+      comissaoPercentual: defaults.comissaoPercentual,
+      comissaoDuracaoMeses: defaults.comissaoDuracaoMeses,
+    })
+
+    // Notifica captador sobre upgrade (não bloqueia)
+    const tierLabels = Object.fromEntries(
+      Object.entries(CUPOM_TIERS).map(([k, v]) => [k, v.label])
+    )
+    cupomNotify.notifyCaptadorTierUp({
+      cupom: atualizado,
+      tierAntigo: tierAtual,
+      tierNovo: tierAlvo,
+      tierLabels,
+    }).catch(() => {})
+
+    return { promovido: true, tierAntigo: tierAtual, tierNovo: tierAlvo, cupom: atualizado }
+  }
+
+  return { promovido: false }
+}
+
+/**
  * Chamado pelo fluxo de pagamento quando uma assinatura é paga.
- * Cria indicação + crédito ao captador.
+ * Cria indicação + crédito ao captador + notifica + verifica upgrade de tier.
  */
 async function registrarIndicacaoPaga({ codigoCupom, usuarioId, usuarioEmail, paymentId, plano, valorPagoLiquido }) {
   try {
@@ -260,10 +311,70 @@ async function registrarIndicacaoPaga({ codigoCupom, usuarioId, usuarioEmail, pa
       totalCreditado: Math.round(((cupom.totalCreditado || 0) + comissaoArredondada) * 100) / 100,
     })
 
+    // Notifica captador (fire-and-forget, não bloqueia)
+    const saldo = await cuponsRepository.calcularSaldo(cupom.id)
+    cupomNotify.notifyCaptadorIndicacao({ cupom, indicacao, saldo }).catch(() => {})
+
+    // Verifica e aplica upgrade de tier se atingiu critérios
+    await verificarEPromoverTier(cupom.id)
+
     return { indicacao, cupom }
   } catch (error) {
     console.error('[cupons/registrarIndicacaoPaga]', error)
     return null
+  }
+}
+
+// ─── SOLICITAÇÃO DE SAQUE (CAPTADOR) ────────────────────────────────────────
+
+async function solicitarPayout(req, res) {
+  try {
+    const email = String(req.currentUser?.email || '').toLowerCase()
+    if (!email) return res.status(401).json({ message: 'Sessão inválida.' })
+
+    const cupomId = req.params.id
+    const cupom = await cuponsRepository.findCupomById(cupomId)
+    if (!cupom) return res.status(404).json({ message: 'Cupom não encontrado.' })
+    if (String(cupom.captadorEmail || '').toLowerCase() !== email) {
+      return res.status(403).json({ message: 'Este cupom não é seu.' })
+    }
+
+    const saldo = await cuponsRepository.calcularSaldo(cupomId)
+    const valor = Number(req.body?.valor || saldo.saldoSacavel)
+
+    if (!valor || valor <= 0) return res.status(400).json({ message: 'Valor inválido.' })
+    if (valor > saldo.saldoSacavel) {
+      return res.status(400).json({ message: `Saldo sacável (${saldo.saldoSacavel.toFixed(2)}) é menor que o solicitado.` })
+    }
+    if (valor < (CUPOM_RULES.saqueMinimo || 50)) {
+      return res.status(400).json({ message: `Saque mínimo: R$ ${CUPOM_RULES.saqueMinimo}.` })
+    }
+    if (!cupom.pixChave) {
+      return res.status(400).json({ message: 'Cadastre sua chave PIX antes de solicitar saque. Entre em contato com o administrador.' })
+    }
+
+    // Cria um movimento "adjust" (pendente) até admin registrar payout real
+    await cuponsRepository.createMovimento({
+      cupomId: cupom.id,
+      cupomCodigo: cupom.codigo,
+      tipo: 'adjust',
+      valor: 0, // não afeta saldo — é apenas um registro de solicitação
+      descricao: `📨 Saque solicitado: R$ ${valor.toFixed(2)} — aguardando pagamento`,
+    })
+
+    // Notifica o admin por email
+    cupomNotify.notifyOwnerPayoutRequest({
+      cupom,
+      valor,
+      pixChave: cupom.pixChave,
+    }).catch(() => {})
+
+    return res.json({
+      message: `Pedido de saque de R$ ${valor.toFixed(2)} registrado. O proprietário será notificado e realizará o PIX em até 72h.`,
+    })
+  } catch (error) {
+    console.error('[cupons/solicitarPayout]', error)
+    return res.status(500).json({ message: 'Erro ao solicitar saque.' })
   }
 }
 
@@ -305,7 +416,9 @@ module.exports = {
   validarCupomPublico,
   // captador
   meuPrograma,
+  solicitarPayout,
   // helper interno
   registrarIndicacaoPaga,
+  verificarEPromoverTier,
   calcularDesconto,
 }

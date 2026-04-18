@@ -71,7 +71,10 @@ export function LoginPage({ onBackToLanding }) {
     setLoading(true)
     try {
       if (isRegisterMode) {
-        await register(name, email, password)
+        // Captura cupom de indicação (URL ou localStorage)
+        const urlParams = new URLSearchParams(window.location.search)
+        const cupomRef = (urlParams.get('cupom') || localStorage.getItem('plumar_cupom_ref') || '').trim().toUpperCase()
+        await register(name, email, password, cupomRef ? { cupomReferenciador: cupomRef } : {})
       } else if (isForgotMode) {
         const response = await forgotPassword(email)
         setPreviewResetLink(response.previewResetLink || '')
