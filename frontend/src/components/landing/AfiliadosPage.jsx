@@ -134,18 +134,31 @@ Aguardo meu código personalizado.`
       {/* EXEMPLO DE GANHO */}
       <section className="lp-section lp-section--accent">
         <h2 className="lp-section__title lp-section__title--light">Quanto você pode ganhar?</h2>
-        <div className="lp-highlight-box">
-          <h3>Exemplo prático</h3>
-          <p>
-            Se você indicar <strong>10 criadores no tier Bronze</strong> que contratam o plano mensal de R$29,90:
+        <div className="lp-highlight-box" style={{ color: '#fff' }}>
+          <h3 style={{ color: '#FFD180' }}>Exemplo prático</h3>
+          <p style={{ color: '#fff', fontSize: '1rem', opacity: 1 }}>
+            Se você indicar <strong style={{ color: '#FFD180' }}>10 criadores no tier Bronze</strong> que contratam o plano mensal de R$ 29,90:
           </p>
-          <ul style={{ marginTop: 12, fontSize: 15, lineHeight: 1.9 }}>
-            <li>Sua comissão por assinatura: <strong>~R$5,98/mês</strong></li>
-            <li>Total mensal: <strong>R$59,80</strong></li>
-            <li>Ao longo de 12 meses: <strong>R$717,60</strong> por apenas 10 indicações</li>
+          <ul style={{
+            marginTop: 18, padding: 20, listStyle: 'none',
+            background: 'rgba(0,0,0,0.25)', borderRadius: 10,
+            fontSize: 16, lineHeight: 2, color: '#fff', textAlign: 'left',
+            display: 'inline-block', maxWidth: 460,
+          }}>
+            <li style={{ padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.15)' }}>
+              💰 Comissão por assinatura: <strong style={{ color: '#FFD180' }}>R$ 5,98/mês</strong>
+            </li>
+            <li style={{ padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.15)' }}>
+              📅 Total mensal: <strong style={{ color: '#FFD180' }}>R$ 59,80</strong>
+            </li>
+            <li style={{ padding: '6px 0' }}>
+              🏆 Em 12 meses: <strong style={{ color: '#4CFF9F', fontSize: 20 }}>R$ 717,60</strong>
+              <span style={{ fontSize: 13, opacity: 0.85 }}> por apenas 10 indicações</span>
+            </li>
           </ul>
-          <p style={{ marginTop: 12, fontSize: 13, opacity: 0.85 }}>
-            Com 30 indicações no tier Prata, você pode gerar mais de <strong>R$2.690/ano</strong> de renda passiva.
+          <p style={{ marginTop: 20, fontSize: 14, color: '#fff', opacity: 0.95 }}>
+            Com <strong style={{ color: '#FFD180' }}>30 indicações no tier Prata</strong>, você pode gerar mais de{' '}
+            <strong style={{ color: '#4CFF9F', fontSize: 16 }}>R$ 2.690/ano</strong> de renda passiva.
           </p>
         </div>
       </section>
