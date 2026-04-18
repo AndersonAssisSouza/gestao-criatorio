@@ -203,11 +203,15 @@ function AppRouter() {
     </div>
   )
 
+  // Página de afiliados é pública — mostra mesmo se autenticado
+  if (publicPage === 'afiliados') {
+    return <AfiliadosPage onGoToLogin={() => { window.location.href = '/' }} />
+  }
+
   if (isAuthenticated) return <Dashboard />
 
   // Não autenticado: landing page pública ou tela de login
   if (showLogin) return <LoginPage onBackToLanding={() => setShowLogin(false)} />
-  if (publicPage === 'afiliados') return <AfiliadosPage onGoToLogin={() => setShowLogin(true)} />
 
   return <LandingPage onGoToLogin={() => setShowLogin(true)} />
 }
