@@ -35,6 +35,7 @@ const axios = require('axios')
  * Wraps an Express-style handler `(req, res) => ...` so it can be used as a
  * Hono handler `(c) => Response`.
  */
+// TEMP: debug — expor erros reais em vez de "Erro interno do servidor"
 function wrapHandler(fn) {
   return async (c) => {
     // --- mock req ---
@@ -827,7 +828,15 @@ app.notFound((c) => c.json({ message: 'Rota nao encontrada.' }, 404))
 // ===========================================================================
 app.onError((err, c) => {
   console.error('[worker] Unhandled error:', err)
-  return c.json({ message: 'Erro interno do servidor.' }, 500)
+  // TEMP DEBUG: expor mensagem do erro real
+  return c.json({
+    message: 'Erro interno do servidor.',
+    debug: {
+      name: err?.name || 'Error',
+      message: String(err?.message || err).slice(0, 400),
+      stack: String(err?.stack || '').split('\n').slice(0, 4).join(' | '),
+    },
+  }, 500)
 })
 
 // ===========================================================================
