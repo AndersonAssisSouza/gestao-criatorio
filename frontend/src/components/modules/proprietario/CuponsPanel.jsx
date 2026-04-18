@@ -166,7 +166,15 @@ export function CuponsPanel() {
     }
   }
 
-  const CARD = { background: 'var(--panel)', border: '1px solid var(--line-soft)', borderRadius: 12, padding: 18 }
+  const CARD = { background: 'var(--bg-panel-solid, var(--panel, #fff))', border: '1px solid var(--line-soft)', borderRadius: 12, padding: 18 }
+  const MODAL_CARD = {
+    background: 'var(--bg-panel-solid, var(--panel, #fff))',
+    border: '1px solid var(--line-soft)',
+    borderRadius: 12,
+    padding: 24,
+    boxShadow: '0 20px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.05)',
+    color: 'var(--text)',
+  }
   const INPUT = { width: '100%', padding: '8px 12px', border: '1px solid var(--line-soft)', borderRadius: 8, background: 'var(--bg)', color: 'var(--text)', fontSize: 13 }
   const LABEL = { fontSize: 11, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 4, display: 'block' }
   const BTN_PRIMARY = { background: 'var(--accent)', color: '#fff', border: 'none', padding: '9px 18px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer' }
@@ -248,8 +256,8 @@ export function CuponsPanel() {
 
       {/* MODAL FORM */}
       {showForm && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-          <div style={{ ...CARD, maxWidth: 600, width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16, backdropFilter: 'blur(4px)' }}>
+          <div style={{ ...MODAL_CARD, maxWidth: 600, width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
             <h3 style={{ margin: '0 0 14px', fontSize: 18, fontFamily: "'DM Serif Display', serif" }}>
               {editingId ? 'Editar cupom' : 'Novo cupom de captador'}
             </h3>
@@ -316,8 +324,8 @@ export function CuponsPanel() {
 
       {/* MODAL DETALHES */}
       {detalhes && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
-          <div style={{ ...CARD, maxWidth: 800, width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16, backdropFilter: 'blur(4px)' }}>
+          <div style={{ ...MODAL_CARD, maxWidth: 800, width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
               <div>
                 <div style={{ fontSize: 24, fontFamily: "'DM Serif Display', serif", fontWeight: 700 }}>{detalhes.cupom.codigo}</div>
