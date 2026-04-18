@@ -168,7 +168,15 @@ async function readCollection(collectionName, filePath = path ? path.join(DEFAUL
     return stored
   }
 
-  const bootstrapItems = await readArrayFile(filePath)
+  // Fallback: tenta bootstrapar via arquivo JSON (dev). No Workers (sem fs) retorna [] e cria vazia.
+  let bootstrapItems = []
+  if (fs && filePath) {
+    try {
+      bootstrapItems = await readArrayFile(filePath)
+    } catch (_) {
+      bootstrapItems = []
+    }
+  }
   await writeToDatabase(collectionName, bootstrapItems)
   return bootstrapItems
 }
