@@ -186,8 +186,9 @@ async function validarCupomPublico(req, res) {
     if (!cupom) return res.status(404).json({ message: 'Cupom não encontrado.' })
     if (cupom.status !== 'ativo') return res.status(400).json({ message: 'Cupom não está ativo.' })
 
-    // Proteção antifraude: captador não pode usar próprio cupom
-    if (req.currentUser && cupom.captadorEmail && cupom.captadorEmail === String(req.currentUser.email || '').toLowerCase()) {
+    // Proteção antifraude: captador não pode usar próprio cupom (verificação só em contexto autenticado)
+    const userEmail = String(req?.currentUser?.email || req?.user?.email || '').toLowerCase()
+    if (userEmail && cupom.captadorEmail && cupom.captadorEmail === userEmail) {
       return res.status(400).json({ message: 'Você não pode usar seu próprio cupom.' })
     }
 

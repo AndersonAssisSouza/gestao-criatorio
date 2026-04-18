@@ -530,19 +530,8 @@ app.route('/api/mutacoes', mutacoes)
 // ===========================================================================
 const cupons = new Hono()
 
-// Rota de validação de cupom: aceita usuário logado OU anônimo (para checkout pré-login)
-cupons.get('/validar', wrapMiddleware(apiLimiter), async (c, next) => {
-  // Tenta autenticar sem bloquear
-  try {
-    await new Promise((resolve) => {
-      wrapMiddleware(authMiddleware)(c, resolve).catch(() => resolve())
-    })
-    await new Promise((resolve) => {
-      wrapMiddleware(attachCurrentUser)(c, resolve).catch(() => resolve())
-    })
-  } catch (_) { /* ignore */ }
-  return wrapHandler(cuponsController.validarCupomPublico)(c)
-})
+// Rota de validação de cupom — pública (sem auth). Antifraude aplicada no checkout.
+cupons.get('/validar', wrapMiddleware(apiLimiter), wrapHandler(cuponsController.validarCupomPublico))
 
 // Demais rotas — autenticadas
 cupons.use('/*', wrapMiddleware(authMiddleware))
