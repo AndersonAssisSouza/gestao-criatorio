@@ -1,0 +1,6 @@
+# PLUMAR — Cloudflare Pages rewrites
+# Clean URLs sem .html para landing pages
+/comecar           /comecar.html        200
+/comercial         /comercial.html      200
+/assine            /comecar.html        200
+/start             /comecar.html        200
