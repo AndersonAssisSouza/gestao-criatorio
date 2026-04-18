@@ -25,5 +25,6 @@ router.get('/:id', requireOwner, cuponsController.detalhesCupomAdmin)
 router.put('/:id', requireOwner, cuponsController.updateCupomAdmin)
 router.delete('/:id', requireOwner, cuponsController.deleteCupomAdmin)
 router.post('/:id/payout', requireOwner, cuponsController.registrarPayoutAdmin)
+router.post('/admin/simular-indicacao', requireOwner, cuponsController.simularIndicacaoAdmin)
 
 module.exports = router

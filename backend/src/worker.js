@@ -550,6 +550,7 @@ cupons.get('/:id', wrapMiddleware(requireOwner), wrapHandler(cuponsController.de
 cupons.put('/:id', wrapMiddleware(requireOwner), wrapHandler(cuponsController.updateCupomAdmin))
 cupons.delete('/:id', wrapMiddleware(requireOwner), wrapHandler(cuponsController.deleteCupomAdmin))
 cupons.post('/:id/payout', wrapMiddleware(requireOwner), wrapHandler(cuponsController.registrarPayoutAdmin))
+cupons.post('/admin/simular-indicacao', wrapMiddleware(requireOwner), wrapHandler(cuponsController.simularIndicacaoAdmin))
 
 app.route('/api/cupons', cupons)
 

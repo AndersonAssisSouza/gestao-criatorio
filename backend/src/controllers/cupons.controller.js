@@ -355,6 +355,36 @@ async function registrarIndicacaoPaga({ codigoCupom, usuarioId, usuarioEmail, pa
   }
 }
 
+// ─── SIMULAÇÃO DE INDICAÇÃO (apenas admin/teste) ────────────────────────────
+
+async function simularIndicacaoAdmin(req, res) {
+  try {
+    const { codigoCupom, usuarioEmail, plano = 'monthly', valorLiquido } = req.body || {}
+    if (!codigoCupom) return res.status(400).json({ message: 'Informe codigoCupom.' })
+
+    const cupom = await cuponsRepository.findCupomByCodigo(codigoCupom)
+    if (!cupom) return res.status(404).json({ message: 'Cupom não encontrado.' })
+
+    const result = await registrarIndicacaoPaga({
+      codigoCupom,
+      usuarioEmail: usuarioEmail || 'simulacao@teste.com',
+      usuarioId: null,
+      paymentId: `SIM-${Date.now()}`,
+      plano,
+      valorPagoLiquido: Number(valorLiquido || (plano === 'annual' ? 254.15 : 25.42)),
+    })
+
+    return res.json({
+      message: 'Indicação simulada com sucesso.',
+      indicacao: result?.indicacao,
+      cupom: result?.cupom,
+    })
+  } catch (error) {
+    console.error('[cupons/simular]', error)
+    return res.status(500).json({ message: 'Erro ao simular.', error: error.message })
+  }
+}
+
 // ─── SOLICITAÇÃO DE SAQUE (CAPTADOR) ────────────────────────────────────────
 
 async function solicitarPayout(req, res) {
@@ -550,6 +580,7 @@ module.exports = {
   solicitarPayout,
   // admin extra
   listPayoutRequestsAdmin,
+  simularIndicacaoAdmin,
   // helper interno
   registrarIndicacaoPaga,
   verificarEPromoverTier,
