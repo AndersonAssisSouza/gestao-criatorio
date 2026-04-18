@@ -21,9 +21,16 @@ function csrfProtection(req, res, next) {
 
   // Bearer tokens no localStorage são imunes a CSRF por natureza:
   // o browser nunca os envia automaticamente em requisições cross-origin.
+  // HIGH-02: validação mais estrita do formato para evitar bypass trivial.
   const authHeader = req.headers.authorization || ''
-  if (authHeader.startsWith('Bearer ') && authHeader.length > 10) {
-    return next()
+  if (authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice(7).trim()
+    // JWT válido tem 3 segmentos base64url separados por '.'
+    if (token.length >= 40 && token.split('.').length === 3) {
+      return next()
+    }
+    // Token presente mas inválido → rejeita explicitamente
+    return res.status(403).json({ message: 'Token Bearer malformado.' })
   }
 
   // Fallback: validação CSRF tradicional via cookie (para same-origin)

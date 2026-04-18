@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const sharepointDataRepository = require('../repositories/sharepoint-data.repository')
 const { enrichSpecies } = require('../services/species-enrichment.service')
 
@@ -56,7 +57,7 @@ async function create(req, res) {
     const species = await sharepointDataRepository.readCollection('especies')
     const now = new Date().toISOString()
     const newRecord = {
-      ID: String(Date.now()),
+      ID: crypto.randomUUID(),
       ...payload,
       Created: now,
       Modified: now,

@@ -359,6 +359,11 @@ async function registrarIndicacaoPaga({ codigoCupom, usuarioId, usuarioEmail, pa
 
 async function simularIndicacaoAdmin(req, res) {
   try {
+    // HIGH-05: bloqueia endpoint de teste em produção
+    if (String(process.env.NODE_ENV || '').trim().toLowerCase() === 'production') {
+      return res.status(404).json({ message: 'Rota não encontrada.' })
+    }
+
     const { codigoCupom, usuarioEmail, plano = 'monthly', valorLiquido } = req.body || {}
     if (!codigoCupom) return res.status(400).json({ message: 'Informe codigoCupom.' })
 

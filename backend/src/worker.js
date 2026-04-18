@@ -338,77 +338,9 @@ const payments = new Hono()
 
 payments.post('/mercadopago/webhook', wrapHandler(paymentController.handleMercadoPagoWebhook))
 
-// Register-webhook inline handler (ported from payments.routes.js)
-payments.post('/mercadopago/register-webhook', async (c) => {
-  try {
-    const ownerKey = c.req.header('x-owner-key') || ''
-    if (ownerKey !== process.env.OWNER_ACCESS_KEY) {
-      return c.json({ message: 'Acesso negado.' }, 403)
-    }
-
-    const config = getPaymentGatewayConfig()
-    if (!config.mercadoPago.accessToken) {
-      return c.json({ message: 'MERCADOPAGO_ACCESS_TOKEN nao configurado.' }, 500)
-    }
-
-    const webhookUrl = `${config.backendPublicUrl}/api/payments/mercadopago/webhook`
-
-    const authHeaders = {
-      Authorization: `Bearer ${config.mercadoPago.accessToken}`,
-      'Content-Type': 'application/json',
-    }
-
-    const results = {}
-
-    // List existing webhooks
-    try {
-      const { data: existing } = await axios.get(
-        'https://api.mercadopago.com/v1/notifications/webhooks',
-        { headers: authHeaders },
-      )
-      results.existingWebhooks = existing
-    } catch (e) {
-      results.existingWebhooksError = e.response?.data || e.message
-    }
-
-    // Try registering
-    try {
-      const { data } = await axios.post(
-        'https://api.mercadopago.com/v1/notifications',
-        { url: webhookUrl, topics: ['payment'] },
-        { headers: authHeaders },
-      )
-      results.registered = data
-    } catch (e) {
-      results.registerError = e.response?.data || e.message
-    }
-
-    // Try alternative endpoint
-    try {
-      const { data: apps } = await axios.get(
-        'https://api.mercadopago.com/v1/applications/search',
-        { headers: authHeaders },
-      )
-      results.applications = apps
-    } catch (e) {
-      results.appsError = e.response?.data || e.message
-    }
-
-    return c.json({
-      success: true,
-      webhookUrl,
-      message:
-        'O MercadoPago ja recebe notificacoes via notification_url em cada preferencia de checkout. URL configurada automaticamente.',
-      diagnostics: results,
-    })
-  } catch (error) {
-    console.error('[payments/register-webhook]', error.response?.data || error.message)
-    return c.json(
-      { message: 'Erro ao registrar webhook.', details: error.response?.data || error.message },
-      500,
-    )
-  }
-})
+// Nota: /mercadopago/register-webhook foi removido (CRIT-03 — autenticação fraca).
+// A URL de webhook já é registrada via notification_url em cada preferência criada
+// pelo checkout, não requerendo registro global.
 
 app.route('/api/payments', payments)
 

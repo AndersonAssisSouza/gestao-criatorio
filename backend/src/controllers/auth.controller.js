@@ -27,12 +27,33 @@ function getAdminEmails() {
     .filter(Boolean)
 }
 
+// Lista mínima de senhas óbvias a bloquear (cobertura básica).
+// Para produção-grau recomenda-se integrar com HaveIBeenPwned k-anonymity.
+const COMMON_PASSWORDS = new Set([
+  '12345678', '123456789', '1234567890', 'password', 'senha123', 'qwerty123',
+  'abc12345', 'abcd1234', 'plumar01', 'plumar123', 'admin123', 'letmein12',
+  'password1', 'password12', 'password123', 'iloveyou1', 'qwerty1234',
+  'welcome1', 'welcome12', 'monkey123', 'dragon123', 'master123',
+])
+
 function isStrongPassword(password = '') {
-  return (
-    password.length >= 8 &&
-    /[a-zA-Z]/.test(password) &&
-    /\d/.test(password)
-  )
+  const p = String(password || '')
+  if (p.length < 10) return false
+  if (p.length > 128) return false
+  if (!/[a-z]/.test(p)) return false
+  if (!/[A-Z]/.test(p)) return false
+  if (!/\d/.test(p)) return false
+  // Pelo menos 1 símbolo OU atinge 12+ chars
+  if (p.length < 12 && !/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?`~]/.test(p)) return false
+  // Bloqueia senhas óbvias
+  if (COMMON_PASSWORDS.has(p.toLowerCase())) return false
+  // Bloqueia sequências repetidas (ex: aaaaaaaa, 1111, abcabcabc)
+  if (/^(.)\1+$/.test(p)) return false
+  return true
+}
+
+function passwordPolicyMessage() {
+  return 'Senha deve ter ao menos 10 caracteres, incluir maiúscula, minúscula, número e um símbolo (ou 12+ com letras e números).'
 }
 
 function isValidEmail(email = '') {
@@ -40,7 +61,11 @@ function isValidEmail(email = '') {
 }
 
 async function signToken(user) {
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+  const jwtSecret = process.env.JWT_SECRET
+  if (!jwtSecret || jwtSecret.length < 32) {
+    throw new Error('JWT_SECRET não configurado ou muito curto (mínimo 32 caracteres).')
+  }
+  const secret = new TextEncoder().encode(jwtSecret)
   const payload = {
     userId: user.id,
     email: user.email,
@@ -112,13 +137,18 @@ async function dispatchPasswordReset(user, rawToken) {
       `Este link expira em ${PASSWORD_RESET_TTL_MINUTES} minutos.`,
       'Se você não solicitou a troca, pode ignorar este e-mail.',
     ].join('\n'),
-    html: [
-      `<p>Olá, <strong>${user.name}</strong>.</p>`,
-      '<p>Recebemos um pedido para redefinir a sua senha no Plumar.</p>',
-      `<p><a href="${resetLink}">Clique aqui para criar uma nova senha</a></p>`,
-      `<p>Este link expira em ${PASSWORD_RESET_TTL_MINUTES} minutos.</p>`,
-      '<p>Se você não solicitou a troca, pode ignorar este e-mail.</p>',
-    ].join(''),
+    html: (() => {
+      const { escapeHtml, escapeHtmlAttr } = require('../utils/html-escape.utils')
+      const safeName = escapeHtml(user.name)
+      const safeLink = escapeHtmlAttr(resetLink)
+      return [
+        `<p>Olá, <strong>${safeName}</strong>.</p>`,
+        '<p>Recebemos um pedido para redefinir a sua senha no Plumar.</p>',
+        `<p><a href="${safeLink}">Clique aqui para criar uma nova senha</a></p>`,
+        `<p>Este link expira em ${PASSWORD_RESET_TTL_MINUTES} minutos.</p>`,
+        '<p>Se você não solicitou a troca, pode ignorar este e-mail.</p>',
+      ].join('')
+    })(),
   })
 
   return {
@@ -181,9 +211,7 @@ async function register(req, res) {
     }
 
     if (!isStrongPassword(password)) {
-      return res.status(400).json({
-        message: 'Senha deve ter ao menos 8 caracteres e conter letras e números.',
-      })
+      return res.status(400).json({ message: passwordPolicyMessage() })
     }
 
     const passwordHash = await bcrypt.hash(password, 12)
@@ -341,9 +369,7 @@ async function resetPassword(req, res) {
     }
 
     if (!isStrongPassword(password)) {
-      return res.status(400).json({
-        message: 'Senha deve ter ao menos 8 caracteres e conter letras e números.',
-      })
+      return res.status(400).json({ message: passwordPolicyMessage() })
     }
 
     const users = await userRepository.readUsers()

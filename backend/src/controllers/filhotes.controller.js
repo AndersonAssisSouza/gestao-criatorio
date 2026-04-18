@@ -1,6 +1,7 @@
 const sharepointDataRepository = require('../repositories/sharepoint-data.repository')
 const plantelRepository = require('../repositories/plantel.repository')
 const { getCriatorioForUser } = require('../services/criatorio.service')
+const { requireCriatorio, filterByScope, itemBelongsTo } = require('../utils/tenant-scope.utils')
 
 function normalizeWhitespace(value = '') {
   return String(value || '')
@@ -79,10 +80,13 @@ function resolveCriatorioRegistroFob(criatorio, payloadRegistro) {
   )
 }
 
-async function list(_, res) {
+async function list(req, res) {
   try {
-    const items = await readFilhotes()
-    return res.json({ items: listActiveFilhotes(items) })
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+    const all = await readFilhotes()
+    const scoped = filterByScope(all, scope.criatorio, req.user)
+    return res.json({ items: listActiveFilhotes(scoped) })
   } catch (error) {
     console.error('[filhotes/list]', error.message)
     return res.status(500).json({ message: 'Não foi possível carregar os filhotes.' })
@@ -91,11 +95,17 @@ async function list(_, res) {
 
 async function update(req, res) {
   try {
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+
     const items = await readFilhotes()
     const filhote = findFilhote(items, req.params.id)
 
     if (!filhote) {
       return res.status(404).json({ message: 'Filhote não encontrado.' })
+    }
+    if (!itemBelongsTo(filhote, scope.criatorio, req.user)) {
+      return res.status(403).json({ message: 'Você não tem permissão para alterar este filhote.' })
     }
 
     const updatedItem = {
@@ -111,7 +121,7 @@ async function update(req, res) {
     return res.json({
       message: 'Filhote atualizado com sucesso.',
       item: updatedItem,
-      items: sortFilhotes(updatedItems),
+      items: sortFilhotes(filterByScope(updatedItems, scope.criatorio, req.user)),
     })
   } catch (error) {
     console.error('[filhotes/update]', error.message)
@@ -121,11 +131,17 @@ async function update(req, res) {
 
 async function markDeath(req, res) {
   try {
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+
     const items = await readFilhotes()
     const filhote = findFilhote(items, req.params.id)
 
     if (!filhote) {
       return res.status(404).json({ message: 'Filhote não encontrado.' })
+    }
+    if (!itemBelongsTo(filhote, scope.criatorio, req.user)) {
+      return res.status(403).json({ message: 'Você não tem permissão para alterar este filhote.' })
     }
 
     const updatedItem = {

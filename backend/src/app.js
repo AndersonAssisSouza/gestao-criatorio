@@ -21,17 +21,29 @@ const { startSubscriptionReminderWorker } = require('./services/subscription-rem
 const app = express()
 const PORT = process.env.PORT || 3001
 
-const allowedOrigins = [
+const isProd = process.env.NODE_ENV === 'production'
+
+// Origins de produção (SEMPRE permitidos)
+const productionOrigins = [
   process.env.FRONTEND_URL,
   process.env.FRONTEND_PUBLIC_URL,
   'https://plumar.com.br',
   'https://www.plumar.com.br',
   'https://andersonassissouza.github.io',
+]
+
+// Origins de dev (apenas quando NODE_ENV !== 'production')
+const devOrigins = [
   'http://localhost:3000',
   'http://127.0.0.1:3000',
   'http://127.0.0.1:4173',
   'http://127.0.0.1:4174',
   'http://127.0.0.1:4175',
+]
+
+const allowedOrigins = [
+  ...productionOrigins,
+  ...(isProd ? [] : devOrigins),
 ]
   .flatMap((value) => String(value || '').split(','))
   .map((value) => value.trim())
@@ -42,7 +54,7 @@ function isAllowedOrigin(origin = '') {
     return true
   }
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (!isProd) {
     return /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
   }
 

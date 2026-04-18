@@ -348,11 +348,27 @@ async function reconcileCheckout(req, res) {
 }
 
 async function listSubscribers(req, res) {
-  const users = await userRepository.readUsers()
-  const payments = await paymentRepository.listPayments()
+  // MED-03: paginação para evitar exposição em massa
+  const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 200)
+  const offset = Math.max(Number(req.query.offset) || 0, 0)
+
+  const allUsers = await userRepository.readUsers()
+  const allPayments = await paymentRepository.listPayments()
+
+  const users = allUsers.slice(offset, offset + limit).map(serializeUser)
+  // Pagamentos escopados aos users retornados
+  const userIds = new Set(users.map((u) => u.id))
+  const payments = allPayments.filter((p) => userIds.has(p.userId))
+
   return res.json({
-    users: users.map(serializeUser),
+    users,
     payments,
+    pagination: {
+      total: allUsers.length,
+      limit,
+      offset,
+      hasMore: offset + limit < allUsers.length,
+    },
   })
 }
 

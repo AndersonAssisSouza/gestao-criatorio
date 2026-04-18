@@ -13,7 +13,9 @@ function getOwnerName() {
   return cleanEnv(process.env.OWNER_NAME) || 'Anderson Assis'
 }
 function getOwnerAccessKey() {
-  return cleanEnv(process.env.OWNER_ACCESS_KEY) || 'anderson'
+  // Sem fallback hardcoded: se não configurado, retorna string vazia
+  // (evita que "anderson" seja aceito como chave de acesso).
+  return cleanEnv(process.env.OWNER_ACCESS_KEY)
 }
 function getOwnerPassword() {
   return cleanEnv(process.env.OWNER_PASSWORD)

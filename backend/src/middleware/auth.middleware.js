@@ -14,7 +14,12 @@ async function authMiddleware(req, res, next) {
   }
 
   try {
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret || jwtSecret.length < 32) {
+      console.error('[auth/middleware] JWT_SECRET não configurado ou muito curto (<32 chars)')
+      return res.status(500).json({ message: 'Configuração de autenticação incompleta.' })
+    }
+    const secret = new TextEncoder().encode(jwtSecret)
     const { payload } = await jwtVerify(token, secret, {
       issuer: process.env.JWT_ISSUER || 'plumar-api',
       audience: process.env.JWT_AUDIENCE || 'plumar-web',

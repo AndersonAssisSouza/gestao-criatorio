@@ -1,4 +1,6 @@
+const crypto = require('crypto')
 const sharepointDataRepository = require('../repositories/sharepoint-data.repository')
+const { requireCriatorio, stampCriatorio, filterByScope, itemBelongsTo } = require('../utils/tenant-scope.utils')
 
 function normalizeWhitespace(value = '') {
   return String(value || '')
@@ -79,10 +81,10 @@ function validatePayload(payload = {}) {
   return ''
 }
 
-function buildNewRing(numeroAnel, payload) {
+function buildNewRing(numeroAnel, payload, criatorio, user) {
   const now = new Date().toISOString()
-  return {
-    ID: String(Date.now() + Math.floor(Math.random() * 1000)),
+  return stampCriatorio({
+    ID: crypto.randomUUID(),
     NumeroAnel: numeroAnel,
     Status: payload.Status || 'Disponível',
     Cor: payload.Cor,
@@ -90,13 +92,15 @@ function buildNewRing(numeroAnel, payload) {
     OrgaoRegulador: payload.OrgaoRegulador,
     Created: now,
     Modified: now,
-  }
+  }, criatorio, user)
 }
 
-async function list(_, res) {
+async function list(req, res) {
   try {
-    const items = await sharepointDataRepository.readCollection('aneis')
-    return res.json({ items: sortItems(items) })
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+    const all = await sharepointDataRepository.readCollection('aneis')
+    return res.json({ items: sortItems(filterByScope(all, scope.criatorio, req.user)) })
   } catch (error) {
     console.error('[aneis/list]', error.message)
     return res.status(500).json({ message: 'Não foi possível carregar os anéis.' })
@@ -105,6 +109,9 @@ async function list(_, res) {
 
 async function create(req, res) {
   try {
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+
     const payload = normalizePayload(req.body)
     const validationError = validatePayload(payload)
 
@@ -112,8 +119,9 @@ async function create(req, res) {
       return res.status(400).json({ message: validationError })
     }
 
-    const items = await sharepointDataRepository.readCollection('aneis')
-    const existingNumbers = new Set(items.map((item) => normalizeWhitespace(item.NumeroAnel)))
+    const allItems = await sharepointDataRepository.readCollection('aneis')
+    const scopedItems = filterByScope(allItems, scope.criatorio, req.user)
+    const existingNumbers = new Set(scopedItems.map((item) => normalizeWhitespace(item.NumeroAnel)))
 
     const sequence = payload.modoCadastro === 'varios'
       ? buildSequence(payload.NumeroInicial, payload.NumeroFinal).items
@@ -124,15 +132,16 @@ async function create(req, res) {
       return res.status(409).json({ message: `O anel "${duplicated}" já está cadastrado.` })
     }
 
-    const createdItems = sequence.map((numeroAnel) => buildNewRing(numeroAnel, payload))
-    const updatedItems = sortItems([...items, ...createdItems])
-    await sharepointDataRepository.writeCollection('aneis', updatedItems)
+    const createdItems = sequence.map((numeroAnel) => buildNewRing(numeroAnel, payload, scope.criatorio, req.user))
+    const updatedItems = [...allItems, ...createdItems]
+    await sharepointDataRepository.writeCollection('aneis', sortItems(updatedItems))
 
+    const scopedAfter = sortItems(filterByScope(updatedItems, scope.criatorio, req.user))
     return res.status(201).json({
       message: createdItems.length > 1 ? 'Anéis cadastrados com sucesso.' : 'Anel cadastrado com sucesso.',
       item: createdItems[0],
       createdItems,
-      items: updatedItems,
+      items: scopedAfter,
     })
   } catch (error) {
     console.error('[aneis/create]', error.message)
@@ -142,19 +151,29 @@ async function create(req, res) {
 
 async function update(req, res) {
   try {
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+
     const payload = normalizePayload(req.body)
     if (!payload.NumeroAnel) {
       return res.status(400).json({ message: 'Número do anel é obrigatório.' })
     }
 
-    const items = await sharepointDataRepository.readCollection('aneis')
-    const current = items.find((item) => String(item.ID) === String(req.params.id))
+    const allItems = await sharepointDataRepository.readCollection('aneis')
+    const current = allItems.find((item) => String(item.ID) === String(req.params.id))
 
     if (!current) {
       return res.status(404).json({ message: 'Anel não encontrado.' })
     }
 
-    const conflict = items.some((item) => String(item.ID) !== String(req.params.id) && normalizeWhitespace(item.NumeroAnel) === payload.NumeroAnel)
+    if (!itemBelongsTo(current, scope.criatorio, req.user)) {
+      return res.status(403).json({ message: 'Você não tem permissão para alterar este anel.' })
+    }
+
+    const scopedItems = filterByScope(allItems, scope.criatorio, req.user)
+    const conflict = scopedItems.some(
+      (item) => String(item.ID) !== String(req.params.id) && normalizeWhitespace(item.NumeroAnel) === payload.NumeroAnel
+    )
     if (conflict) {
       return res.status(409).json({ message: 'Já existe um anel com esse número.' })
     }
@@ -169,13 +188,13 @@ async function update(req, res) {
       Modified: new Date().toISOString(),
     }
 
-    const updatedItems = sortItems(items.map((item) => (String(item.ID) === String(req.params.id) ? updatedItem : item)))
-    await sharepointDataRepository.writeCollection('aneis', updatedItems)
+    const updatedItems = allItems.map((item) => (String(item.ID) === String(req.params.id) ? updatedItem : item))
+    await sharepointDataRepository.writeCollection('aneis', sortItems(updatedItems))
 
     return res.json({
       message: 'Anel atualizado com sucesso.',
       item: updatedItem,
-      items: updatedItems,
+      items: sortItems(filterByScope(updatedItems, scope.criatorio, req.user)),
     })
   } catch (error) {
     console.error('[aneis/update]', error.message)
@@ -185,19 +204,26 @@ async function update(req, res) {
 
 async function remove(req, res) {
   try {
-    const items = await sharepointDataRepository.readCollection('aneis')
-    const exists = items.some((item) => String(item.ID) === String(req.params.id))
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
 
-    if (!exists) {
+    const allItems = await sharepointDataRepository.readCollection('aneis')
+    const current = allItems.find((item) => String(item.ID) === String(req.params.id))
+
+    if (!current) {
       return res.status(404).json({ message: 'Anel não encontrado.' })
     }
 
-    const updatedItems = items.filter((item) => String(item.ID) !== String(req.params.id))
+    if (!itemBelongsTo(current, scope.criatorio, req.user)) {
+      return res.status(403).json({ message: 'Você não tem permissão para remover este anel.' })
+    }
+
+    const updatedItems = allItems.filter((item) => String(item.ID) !== String(req.params.id))
     await sharepointDataRepository.writeCollection('aneis', sortItems(updatedItems))
 
     return res.json({
       message: 'Anel removido com sucesso.',
-      items: sortItems(updatedItems),
+      items: sortItems(filterByScope(updatedItems, scope.criatorio, req.user)),
     })
   } catch (error) {
     console.error('[aneis/remove]', error.message)

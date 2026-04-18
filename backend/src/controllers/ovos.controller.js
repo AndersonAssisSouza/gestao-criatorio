@@ -1,6 +1,7 @@
 const crypto = require('crypto')
 const sharepointDataRepository = require('../repositories/sharepoint-data.repository')
 const { checkFreeTierLimit } = require('../utils/free-tier.utils')
+const { requireCriatorio, stampCriatorio, filterByScope, itemBelongsTo } = require('../utils/tenant-scope.utils')
 
 function normalizeWhitespace(value = '') {
   return String(value || '')
@@ -202,12 +203,14 @@ function findEgg(eggs, id) {
   return eggs.find((egg) => String(egg.ID) === String(id))
 }
 
-async function list(_, res) {
+async function list(req, res) {
   try {
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
     const dataset = await loadDataset()
     return res.json({
-      items: sortEggs(dataset.eggs),
-      ninhadas: sortClutches(dataset.clutches),
+      items: sortEggs(filterByScope(dataset.eggs, scope.criatorio, req.user)),
+      ninhadas: sortClutches(filterByScope(dataset.clutches, scope.criatorio, req.user)),
     })
   } catch (error) {
     console.error('[ovos/list]', error.message)
@@ -217,6 +220,9 @@ async function list(_, res) {
 
 async function restartClutch(req, res) {
   try {
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+
     const validationError = validateRestartPayload(req.body)
     if (validationError) {
       return res.status(400).json({ message: validationError })
@@ -226,8 +232,11 @@ async function restartClutch(req, res) {
     const dataset = await loadDataset()
     const now = new Date().toISOString()
 
-    // Verifica limite do tier gratuito (ninhadas ativas)
-    const activeClutchesCount = (dataset.clutches || []).filter((c) => c.Status === 'Ativa').length
+    // Escopar ninhadas ao criatório
+    const scopedClutches = filterByScope(dataset.clutches, scope.criatorio, req.user)
+
+    // Verifica limite do tier gratuito (ninhadas ativas do usuário)
+    const activeClutchesCount = scopedClutches.filter((c) => c.Status === 'Ativa').length
     const limitCheck = checkFreeTierLimit(req.currentUser, 'ninhadas', activeClutchesCount)
     if (limitCheck.blocked) {
       return res.status(402).json({ message: limitCheck.message, access: limitCheck.access, limit: limitCheck.limit })
@@ -237,7 +246,10 @@ async function restartClutch(req, res) {
       if (normalizeWhitespace(clutch.Gaiola) !== cage || clutch.Status !== 'Ativa') {
         return clutch
       }
-
+      if (!itemBelongsTo(clutch, scope.criatorio, req.user)) {
+        // Não encerra ninhada de outro tenant
+        return clutch
+      }
       return {
         ...clutch,
         Status: 'Finalizada',
@@ -246,17 +258,17 @@ async function restartClutch(req, res) {
       }
     })
 
-    const newClutch = {
+    const newClutch = stampCriatorio({
       id: crypto.randomUUID(),
       Gaiola: cage,
-      Numero: getNextClutchNumber(dataset.clutches, cage),
+      Numero: getNextClutchNumber(scopedClutches, cage),
       Status: 'Ativa',
       NomeMae: normalizeWhitespace(req.body.NomeMae),
       NomePai: normalizeWhitespace(req.body.NomePai),
       Created: now,
       Modified: now,
       EncerradaEm: '',
-    }
+    }, scope.criatorio, req.user)
 
     const updatedClutches = sortClutches([...nextClutches, newClutch])
     await writeClutches(updatedClutches)
@@ -264,8 +276,8 @@ async function restartClutch(req, res) {
     return res.status(201).json({
       message: 'Nova ninhada iniciada com sucesso.',
       ninhada: newClutch,
-      ninhadas: updatedClutches,
-      items: sortEggs(dataset.eggs),
+      ninhadas: sortClutches(filterByScope(updatedClutches, scope.criatorio, req.user)),
+      items: sortEggs(filterByScope(dataset.eggs, scope.criatorio, req.user)),
     })
   } catch (error) {
     console.error('[ovos/restartClutch]', error.message)
@@ -275,6 +287,9 @@ async function restartClutch(req, res) {
 
 async function create(req, res) {
   try {
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+
     const validationError = validateCreateEggPayload(req.body)
     if (validationError) {
       return res.status(400).json({ message: validationError })
@@ -282,37 +297,38 @@ async function create(req, res) {
 
     const cage = normalizeWhitespace(req.body.Gaiola)
     const dataset = await loadDataset()
-    let activeClutch = getActiveClutchForCage(dataset.clutches, cage)
+    const scopedClutches = filterByScope(dataset.clutches, scope.criatorio, req.user)
+    let activeClutch = getActiveClutchForCage(scopedClutches, cage)
     let updatedClutches = dataset.clutches.slice()
     const now = new Date().toISOString()
 
     if (!activeClutch) {
       // Verifica limite do tier gratuito antes de criar nova ninhada
-      const activeClutchesCount = (dataset.clutches || []).filter((c) => c.Status === 'Ativa').length
+      const activeClutchesCount = scopedClutches.filter((c) => c.Status === 'Ativa').length
       const limitCheck = checkFreeTierLimit(req.currentUser, 'ninhadas', activeClutchesCount)
       if (limitCheck.blocked) {
         return res.status(402).json({ message: limitCheck.message, access: limitCheck.access, limit: limitCheck.limit })
       }
 
-      activeClutch = {
+      activeClutch = stampCriatorio({
         id: crypto.randomUUID(),
         Gaiola: cage,
-        Numero: getNextClutchNumber(dataset.clutches, cage),
+        Numero: getNextClutchNumber(scopedClutches, cage),
         Status: 'Ativa',
         NomeMae: normalizeWhitespace(req.body.NomeMae),
         NomePai: normalizeWhitespace(req.body.NomePai),
         Created: now,
         Modified: now,
         EncerradaEm: '',
-      }
+      }, scope.criatorio, req.user)
       updatedClutches = sortClutches([...updatedClutches, activeClutch])
       await writeClutches(updatedClutches)
     }
 
     const eggsInClutch = dataset.eggs.filter((egg) => normalizeWhitespace(egg.NinhadaId) === activeClutch.id)
     const nextSequence = eggsInClutch.length + 1
-    const egg = {
-      ID: String(Date.now()),
+    const egg = stampCriatorio({
+      ID: crypto.randomUUID(),
       NumeroOvo: String(nextSequence),
       Gaiola: cage,
       Status: 'Postura',
@@ -329,7 +345,7 @@ async function create(req, res) {
       NinhadaNumero: activeClutch.Numero,
       Created: now,
       Modified: now,
-    }
+    }, scope.criatorio, req.user)
 
     const updatedEggs = sortEggs([...dataset.eggs, egg])
     await writeEggs(updatedEggs)
@@ -348,11 +364,17 @@ async function create(req, res) {
 
 async function updateStatus(req, res) {
   try {
+    const scope = await requireCriatorio(req, res)
+    if (!scope) return
+
     const dataset = await loadDataset()
     const egg = findEgg(dataset.eggs, req.params.id)
 
     if (!egg) {
       return res.status(404).json({ message: 'Ovo não encontrado.' })
+    }
+    if (!itemBelongsTo(egg, scope.criatorio, req.user)) {
+      return res.status(403).json({ message: 'Você não tem permissão para alterar este ovo.' })
     }
 
     const nextStatus = normalizeWhitespace(req.body.Status)
@@ -392,8 +414,8 @@ async function updateStatus(req, res) {
     return res.json({
       message: 'Ovo atualizado com sucesso.',
       item: updatedEggs.find((item) => String(item.ID) === String(req.params.id)),
-      items: updatedEggs,
-      ninhadas: dataset.clutches,
+      items: sortEggs(filterByScope(updatedEggs, scope.criatorio, req.user)),
+      ninhadas: sortClutches(filterByScope(dataset.clutches, scope.criatorio, req.user)),
     })
   } catch (error) {
     console.error('[ovos/updateStatus]', error.message)

@@ -1,5 +1,6 @@
 const express = require('express')
 const { sendEmail } = require('../services/email.service')
+const { escapeHtml, escapeHtmlAttr } = require('../utils/html-escape.utils')
 
 const router = express.Router()
 
@@ -155,13 +156,29 @@ router.post('/', async (req, res) => {
       })
     }
 
+    // Normalização + limite de tamanho (evita payload abusivo)
+    const nomeNorm = String(nome || '').trim().slice(0, 120)
+    const emailNorm = String(email || '').trim().toLowerCase().slice(0, 160)
+
+    // Valida nome com charset seguro (letras, números, espaço, acentos, hífen, apóstrofo, ponto)
+    if (!/^[A-Za-zÀ-ÿ0-9\s.'-]{2,120}$/.test(nomeNorm)) {
+      return res.status(400).json({ success: false, message: 'Nome contém caracteres inválidos.' })
+    }
+
     // Validação de email simples
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailNorm)) {
       return res.status(400).json({
         success: false,
         message: 'Email inválido.',
       })
     }
+
+    // Sanitiza UTMs (alphanumeric + hífen/underscore)
+    const sanitizeUtm = (v) => String(v || '').trim().slice(0, 60).replace(/[^A-Za-z0-9_\-.]/g, '')
+    const utmS = sanitizeUtm(utm_source)
+    const utmM = sanitizeUtm(utm_medium)
+    const utmC = sanitizeUtm(utm_campaign)
+    const utmCo = sanitizeUtm(utm_content)
 
     // Rate limiting
     const clientIp = req.ip || req.connection?.remoteAddress
@@ -173,23 +190,29 @@ router.post('/', async (req, res) => {
     }
 
     // Salva lead no banco de dados (não bloqueia se falhar)
-    const leadId = await saveLeadToDatabase(nome, email, utm_source || 'landing_page', clientIp)
+    const leadId = await saveLeadToDatabase(nomeNorm, emailNorm, utmS || 'landing_page', clientIp)
 
     // Envia email de notificação para o PLUMAR
     const now = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
-    const utmInfo = utm_source ? `\nOrigem: ${utm_source} / ${utm_medium || '-'} / ${utm_campaign || '-'}` : ''
+    const utmInfo = utmS ? `\nOrigem: ${utmS} / ${utmM || '-'} / ${utmC || '-'}` : ''
+
+    // HIGH-04: escape todos os valores vindos de input do usuário antes de interpolar em HTML
+    const nomeE = escapeHtml(nomeNorm)
+    const emailE = escapeHtml(emailNorm)
+    const emailAttr = escapeHtmlAttr(emailNorm)
+    const utmE = utmS ? escapeHtml(`${utmS} / ${utmM || '-'} / ${utmC || '-'}`) : ''
 
     await sendEmail({
       to: {
         name: 'PLUMAR',
         email: 'plumarapp@plumar.com.br',
       },
-      subject: `[PLUMAR] Novo cadastro: ${nome}`,
+      subject: `[PLUMAR] Novo cadastro: ${nomeNorm}`,
       text: [
         'Novo cadastro via landing page PLUMAR',
         '',
-        `Nome: ${nome}`,
-        `Email: ${email}`,
+        `Nome: ${nomeNorm}`,
+        `Email: ${emailNorm}`,
         `Data/Hora: ${now}`,
         leadId ? `Lead ID: ${leadId}` : '',
         utmInfo,
@@ -207,21 +230,21 @@ router.post('/', async (req, res) => {
             <table style="width: 100%; border-collapse: collapse;">
               <tr>
                 <td style="padding: 10px 0; color: #8a7e74; font-size: 14px; width: 80px;">Nome</td>
-                <td style="padding: 10px 0; color: #2c2520; font-size: 14px; font-weight: 600;">${nome}</td>
+                <td style="padding: 10px 0; color: #2c2520; font-size: 14px; font-weight: 600;">${nomeE}</td>
               </tr>
               <tr>
                 <td style="padding: 10px 0; color: #8a7e74; font-size: 14px; border-top: 1px solid #f0ebe4;">Email</td>
                 <td style="padding: 10px 0; color: #2c2520; font-size: 14px; font-weight: 600; border-top: 1px solid #f0ebe4;">
-                  <a href="mailto:${email}" style="color: #c97a50; text-decoration: none;">${email}</a>
+                  <a href="mailto:${emailAttr}" style="color: #c97a50; text-decoration: none;">${emailE}</a>
                 </td>
               </tr>
               <tr>
                 <td style="padding: 10px 0; color: #8a7e74; font-size: 14px; border-top: 1px solid #f0ebe4;">Data</td>
                 <td style="padding: 10px 0; color: #2c2520; font-size: 14px; border-top: 1px solid #f0ebe4;">${now}</td>
               </tr>
-              ${utm_source ? `<tr>
+              ${utmE ? `<tr>
                 <td style="padding: 10px 0; color: #8a7e74; font-size: 14px; border-top: 1px solid #f0ebe4;">Origem</td>
-                <td style="padding: 10px 0; color: #2c2520; font-size: 14px; border-top: 1px solid #f0ebe4;">${utm_source} / ${utm_medium || '-'} / ${utm_campaign || '-'}</td>
+                <td style="padding: 10px 0; color: #2c2520; font-size: 14px; border-top: 1px solid #f0ebe4;">${utmE}</td>
               </tr>` : ''}
             </table>
           </div>

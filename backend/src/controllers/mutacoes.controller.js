@@ -1,3 +1,4 @@
+const crypto = require('crypto')
 const sharepointDataRepository = require('../repositories/sharepoint-data.repository')
 
 function normalizeWhitespace(value = '') {
@@ -72,7 +73,7 @@ async function create(req, res) {
     const items = await sharepointDataRepository.readCollection('mutacoes')
     const now = new Date().toISOString()
     const newItem = {
-      ID: String(Date.now()),
+      ID: crypto.randomUUID(),
       ...payload,
       Created: now,
       Modified: now,

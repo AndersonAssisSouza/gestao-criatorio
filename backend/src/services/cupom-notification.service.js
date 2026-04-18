@@ -1,5 +1,6 @@
 const { getEmailConfig } = require('../config/email.config')
 const { sendEmail } = require('./email.service')
+const { escapeHtml } = require('../utils/html-escape.utils')
 
 function brl(value) {
   const n = Number(value || 0)
@@ -21,11 +22,11 @@ function buildNewIndicacaoEmail({ cupom, indicacao, saldo }) {
     <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#333;line-height:1.55">
       <div style="background:linear-gradient(135deg,#C95025,#5A927F);color:#fff;padding:30px;text-align:center;border-radius:10px 10px 0 0">
         <h1 style="margin:0;font-size:26px">🎉 Nova indicação convertida!</h1>
-        <p style="margin:10px 0 0;opacity:0.9">Seu cupom <strong>${cupom.codigo}</strong> foi usado</p>
+        <p style="margin:10px 0 0;opacity:0.9">Seu cupom <strong>${escapeHtml(cupom.codigo)}</strong> foi usado</p>
       </div>
       <div style="background:#fff;padding:30px;border:1px solid #eee;border-top:none;border-radius:0 0 10px 10px">
-        <p>Olá <strong>${cupom.captadorNome || 'Captador'}</strong>,</p>
-        <p>Excelentes notícias! Um novo cliente usou seu cupom <strong style="font-family:monospace">${cupom.codigo}</strong> e você ganhou uma comissão.</p>
+        <p>Olá <strong>${escapeHtml(cupom.captadorNome || 'Captador')}</strong>,</p>
+        <p>Excelentes notícias! Um novo cliente usou seu cupom <strong style="font-family:monospace">${escapeHtml(cupom.codigo)}</strong> e você ganhou uma comissão.</p>
 
         <table style="width:100%;margin:20px 0;border-collapse:collapse">
           <tr><td style="padding:10px;background:#f8f8f8;border-radius:6px 0 0 6px"><strong>Plano contratado</strong></td>
@@ -53,7 +54,7 @@ function buildNewIndicacaoEmail({ cupom, indicacao, saldo }) {
         <p style="color:#666;font-size:13px">
           <strong>Continue indicando!</strong> Quanto mais assinaturas seu cupom gerar,
           mais você ganha. Lembre-se do seu link:<br>
-          <code style="background:#f4f4f4;padding:4px 8px;border-radius:4px">https://plumar.com.br/?cupom=${cupom.codigo}</code>
+          <code style="background:#f4f4f4;padding:4px 8px;border-radius:4px">https://plumar.com.br/?cupom=${escapeHtml(cupom.codigo)}</code>
         </p>
       </div>
       <p style="text-align:center;color:#999;font-size:12px;margin-top:20px">
@@ -65,7 +66,7 @@ function buildNewIndicacaoEmail({ cupom, indicacao, saldo }) {
   const text = [
     `Parabéns! Nova indicação convertida no PLUMAR`,
     ``,
-    `Cupom: ${cupom.codigo}`,
+    `Cupom: ${escapeHtml(cupom.codigo)}`,
     `Plano: ${indicacao.plano === 'annual' ? 'Anual' : 'Mensal'}`,
     `Valor pago: ${brl(indicacao.valorLiquido)}`,
     `Sua comissão: ${brl(indicacao.comissaoCredito)}`,
@@ -74,7 +75,7 @@ function buildNewIndicacaoEmail({ cupom, indicacao, saldo }) {
     `Saldo total: ${brl(saldo.saldoTotal)}`,
     `Sacável: ${brl(saldo.saldoSacavel)}`,
     ``,
-    `Seu link: https://plumar.com.br/?cupom=${cupom.codigo}`,
+    `Seu link: https://plumar.com.br/?cupom=${escapeHtml(cupom.codigo)}`,
   ].join('\n')
 
   return { subject, html, text }
@@ -94,7 +95,7 @@ function buildTierUpEmail({ cupom, tierAntigo, tierNovo, tierLabels }) {
         </p>
       </div>
       <div style="background:#fff;padding:30px;border:1px solid #eee;border-top:none;border-radius:0 0 10px 10px">
-        <p>Olá <strong>${cupom.captadorNome || 'Captador'}</strong>,</p>
+        <p>Olá <strong>${escapeHtml(cupom.captadorNome || 'Captador')}</strong>,</p>
         <p>Seu desempenho como captador é excelente! Você foi promovido automaticamente para o tier <strong>${tierLabels[tierNovo] || tierNovo}</strong>.</p>
 
         <div style="background:#E8F5E9;padding:18px;border-radius:8px;margin:20px 0">
@@ -119,7 +120,7 @@ function buildTierUpEmail({ cupom, tierAntigo, tierNovo, tierLabels }) {
   const text = [
     `Parabéns! Você foi promovido para ${tierLabels[tierNovo] || tierNovo} no PLUMAR.`,
     ``,
-    `Novas condições do cupom ${cupom.codigo}:`,
+    `Novas condições do cupom ${escapeHtml(cupom.codigo)}:`,
     `- Desconto cliente: ${cupom.descontoPercentual}%`,
     `- Sua comissão: ${cupom.comissaoPercentual}% por ${cupom.comissaoDuracaoMeses} meses`,
   ].join('\n')
@@ -130,24 +131,24 @@ function buildTierUpEmail({ cupom, tierAntigo, tierNovo, tierLabels }) {
 // ─── EMAIL: pedido de saque (para admin) ───────────────────────────────────
 
 function buildPayoutRequestEmail({ cupom, valor, pixChave }) {
-  const subject = `💸 PLUMAR: pedido de saque de ${brl(valor)} por ${cupom.captadorNome}`
+  const subject = `💸 PLUMAR: pedido de saque de ${brl(valor)} por ${escapeHtml(cupom.captadorNome)}`
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#333;line-height:1.55">
       <div style="background:#C95025;color:#fff;padding:24px;text-align:center;border-radius:10px 10px 0 0">
         <h1 style="margin:0">💸 Novo pedido de saque</h1>
       </div>
       <div style="background:#fff;padding:25px;border:1px solid #eee;border-top:none;border-radius:0 0 10px 10px">
-        <p><strong>${cupom.captadorNome}</strong> (cupom <code>${cupom.codigo}</code>) solicitou saque.</p>
+        <p><strong>${escapeHtml(cupom.captadorNome)}</strong> (cupom <code>${escapeHtml(cupom.codigo)}</code>) solicitou saque.</p>
         <table style="width:100%;margin:15px 0">
           <tr><td style="padding:8px;background:#f8f8f8"><strong>Valor</strong></td><td style="padding:8px;background:#f8f8f8;text-align:right;font-size:18px;font-weight:700">${brl(valor)}</td></tr>
-          <tr><td style="padding:8px"><strong>Chave PIX</strong></td><td style="padding:8px;text-align:right;font-family:monospace">${pixChave || 'Não informada'}</td></tr>
-          <tr><td style="padding:8px;background:#f8f8f8"><strong>E-mail</strong></td><td style="padding:8px;background:#f8f8f8;text-align:right">${cupom.captadorEmail}</td></tr>
+          <tr><td style="padding:8px"><strong>Chave PIX</strong></td><td style="padding:8px;text-align:right;font-family:monospace">${escapeHtml(pixChave || 'Não informada')}</td></tr>
+          <tr><td style="padding:8px;background:#f8f8f8"><strong>E-mail</strong></td><td style="padding:8px;background:#f8f8f8;text-align:right">${escapeHtml(cupom.captadorEmail)}</td></tr>
         </table>
         <p>Efetue o PIX manualmente e registre o pagamento no Painel do Proprietário → Cupons & Indicações.</p>
       </div>
     </div>
   `
-  const text = `Pedido de saque: ${brl(valor)} para ${cupom.captadorNome} — PIX: ${pixChave || 'não informada'}`
+  const text = `Pedido de saque: ${brl(valor)} para ${escapeHtml(cupom.captadorNome)} — PIX: ${pixChave || 'não informada'}`
   return { subject, html, text }
 }
 
