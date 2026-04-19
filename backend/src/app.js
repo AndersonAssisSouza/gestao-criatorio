@@ -16,6 +16,7 @@ const speciesRoutes = require('./routes/species.routes')
 const mutacoesRoutes = require('./routes/mutacoes.routes')
 const cuponsRoutes = require('./routes/cupons.routes')
 const securityHeaders = require('./middleware/security.middleware')
+const { apiLimiter } = require('./middleware/rateLimit')
 const { startSubscriptionReminderWorker } = require('./services/subscription-reminder.service')
 
 const app = express()
@@ -81,6 +82,12 @@ app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '100kb' }))
 
 // ─── Health check ─────────────────────────────────────────────────────────────
 app.get('/health', (_, res) => res.json({ status: 'ok', version: '0.1.0', timestamp: new Date().toISOString() }))
+
+// ─── Rate limiting global em /api (defesa em profundidade) ───────────────────
+// Routers individuais ja tem apiLimiter/loginLimiter/registerLimiter; este
+// catchall cobre qualquer rota que o CodeQL marcou como missing-rate-limiting
+// e serve de rede de seguranca se uma rota nova for adicionada sem o middleware.
+app.use('/api', apiLimiter)
 
 // ─── Rotas ────────────────────────────────────────────────────────────────────
 app.use('/api/auth',    authRoutes)
