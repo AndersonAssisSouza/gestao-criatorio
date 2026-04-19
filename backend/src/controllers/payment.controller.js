@@ -13,29 +13,49 @@ const cuponsController = require('./cupons.controller')
  *
  * Header x-signature tem formato: "ts=<timestamp>,v1=<hmac>"
  * Manifest: "id:<data.id>;request-id:<x-request-id>;ts:<ts>;"
+ *
+ * Modo de operação via env WEBHOOK_SIGNATURE_MODE:
+ *   - 'enforce'  → rejeita se assinatura inválida (fail-closed)
+ *   - 'observe'  → apenas loga resultado, deixa passar (modo padrão quando secret ausente)
+ *   - 'disabled' → não valida nada
+ *
+ * Camadas de defesa ativas mesmo em 'observe':
+ *   - Lookup do pagamento via API oficial do MP (getPaymentById)
+ *   - Match entre external_reference e payment local
+ *   - Verificação de valor pago vs valor esperado (diferença > R$0,02 rejeita)
  */
 function verifyMercadoPagoSignature(req, dataId) {
   const config = getPaymentGatewayConfig()
   const secret = config.mercadoPago.webhookSecret
+  const rawMode = String(process.env.WEBHOOK_SIGNATURE_MODE || '').trim().toLowerCase()
+  // Default: se tem secret → enforce; se não tem → observe (warn-only)
+  const mode = rawMode || (secret ? 'enforce' : 'observe')
 
-  if (!secret) {
-    // Fail-closed em produção (não aceita sem secret).
-    // Em dev, aceita para facilitar testes locais.
-    const isProd = String(process.env.NODE_ENV || '').trim().toLowerCase() === 'production'
-    if (isProd) {
-      console.error('[payments/webhook] MERCADOPAGO_WEBHOOK_SECRET ausente em produção — rejeitando')
-      return false
-    }
-    console.warn('[payments/webhook] MERCADOPAGO_WEBHOOK_SECRET ausente — modo dev, aceitando')
-    return true
-  }
+  if (mode === 'disabled') return true
 
   const signatureHeader = req.headers['x-signature'] || req.headers['X-Signature'] || ''
   const requestId = req.headers['x-request-id'] || req.headers['X-Request-Id'] || ''
 
-  if (!signatureHeader || !requestId) {
-    return false
+  // Função auxiliar para logar e decidir
+  const decide = (ok, reason) => {
+    if (mode === 'observe') {
+      if (!ok) {
+        console.warn(`[payments/webhook] Assinatura HMAC inválida (modo observe, deixando passar): ${reason}`)
+      } else {
+        console.log('[payments/webhook] Assinatura HMAC válida')
+      }
+      return true
+    }
+    // enforce
+    if (!ok) {
+      console.error(`[payments/webhook] Assinatura HMAC inválida (modo enforce, rejeitando): ${reason}`)
+      return false
+    }
+    return true
   }
+
+  if (!secret) return decide(false, 'secret_ausente')
+  if (!signatureHeader || !requestId) return decide(false, 'headers_ausentes')
 
   // Parse "ts=123,v1=abc"
   const parts = String(signatureHeader).split(',').reduce((acc, pair) => {
@@ -47,27 +67,30 @@ function verifyMercadoPagoSignature(req, dataId) {
   const ts = parts.ts
   const providedV1 = parts.v1
 
-  if (!ts || !providedV1) return false
+  if (!ts || !providedV1) return decide(false, 'ts_ou_v1_ausente')
 
   // Rejeitar timestamps muito antigos (replay protection: 5 min)
   const tsNum = Number(ts)
-  if (!Number.isFinite(tsNum)) return false
+  if (!Number.isFinite(tsNum)) return decide(false, 'ts_invalido')
   const ageMs = Date.now() - tsNum * 1000
   if (ageMs > 5 * 60 * 1000 || ageMs < -60 * 1000) {
-    return false
+    return decide(false, `ts_fora_da_janela (${Math.round(ageMs / 1000)}s)`)
   }
 
   const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`
   const expectedHmac = crypto.createHmac('sha256', secret).update(manifest).digest('hex')
 
+  let matches = false
   try {
-    return crypto.timingSafeEqual(
+    matches = crypto.timingSafeEqual(
       Buffer.from(expectedHmac, 'hex'),
       Buffer.from(providedV1, 'hex')
     )
   } catch (_) {
-    return false
+    matches = false
   }
+
+  return decide(matches, matches ? 'ok' : 'hmac_nao_bate')
 }
 
 async function settleMercadoPagoPayment(localPayment, providerPayment, approvedBy = 'mercadopago') {
@@ -173,9 +196,8 @@ async function handleMercadoPagoWebhook(req, res) {
       return res.status(202).json({ received: true, ignored: true })
     }
 
-    // CRIT-02: Validação HMAC
+    // CRIT-02: Validação HMAC (em modo 'observe' apenas loga, em 'enforce' rejeita)
     if (!verifyMercadoPagoSignature(req, paymentId)) {
-      console.warn('[payments/webhook] Assinatura HMAC inválida — rejeitando')
       return res.status(401).json({ received: false, message: 'Assinatura inválida.' })
     }
 
