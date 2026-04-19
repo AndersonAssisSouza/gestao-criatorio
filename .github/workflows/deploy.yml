@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy Frontend (Pages)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Deploy Backend (Worker)
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install backend dependencies
         working-directory: backend
