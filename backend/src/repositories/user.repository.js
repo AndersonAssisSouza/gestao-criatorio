@@ -47,6 +47,9 @@ function sanitizeUser(user) {
     emailVerifyTokenHash,
     emailVerifyExpiresAt,
     emailVerifyRequestedAt,
+    failedLoginCount,
+    failedLoginWindowStart,
+    lockedUntil,
     ...safeUser
   } = user
 

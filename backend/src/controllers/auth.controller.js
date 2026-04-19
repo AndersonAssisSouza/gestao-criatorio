@@ -3,6 +3,12 @@ const { SignJWT, jwtVerify } = require('jose')
 const crypto = require('crypto')
 const userRepository = require('../repositories/user.repository')
 const { sendEmail } = require('../services/email.service')
+const audit = require('../services/audit.service')
+
+// Account lockout (LOW-03)
+const LOCKOUT_MAX_ATTEMPTS = Number(process.env.LOCKOUT_MAX_ATTEMPTS || 10)
+const LOCKOUT_WINDOW_MS = Number(process.env.LOCKOUT_WINDOW_MS || 15 * 60 * 1000)
+const LOCKOUT_DURATION_MS = Number(process.env.LOCKOUT_DURATION_MS || 15 * 60 * 1000)
 const {
   buildAccessKeys,
   buildAuthCookie,
@@ -333,16 +339,66 @@ async function login(req, res) {
 
     const user = await userRepository.findByEmail(email)
     if (!user) {
+      audit.log('auth.login.fail', req, { email, reason: 'user_not_found' })
       return res.status(401).json({ message: 'Credenciais inválidas.' })
+    }
+
+    // LOW-03: account lockout — se travado, bloqueia.
+    const lockedUntil = user.lockedUntil ? new Date(user.lockedUntil).getTime() : 0
+    if (lockedUntil && lockedUntil > Date.now()) {
+      const waitMinutes = Math.ceil((lockedUntil - Date.now()) / 60000)
+      audit.log('auth.login.locked', req, { email, userId: user.id, waitMinutes })
+      return res.status(423).json({
+        message: `Conta temporariamente bloqueada por tentativas falhas. Tente novamente em ${waitMinutes} minuto(s).`,
+      })
     }
 
     const valid = await bcrypt.compare(password, user.passwordHash)
     if (!valid) {
+      // Incrementa contador de falhas
+      const now = Date.now()
+      const windowStart = user.failedLoginWindowStart ? new Date(user.failedLoginWindowStart).getTime() : 0
+      const withinWindow = windowStart && (now - windowStart) < LOCKOUT_WINDOW_MS
+      const newCount = withinWindow ? Number(user.failedLoginCount || 0) + 1 : 1
+      const newStart = withinWindow ? new Date(windowStart).toISOString() : new Date(now).toISOString()
+      const shouldLock = newCount >= LOCKOUT_MAX_ATTEMPTS
+      await userRepository.updateUser(user.id, (current) => ({
+        ...current,
+        failedLoginCount: newCount,
+        failedLoginWindowStart: newStart,
+        lockedUntil: shouldLock ? new Date(now + LOCKOUT_DURATION_MS).toISOString() : (current.lockedUntil || null),
+      }))
+
+      audit.log('auth.login.fail', req, {
+        email,
+        userId: user.id,
+        reason: 'bad_password',
+        failedCount: newCount,
+        locked: shouldLock,
+      })
+
+      if (shouldLock) {
+        return res.status(423).json({
+          message: 'Conta bloqueada temporariamente por muitas tentativas falhas. Aguarde 15 minutos.',
+        })
+      }
       return res.status(401).json({ message: 'Credenciais inválidas.' })
+    }
+
+    // Login OK: reseta contadores de falha
+    if (user.failedLoginCount || user.lockedUntil) {
+      await userRepository.updateUser(user.id, (current) => ({
+        ...current,
+        failedLoginCount: 0,
+        failedLoginWindowStart: null,
+        lockedUntil: null,
+      }))
     }
 
     const safeUser = serializeUser(user)
     const token = await signToken(safeUser)
+
+    audit.log('auth.login.success', req, { email, userId: user.id, role: user.role })
 
     setSessionCookies(res, token)
     return res.json({ user: safeUser, token })
@@ -388,6 +444,7 @@ async function logoutAll(req, res) {
       tokenVersion: Number(current.tokenVersion || 0) + 1,
     }))
 
+    audit.log('auth.logout_all', req, { userId })
     res.setHeader('Set-Cookie', getClearedAuthCookies())
     return res.json({ message: 'Todas as sessões foram encerradas. Faça login novamente.' })
   } catch (error) {
@@ -489,8 +546,13 @@ async function resetPassword(req, res) {
       passwordResetRequestedAt: null,
       // MED-04: incrementa tokenVersion para invalidar sessões antigas
       tokenVersion: Number(current.tokenVersion || 0) + 1,
+      // Reset lockout ao redefinir senha
+      failedLoginCount: 0,
+      failedLoginWindowStart: null,
+      lockedUntil: null,
     }))
 
+    audit.log('auth.password.reset', req, { userId: user.id, email: user.email })
     return res.json({ message: 'Senha atualizada com sucesso. Faça login com a nova senha.' })
   } catch (error) {
     console.error('[auth/resetPassword]', error)

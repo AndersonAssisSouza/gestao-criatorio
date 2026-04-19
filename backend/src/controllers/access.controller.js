@@ -9,6 +9,7 @@ const { createCheckoutPreference, getPaymentById } = require('../services/mercad
 const cuponsRepository = require('../repositories/cupons.repository')
 const cuponsController = require('./cupons.controller')
 const { settleMercadoPagoPayment } = require('./payment.controller')
+const audit = require('../services/audit.service')
 
 function serializeUser(user) {
   return {
@@ -648,6 +649,7 @@ async function revokeAccess(req, res) {
     tokenVersion: Number(user.tokenVersion || 0) + 1,
   }))
 
+  audit.log('access.revoked', req, { targetUserId: userId, targetEmail: existingUser.email })
   return res.json({ user: serializeUser(updatedUser) })
 }
 
