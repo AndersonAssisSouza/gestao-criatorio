@@ -44,6 +44,9 @@ function sanitizeUser(user) {
     passwordResetTokenHash,
     passwordResetExpiresAt,
     passwordResetRequestedAt,
+    emailVerifyTokenHash,
+    emailVerifyExpiresAt,
+    emailVerifyRequestedAt,
     ...safeUser
   } = user
 
@@ -84,6 +87,11 @@ async function createUser({ name, email, passwordHash, role = 'user', cupomRefer
       updatedAt: now,
       cupomReferenciador,
       cupomReferenciadorDataCaptura,
+      emailVerified: false,
+      emailVerifyTokenHash: null,
+      emailVerifyExpiresAt: null,
+      emailVerifyRequestedAt: null,
+      tokenVersion: 0,
       ...createTrialProfile(now),
       isLifetimeOwner: false,
     }

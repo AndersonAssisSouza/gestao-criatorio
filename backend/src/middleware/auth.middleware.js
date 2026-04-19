@@ -25,6 +25,16 @@ async function authMiddleware(req, res, next) {
       audience: process.env.JWT_AUDIENCE || 'plumar-web',
     })
     const fullUser = await userRepository.findById(payload.userId)
+
+    // MED-04: se o user existe e tem tokenVersion diferente, rejeita sessão (revogada)
+    if (fullUser) {
+      const currentVersion = Number(fullUser.tokenVersion || 0)
+      const tokenVersion = Number(payload.tokenVersion || 0)
+      if (currentVersion !== tokenVersion) {
+        return res.status(401).json({ message: 'Sessão revogada. Faça login novamente.' })
+      }
+    }
+
     req.user = fullUser
       ? {
           ...payload,

@@ -7,7 +7,8 @@
     "start": "node src/app.js",
     "deploy": "wrangler deploy",
     "deploy:dev": "wrangler dev",
-    "migrate:storage": "node scripts/migrate-storage-to-db.js"
+    "migrate:storage": "node scripts/migrate-storage-to-db.js",
+    "test": "node --test src/utils/__tests__/*.test.js"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",

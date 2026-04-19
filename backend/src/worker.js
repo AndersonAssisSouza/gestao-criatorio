@@ -300,6 +300,10 @@ auth.post('/forgot-password', wrapMiddleware(loginLimiter), wrapHandler(authCont
 auth.post('/reset-password', wrapMiddleware(registerLimiter), wrapHandler(authController.resetPassword))
 auth.get('/me', wrapMiddleware(authMiddleware), wrapHandler(authController.me))
 auth.post('/logout', wrapMiddleware(authMiddleware), wrapHandler(authController.logout))
+auth.post('/logout-all', wrapMiddleware(authMiddleware), wrapHandler(authController.logoutAll))
+auth.get('/verify-email', wrapHandler(authController.verifyEmail))
+auth.post('/verify-email', wrapHandler(authController.verifyEmail))
+auth.post('/resend-verification', wrapMiddleware(loginLimiter), wrapHandler(authController.resendVerification))
 
 app.route('/api/auth', auth)
 

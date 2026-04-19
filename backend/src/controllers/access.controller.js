@@ -644,6 +644,8 @@ async function revokeAccess(req, res) {
     paymentStatus: 'cancelled',
     subscriptionRequestedPlan: null,
     requestedAt: null,
+    // MED-04: invalida sessões JWT ativas do user
+    tokenVersion: Number(user.tokenVersion || 0) + 1,
   }))
 
   return res.json({ user: serializeUser(updatedUser) })
