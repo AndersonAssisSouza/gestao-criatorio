@@ -225,9 +225,10 @@ async function handleMercadoPagoWebhook(req, res) {
     await settleMercadoPagoPayment(localPayment, providerPayment, 'mercadopago_webhook')
     return res.status(200).json({ received: true, updated: true })
   } catch (error) {
-    // Sanitiza error.message contra CRLF/log injection: remove newlines e limita tamanho.
-    const safeMsg = String(error?.message || error || 'unknown').replace(/[\r\n]+/g, ' ').slice(0, 500)
-    console.error('[payments/mercadopago/webhook]', safeMsg)
+    // Log estruturado imune a log injection: JSON.stringify escapa \r\n e
+    // outros control chars automaticamente, e limitamos o tamanho da mensagem.
+    const rawMsg = String(error?.message || error || 'unknown').slice(0, 500)
+    console.error(JSON.stringify({ scope: 'payments/mercadopago/webhook', error: rawMsg }))
     return res.status(500).json({ message: 'Erro ao processar webhook do Mercado Pago.' })
   }
 }
