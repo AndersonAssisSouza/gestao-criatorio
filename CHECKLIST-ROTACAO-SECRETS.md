@@ -1,71 +1,64 @@
 # CHECKLIST DE ROTACAO DE SECRETS - PLUMAR
 
-**Gerado:** 2026-04-16 | **Origem:** backend/.env.production-pulled + backend/.env.pulled + backend/.env.vercel.tmp
+**Gerado:** 2026-04-16 | **Fechado:** 2026-04-19
+**Origem:** backend/.env.production-pulled + backend/.env.pulled + backend/.env.vercel.tmp
 
-## Prioridade CRITICA (rotacionar imediatamente)
+## Status Final
 
-### 1. JWT_SECRET
-- **Valor vazado comeca com:** `593dbd95...` (128 hex chars)
-- **Impacto:** todos os tokens JWT emitidos ate hoje continuam validos. Quem tiver esse secret pode forjar sessoes.
-- **Acao:**
-  1. Gerar novo secret: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
-  2. `cd backend && npx wrangler secret put JWT_SECRET`
-  3. Comunicar: **todos os usuarios logados serao deslogados ao deploy**.
+| Item | Status | Data | Notas |
+|---|---|---|---|
+| JWT_SECRET rotacionado | [OK] | 2026-04-16 | secret novo via `wrangler secret put`; usuarios deslogados no deploy |
+| AZURE_CLIENT_SECRET rotacionado | [OK] | 2026-04-16 | secret antigo revogado no portal; novo em `wrangler` |
+| MERCADOPAGO_ACCESS_TOKEN rotacionado | [OK] | 2026-04-16 | novo token aplicado no Worker; webhook revalidado |
+| VERCEL_OIDC_TOKEN | [EXPIRADO] | 2026-04-13 | tokens vazados expiraram naturalmente; Vercel deprovisionado |
+| Remocao dos .env do indice git | [OK] | 2026-04-19 | commit `def6640` |
+| Apagar dumps Vercel do disco | [OK] | 2026-04-19 | `.env.pulled`, `.env.vercel.tmp`, `.env.vercel`, `.env.production-new` |
+| Pre-commit hook versionado | [OK] | 2026-04-19 | commit `56ec62c` — `.githooks/pre-commit` ativa via `git config core.hooksPath .githooks` |
+| `.gitignore` cobre `backend/.env.*` | [OK] | - | validado com `git check-ignore` |
 
-### 2. AZURE_CLIENT_SECRET
-- **Valor vazado:** `V4z8Q~[REVOGADO-EM-2026-04-16]` (secret antigo ja revogado no portal Azure)
-- **App ID:** `fd564fde-1ec9-411c-a278-c03dcc3f7bb4`
-- **Tenant:** `aadb5cad-6c69-4d6d-a942-e027203a4675`
-- **Acao:**
-  1. Portal Azure -> Azure Active Directory -> App registrations -> PLUMAR (client_id acima)
-  2. Certificates & secrets -> New client secret -> gerar novo, copiar
-  3. Deletar o segredo antigo (ou marcar como expirado ate voce confirmar o novo funcionando)
-  4. `cd backend && npx wrangler secret put AZURE_CLIENT_SECRET`
+## Risco Residual
 
-### 3. MERCADOPAGO_ACCESS_TOKEN
-- **Valor vazado:** `APP_USR-7393474620448478-041410-...-8673073`
-- **Impacto:** acesso a conta do Mercado Pago (cobrancas, webhooks).
-- **Acao:**
-  1. Painel Mercado Pago -> Credenciais
-  2. Rotacionar access token de producao
-  3. `cd backend && npx wrangler secret put MERCADOPAGO_ACCESS_TOKEN`
-  4. Atualizar eventuais webhooks/configs que usem o token antigo
+**Historico publico do git:** contem dois `VERCEL_OIDC_TOKEN` (commits anteriores).
+Ambos com `exp: 1776263087` / `1776242536` — **expirados em 13/abril/2026**.
+Inuteis para ataque. **Nao ha necessidade de `git filter-repo`.**
 
-## Prioridade MEDIA (verificar mas provavelmente expirado)
+Os secrets criticos (JWT_SECRET, AZURE_CLIENT_SECRET, MERCADOPAGO_ACCESS_TOKEN
+com valor completo) **nunca entraram no historico publico** — o commit `d21268b`
+que continha `.env.production-pulled` foi desfeito localmente pelo script
+`HIGIENIZACAO-URGENTE.ps1` antes do push.
 
-### 4. VERCEL_OIDC_TOKEN (dois valores diferentes vazaram)
-- **Expiracao:** ambos com `exp: 1776263087` (~13/abril/2026) - **JA EXPIRARAM**
-- **Acao:**
-  1. Verificar no painel Vercel se a sessao correspondente foi revogada
-  2. Como voce migrou para Cloudflare, pode simplesmente deletar a conta/projeto Vercel
-  3. Nao e necessario rotacionar (token expirado e inutil)
+## Proximas camadas (opcionais)
 
-## Verificacao pos-rotacao
+1. Instalar `gitleaks` no pipeline CI para detectar secret em PR antes do merge.
+2. Adicionar `dependabot` e `codeql` ja estao ativos — revisar alertas mensalmente.
+3. Rotacao periodica (180 dias) do JWT_SECRET como pratica.
+4. Considerar `mise` / `dotenvx` para gerir secrets localmente sem `.env` em disco.
 
-Apos rotacionar os criticos, teste:
-1. Login em producao (valida JWT_SECRET novo)
-2. Pagamento via Mercado Pago (ambiente sandbox primeiro)
-3. Integracao Azure (se aplicavel ao fluxo atual)
+## Verificacao pos-higienizacao
 
-## Auditoria recomendada (opcional)
+- [x] Login em producao testado — JWT novo funcional
+- [x] Pagamento Mercado Pago sandbox OK
+- [x] Build Cloudflare Pages verde
+- [x] `git ls-files | grep -i env` retorna apenas `*.example`
+- [x] Hook bloqueia `.test.env` em teste local (exit 1)
 
-Apos estabilizar, rode no diretorio do repo:
-```
-git log --all --full-history -p -- backend/.env.production-pulled
+## Auditoria historica (opcional)
+
+```bash
+# ver todas as versoes que passaram pelo git
 git log --all --full-history -p -- backend/.env.pulled
 git log --all --full-history -p -- backend/.env.vercel.tmp
 ```
-Para ver todas as versoes dos secrets que passaram pelo git.
 
-## Prevencao
+## Prevencao ativa
 
-Apos isso resolvido, instale um pre-commit hook que barra arquivos .env
-(exceto .example). Exemplo usando `gitleaks`:
+- `.githooks/pre-commit` bloqueia:
+  - `*.env` e `*.env.*` (exceto `*.example`)
+  - Padroes: AWS key, Google API, GitHub token, Slack, Mercado Pago, PEM, JWT, Azure secret
+- `.gitignore` cobre `backend/.env.*` e `.env.*` globais
+- `setup-secrets.ps1` fica fora do git (gitignored)
 
+Ativar hooks apos clone:
+```bash
+git config core.hooksPath .githooks
 ```
-scoop install gitleaks
-gitleaks detect --source . --verbose
-```
-
-E considere desligar o script de auto-commit "alteracoes automaticas via
-PLUMAR" ate que ele tenha um filtro explicito de arquivos (nunca git add .).
