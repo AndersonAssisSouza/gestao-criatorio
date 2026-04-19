@@ -188,7 +188,7 @@ export function IndicacoesModule() {
                     padding: '3px 10px', borderRadius: 12, fontSize: 11, fontWeight: 600,
                   }}>{p.cupom.status}</span>
                 </div>
-                <div style={{ fontSize: 26, fontFamily: "'DM Serif Display', serif", fontWeight: 700, fontFamily: 'monospace' }}>
+                <div style={{ fontSize: 26, fontFamily: 'monospace', fontWeight: 700 }}>
                   {p.cupom.codigo}
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>

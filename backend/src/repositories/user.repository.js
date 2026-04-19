@@ -17,7 +17,6 @@ function hydrateUser(user) {
 
   if (user.subscriptionStatus) {
     return {
-      notificationHistory: [],
       ...user,
       notificationHistory: Array.isArray(user.notificationHistory) ? user.notificationHistory : [],
     }
