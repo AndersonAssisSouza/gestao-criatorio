@@ -104,11 +104,13 @@ async function saveLeadToDatabase(nome, email, origem, ip) {
 
 /**
  * GET /api/contact/leads
- * Lista leads cadastrados (protegido por API key simples)
+ * Lista leads cadastrados (protegido por API key via header obrigatorio)
+ * Motivo: query strings vazam via logs de servidor/proxy, histórico do
+ * navegador e Referer. Header e o canal correto para credenciais.
  */
 router.get('/leads', async (req, res) => {
   try {
-    const apiKey = req.headers['x-api-key'] || req.query.key
+    const apiKey = req.headers['x-api-key']
     const expectedKey = process.env.LEADS_API_KEY || process.env.ADMIN_API_KEY
 
     if (!expectedKey || apiKey !== expectedKey) {
