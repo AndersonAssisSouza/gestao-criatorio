@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { LoginPage }        from './components/auth/LoginPage'
+import { EmailVerifyPage }  from './components/auth/EmailVerifyPage'
 import { LandingPage }      from './components/landing/LandingPage'
 import { AfiliadosPage }    from './components/landing/AfiliadosPage'
 import { Sidebar }          from './components/layout/Sidebar'
@@ -23,6 +24,7 @@ import { ConfiguracoesModule } from './components/modules/configuracoes/Configur
 import { AjudaModule }        from './components/modules/ajuda/AjudaModule'
 import { IndicacoesModule }   from './components/modules/indicacoes/IndicacoesModule'
 import { LimitedTierBanner } from './components/shared/LimitedTierBanner'
+import { EmailVerifyBanner } from './components/shared/EmailVerifyBanner'
 import { BRAND } from './brand'
 
 const PAGE_META = {
@@ -148,6 +150,7 @@ function Dashboard() {
       <Sidebar activePage={resolvedPage} onNavigate={navigateTo} isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="app-main">
         <Topbar onOpenMenu={() => setSidebarOpen(true)} />
+        <EmailVerifyBanner user={user} />
         <LimitedTierBanner access={user?.access} onGoToSubscription={() => navigateTo('assinatura')} />
         <div className="app-content">
           {resolvedPage === 'plantel'    && <PlantelModule />}
@@ -175,12 +178,19 @@ function Dashboard() {
 function AppRouter() {
   const { isAuthenticated, loading } = useAuth()
   const [showLogin, setShowLogin] = useState(false)
-  const [publicPage, setPublicPage] = useState('landing') // landing | afiliados
+  const [publicPage, setPublicPage] = useState('landing') // landing | afiliados | verify-email
+  const [verifyToken, setVerifyToken] = useState('')
 
   // Detecta parâmetros da URL
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    if (params.get('token') || params.get('mode') === 'reset-password') {
+    const mode = params.get('mode')
+    if (mode === 'verify-email') {
+      setVerifyToken(params.get('token') || '')
+      setPublicPage('verify-email')
+      return
+    }
+    if (params.get('token') || mode === 'reset-password') {
       setShowLogin(true)
     }
     if (params.get('page') === 'afiliados' || window.location.pathname.includes('/afiliados')) {
@@ -202,6 +212,19 @@ function AppRouter() {
       </div>
     </div>
   )
+
+  // Verificação de e-mail (pública, via link no e-mail)
+  if (publicPage === 'verify-email') {
+    return (
+      <EmailVerifyPage
+        token={verifyToken}
+        onContinue={() => {
+          setPublicPage('landing')
+          setShowLogin(true)
+        }}
+      />
+    )
+  }
 
   // Página de afiliados é pública — mostra mesmo se autenticado
   if (publicPage === 'afiliados') {

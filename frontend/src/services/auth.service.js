@@ -66,6 +66,16 @@ const mockAuth = {
   async resetPassword(token, password) {
     return { message: 'Senha redefinida com sucesso.' }
   },
+  async verifyEmail(token) {
+    return { message: 'E-mail verificado (mock).' }
+  },
+  async resendVerification(email) {
+    return { message: 'Se a conta existir e ainda não estiver verificada, reenviaremos o e-mail.' }
+  },
+  async logoutAll() {
+    window.sessionStorage.removeItem('plumar_mock_user')
+    return { message: 'Todas as sessões encerradas (mock).' }
+  },
   async logout() {
     window.sessionStorage.removeItem('plumar_mock_user')
   },
@@ -112,6 +122,25 @@ const realAuth = {
   async resetPassword(token, password) {
     const { data } = await api.post('/api/auth/reset-password', { token, password })
     return data
+  },
+  async verifyEmail(token) {
+    const { data } = await api.get('/api/auth/verify-email', { params: { token } })
+    return data
+  },
+  async resendVerification(email) {
+    const payload = email ? { email } : {}
+    const { data } = await api.post('/api/auth/resend-verification', payload)
+    return data
+  },
+  async logoutAll() {
+    try {
+      const { data } = await api.post('/api/auth/logout-all')
+      clearToken()
+      return data
+    } catch (err) {
+      clearToken()
+      throw err
+    }
   },
   async logout() {
     try { await api.post('/api/auth/logout') } catch (_) {}
