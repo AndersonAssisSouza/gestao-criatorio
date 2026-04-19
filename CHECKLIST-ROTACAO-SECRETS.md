@@ -33,10 +33,20 @@ que continha `.env.production-pulled` foi desfeito localmente pelo script
 
 ## Proximas camadas (opcionais)
 
-1. Instalar `gitleaks` no pipeline CI para detectar secret em PR antes do merge.
-2. Adicionar `dependabot` e `codeql` ja estao ativos — revisar alertas mensalmente.
+1. ~~Instalar `gitleaks` no pipeline CI~~ → **SUBSTITUIDO** por GitHub Secret Scanning + Push Protection (2026-04-19)
+2. ~~`dependabot` e `codeql`~~ → **ATIVADOS** Secret Scanning, Push Protection, Dependabot Security Updates (2026-04-19)
 3. Rotacao periodica (180 dias) do JWT_SECRET como pratica.
 4. Considerar `mise` / `dotenvx` para gerir secrets localmente sem `.env` em disco.
+
+## Melhorias de segurança aplicadas 2026-04-19 (adicional)
+
+- **GitHub Secret Scanning + Push Protection**: ativos — bloqueio automatico de secrets em push
+- **Dependabot Security Updates**: ativo — PRs automaticos para CVEs
+- **Branch protection em master**: status checks obrigatorios (Tests + Security Audit), no force push, no deletion
+- **Frontend dependencies**: vite 5 → 7, axios atualizado, follow-redirects — 0 vulnerabilidades npm audit
+- **CodeQL errors**: 2 `js/overwritten-property` corrigidos (user.repository.js, IndicacoesModule.jsx)
+- **API key em query string**: removido de /api/contact/leads — apenas header `x-api-key` agora
+- **Rate limiting global**: aplicado em `/api/*` como defesa em profundidade
 
 ## Verificacao pos-higienizacao
 
