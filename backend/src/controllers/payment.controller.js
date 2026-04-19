@@ -57,12 +57,13 @@ function verifyMercadoPagoSignature(req, dataId) {
   if (!secret) return decide(false, 'secret_ausente')
   if (!signatureHeader || !requestId) return decide(false, 'headers_ausentes')
 
-  // Parse "ts=123,v1=abc"
+  // Parse "ts=123,v1=abc". Whitelist de chaves esperadas previne prototype
+  // pollution via valores como __proto__=X ou constructor=X no header.
   const parts = String(signatureHeader).split(',').reduce((acc, pair) => {
     const [k, v] = pair.split('=').map((s) => s.trim())
-    if (k && v) acc[k] = v
+    if ((k === 'ts' || k === 'v1') && v) acc[k] = v
     return acc
-  }, {})
+  }, Object.create(null))
 
   const ts = parts.ts
   const providedV1 = parts.v1

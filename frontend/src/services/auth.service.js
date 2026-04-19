@@ -22,7 +22,6 @@ function buildMockUser(email, name) {
     }
   }
 
-  const now = new Date().toISOString()
   const trialEnd = new Date(Date.now() + 7 * 86400000).toISOString()
   // Sincroniza com o mock de acesso
   const access = {
@@ -44,8 +43,6 @@ function buildMockUser(email, name) {
     access,
   }
 }
-
-const MOCK_USER = buildMockUser('admin@plumar.com', 'Anderson Assis')
 
 const mockAuth = {
   async login(email, password) {

@@ -98,8 +98,15 @@ async function createCheckoutPreference({ payment, user, method }) {
 }
 
 async function getPaymentById(paymentId) {
+  // Defesa contra SSRF/path-traversal: aceita apenas IDs numericos (formato MP).
+  // paymentId vem do webhook body que, embora autenticado por HMAC, ainda pode
+  // conter caracteres controlados pelo atacante antes da validacao HMAC.
+  const safeId = String(paymentId || '').trim()
+  if (!/^\d+$/.test(safeId)) {
+    throw new Error(`paymentId inválido (não numérico): ${safeId.slice(0, 32)}`)
+  }
   const config = getPaymentGatewayConfig()
-  const { data } = await api.get(`/v1/payments/${paymentId}`, {
+  const { data } = await api.get(`/v1/payments/${encodeURIComponent(safeId)}`, {
     headers: {
       Authorization: `Bearer ${config.mercadoPago.accessToken}`,
     },

@@ -15,10 +15,6 @@ const FILES = {
   ovos: 'ovos.json',
 }
 
-async function ensureStorageDir() {
-  return DEFAULT_STORAGE_DIR
-}
-
 function getFilePath(collectionName) {
   const fileName = FILES[collectionName]
 

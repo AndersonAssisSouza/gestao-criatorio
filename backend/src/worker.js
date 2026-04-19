@@ -24,8 +24,6 @@ const { attachCurrentUser, requireAccess, requireOwner } = require('./middleware
 const { apiLimiter, loginLimiter, registerLimiter } = require('./middleware/rateLimit')
 
 const { sendEmail } = require('./services/email.service')
-const { getPaymentGatewayConfig } = require('./config/payment-gateway.config')
-const axios = require('axios')
 
 // ---------------------------------------------------------------------------
 // Express-to-Hono compatibility layer
@@ -622,7 +620,7 @@ contact.post('/', async (c) => {
       // empty
     }
 
-    const { nome, email, utm_source, utm_medium, utm_campaign, utm_content } = body
+    const { nome, email, utm_source, utm_medium, utm_campaign } = body
 
     if (!nome || !email) {
       return c.json({ success: false, message: 'Nome e email sao obrigatorios.' }, 400)

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { StatCard } from '../../shared/StatCard'
-import { StatusBadge } from '../../shared/StatusBadge'
 import { ConfirmModal } from '../../shared/ConfirmModal'
 import { speciesLookupService } from '../../../services/speciesLookup.service'
 import { speciesService } from '../../../services/species.service'

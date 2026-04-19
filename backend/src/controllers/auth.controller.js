@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs')
-const { SignJWT, jwtVerify } = require('jose')
+const { SignJWT } = require('jose')
 const crypto = require('crypto')
 const userRepository = require('../repositories/user.repository')
 const { sendEmail } = require('../services/email.service')
@@ -64,6 +64,8 @@ function passwordPolicyMessage() {
 }
 
 function isValidEmail(email = '') {
+  // RFC 5321: max 254 chars. Limite antes do regex previne ReDoS polinomial.
+  if (typeof email !== 'string' || email.length > 254) return false
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 

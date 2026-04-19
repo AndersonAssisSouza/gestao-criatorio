@@ -907,7 +907,7 @@ export function MutacoesModule() {
     let active = true
 
     if (!import.meta.env.VITE_API_URL) {
-      if (active) setMutationRecords([])
+      setMutationRecords([])
       return () => { active = false }
     }
 

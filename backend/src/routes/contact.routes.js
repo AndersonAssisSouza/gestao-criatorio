@@ -159,8 +159,9 @@ router.post('/', async (req, res) => {
     }
 
     // Normalização + limite de tamanho (evita payload abusivo)
-    const nomeNorm = String(nome || '').trim().slice(0, 120)
-    const emailNorm = String(email || '').trim().toLowerCase().slice(0, 160)
+    // `nome`/`email` ja garantidos truthy pela validacao acima — `|| ''` era redundante.
+    const nomeNorm = String(nome).trim().slice(0, 120)
+    const emailNorm = String(email).trim().toLowerCase().slice(0, 160)
 
     // Valida nome com charset seguro (letras, números, espaço, acentos, hífen, apóstrofo, ponto)
     if (!/^[A-Za-zÀ-ÿ0-9\s.'-]{2,120}$/.test(nomeNorm)) {
@@ -180,7 +181,6 @@ router.post('/', async (req, res) => {
     const utmS = sanitizeUtm(utm_source)
     const utmM = sanitizeUtm(utm_medium)
     const utmC = sanitizeUtm(utm_campaign)
-    const utmCo = sanitizeUtm(utm_content)
 
     // Rate limiting
     const clientIp = req.ip || req.connection?.remoteAddress

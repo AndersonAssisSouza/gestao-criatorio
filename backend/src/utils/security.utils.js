@@ -40,10 +40,12 @@ function parseCookies(cookieHeader = '') {
       const separatorIndex = part.indexOf('=')
       if (separatorIndex < 0) return acc
       const key = part.slice(0, separatorIndex).trim()
+      // Previne prototype pollution via chaves como __proto__, constructor, prototype
+      if (key === '__proto__' || key === 'constructor' || key === 'prototype') return acc
       const value = decodeURIComponent(part.slice(separatorIndex + 1))
       acc[key] = value
       return acc
-    }, {})
+    }, Object.create(null))  // null prototype: defesa adicional contra pollution
 }
 
 function serializeCookie(name, value, options = {}) {

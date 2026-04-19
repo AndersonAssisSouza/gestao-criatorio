@@ -30,7 +30,11 @@ function normalizePayload(body = {}) {
 }
 
 function splitRingCode(value = '') {
-  const match = String(value).match(/^(.*?)(\d+)$/)
+  // Limite de 64 chars previne ReDoS no backtracking de `(.*?)`.
+  // Anilhas reais tem ate ~20 chars. Valor maior e invalido de qualquer forma.
+  const str = String(value)
+  if (str.length > 64) return null
+  const match = str.match(/^(.*?)(\d+)$/)
   if (!match) return null
 
   return {
