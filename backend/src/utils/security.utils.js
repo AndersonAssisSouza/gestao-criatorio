@@ -32,20 +32,30 @@ function buildAccessKeys(user = {}) {
 }
 
 function parseCookies(cookieHeader = '') {
-  return cookieHeader
-    .split(';')
-    .map((chunk) => chunk.trim())
-    .filter(Boolean)
-    .reduce((acc, part) => {
-      const separatorIndex = part.indexOf('=')
-      if (separatorIndex < 0) return acc
-      const key = part.slice(0, separatorIndex).trim()
-      // Previne prototype pollution via chaves como __proto__, constructor, prototype
-      if (key === '__proto__' || key === 'constructor' || key === 'prototype') return acc
-      const value = decodeURIComponent(part.slice(separatorIndex + 1))
-      acc[key] = value
-      return acc
-    }, Object.create(null))  // null prototype: defesa adicional contra pollution
+  // Map e imune a prototype pollution (CodeQL js/remote-property-injection):
+  // Map.set() nao toca em propriedades herdadas (__proto__, constructor).
+  // Wrapper com get/has para manter API compativel com o codigo existente que
+  // usa cookies[key].
+  const map = new Map()
+  for (const chunk of cookieHeader.split(';')) {
+    const part = chunk.trim()
+    if (!part) continue
+    const separatorIndex = part.indexOf('=')
+    if (separatorIndex < 0) continue
+    const key = part.slice(0, separatorIndex).trim()
+    if (!key) continue
+    const value = decodeURIComponent(part.slice(separatorIndex + 1))
+    map.set(key, value)
+  }
+  return new Proxy(Object.create(null), {
+    get: (_, prop) => (typeof prop === 'string' ? map.get(prop) : undefined),
+    has: (_, prop) => (typeof prop === 'string' ? map.has(prop) : false),
+    ownKeys: () => Array.from(map.keys()),
+    getOwnPropertyDescriptor: (_, prop) =>
+      typeof prop === 'string' && map.has(prop)
+        ? { value: map.get(prop), enumerable: true, configurable: true }
+        : undefined,
+  })
 }
 
 function serializeCookie(name, value, options = {}) {

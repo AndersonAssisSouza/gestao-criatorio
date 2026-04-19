@@ -27,7 +27,6 @@ export function CuponsPanel() {
   const [loading, setLoading] = useState(true)
   const [cupons, setCupons] = useState([])
   const [tiers, setTiers] = useState({})
-  const [rules, setRules] = useState({})
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [pedidosPendentes, setPedidosPendentes] = useState([])
@@ -50,7 +49,6 @@ export function CuponsPanel() {
       ])
       setCupons(response.items || [])
       setTiers(response.tiers || {})
-      setRules(response.rules || {})
       setPedidosPendentes(pedidos.pendentes || [])
       setError('')
     } catch (e) {

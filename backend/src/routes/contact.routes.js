@@ -148,7 +148,7 @@ router.get('/leads', async (req, res) => {
  */
 router.post('/', async (req, res) => {
   try {
-    const { nome, email, utm_source, utm_medium, utm_campaign, utm_content } = req.body
+    const { nome, email, utm_source, utm_medium, utm_campaign } = req.body
 
     // Validação básica
     if (!nome || !email) {

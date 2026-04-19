@@ -3,7 +3,6 @@ import { StatCard }      from '../../shared/StatCard'
 import { StatusBadge }   from '../../shared/StatusBadge'
 import { ConfirmModal }  from '../../shared/ConfirmModal'
 import { plantelService } from '../../../services/plantel.service'
-import { accessService } from '../../../services/access.service'
 
 // ─── MOCK — dados reais do SharePoint ────────────────────────────────────────
 const MOCK_ALL = [
@@ -19,12 +18,6 @@ const MOCK_ALL = [
   { ID: 10, Nome: 'Bandite', Status: 'Vivo', NomeMae: '', NomePai: '', Gaiola: '003', DataNascimento: '', CategoriaAve: 'canário belga', Genero: 'Macho', Origem: 'Criatório Assis', RegistroFOB: '', AnelEsquerdo: '', Mutacao: '', Acesso: 'Anderson Assis', observacao: '' },
   { ID: 11, Nome: 'Pardinha', Status: 'Vivo', NomeMae: 'Manchinha', NomePai: 'Pardinho', Gaiola: '003', DataNascimento: '2025-11-18', CategoriaAve: 'Tarim', Genero: 'Femea', Origem: 'Criatório Assis', RegistroFOB: '5177616', AnelEsquerdo: '002', Mutacao: 'Canela Pastel', Acesso: 'Anderson Assis', observacao: '' },
 ]
-
-const MOCK_ESPECIES = [{ Especie: 'Tarim' }, { Especie: 'canário belga' }]
-const MOCK_GAIOLAS = [{ NumeroGaiola: '001' }, { NumeroGaiola: '002' }, { NumeroGaiola: '003' }]
-const MOCK_CRIATORIOS = [{ NomeCriatorio: 'Criatório Assis' }, { NomeCriatorio: 'Criatório 2W' }]
-const MOCK_ANEIS = [{ NumeroAnel: '033' }, { NumeroAnel: '002' }, { NumeroAnel: 'JI783' }]
-const MOCK_MUTACOES = ['Ancestral', 'Canela', 'Pastel', 'Canela Pastel', 'Portador de Canela', 'Duplo Diluído', 'Topázio', 'Diluído']
 
 const USE_MOCK = !import.meta.env.VITE_API_URL
 
@@ -49,13 +42,6 @@ function normalizeEspecie(value = '') {
 
 export function ExPlantelModule() {
   const [data,       setData]       = useState([])
-  const [catalogs, setCatalogs] = useState({
-    especies: MOCK_ESPECIES.map((item) => item.Especie),
-    gaiolas: MOCK_GAIOLAS.map((item) => item.NumeroGaiola),
-    criatorios: MOCK_CRIATORIOS.map((item) => item.NomeCriatorio),
-    aneis: MOCK_ANEIS.map((item) => item.NumeroAnel),
-    mutacoes: MOCK_MUTACOES,
-  })
   const [loading,    setLoading]    = useState(true)
   const [search,     setSearch]     = useState('')
   const [selected,   setSelected]   = useState(null)
@@ -68,31 +54,9 @@ export function ExPlantelModule() {
     if (USE_MOCK) {
       setTimeout(() => { setData(MOCK_ALL); setLoading(false) }, 400)
     } else {
-      Promise.all([
-        plantelService.listar(),
-        accessService.getImportedSharePointData(),
-      ])
-        .then(([response, snapshot]) => {
+      plantelService.listar()
+        .then((response) => {
           setData(response.items || [])
-          const mutacoes = [
-            ...(snapshot.mutacoes || []).flatMap((item) => [
-              item.MutacaoMacho,
-              item.MutacaoFemea,
-              item.MutacaoFilhoteMacho,
-              item.MutacaoFilhoteFemea,
-            ]),
-            ...(response.items || []).map((item) => item.Mutacao),
-          ]
-            .filter(Boolean)
-            .filter((value, index, array) => array.indexOf(value) === index)
-
-          setCatalogs({
-            especies: (snapshot.especies || []).map((item) => item.Especie).filter(Boolean),
-            gaiolas: (snapshot.gaiolas || []).map((item) => item.NumeroGaiola).filter(Boolean),
-            criatorios: (snapshot.criatorios || []).map((item) => item.NomeCriatorio).filter(Boolean),
-            aneis: (snapshot.aneis || []).map((item) => item.NumeroAnel).filter(Boolean),
-            mutacoes: mutacoes.length > 0 ? mutacoes : MOCK_MUTACOES,
-          })
           setError('')
         })
         .catch((requestError) => {
