@@ -11,7 +11,7 @@
 | AZURE_CLIENT_SECRET rotacionado | [OK] | 2026-04-16 | secret antigo revogado no portal; novo em `wrangler` |
 | MERCADOPAGO_ACCESS_TOKEN rotacionado | [OK] | 2026-04-16 | novo token aplicado no Worker em 2026-04-19 via workflow `set-worker-secrets` (antes estava falhando) |
 | MP token antigo revogado | [OK] | 2026-04-16 | valido: 041410-... retorna HTTP 401 no teste |
-| MERCADOPAGO_WEBHOOK_SECRET | [PENDENTE] | - | ver `docs/MERCADOPAGO_WEBHOOK_SETUP.md` — webhook roda em modo `observe` ate configurar |
+| MERCADOPAGO_WEBHOOK_SECRET | [OK] | 2026-04-19 | obtido via DevTools no painel MP; aplicado no Worker; modo `enforce` validado (HMAC invalido retorna 401, valido passa) |
 | VERCEL_OIDC_TOKEN | [EXPIRADO] | 2026-04-13 | tokens vazados expiraram naturalmente; Vercel deprovisionado |
 | Remocao dos .env do indice git | [OK] | 2026-04-19 | commit `def6640` |
 | Apagar dumps Vercel do disco | [OK] | 2026-04-19 | `.env.pulled`, `.env.vercel.tmp`, `.env.vercel`, `.env.production-new` |
